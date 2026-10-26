@@ -12,11 +12,8 @@ import type { Tier } from '$lib/game/missions';
 import type { TickEffects } from './db/schema';
 import type { Tx } from './db';
 
-export interface Notice {
-	kind: 'xp' | 'gp' | 'level' | 'stat' | 'pet' | 'egg' | 'item' | 'info' | 'warn';
-	text: string;
-	icon?: string;
-}
+import type { Notice } from '$lib/notices';
+export type { Notice };
 
 export interface Ctx {
 	tx: Tx;

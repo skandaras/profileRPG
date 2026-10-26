@@ -1,0 +1,69 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+# A newer push to the same branch makes an older run's answer irrelevant, except
+# on main, where a cancelled run would also cancel its deploy.
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: ${{ github.ref != 'refs/heads/main' }}
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - run: npm run lint
+      - run: npm run check
+      - run: npm test
+      - run: npm run build
+      - name: Install Chromium for the browser smoke test
+        run: npx playwright install chromium
+      - name: Browser smoke test
+        run: npm run test:ui
+      - name: Keep the screenshots
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: ui-screenshots
+          path: test-results/ui/
+          retention-days: 7
+          if-no-files-found: ignore
+
+  # Every push to main ships, but only once the tests above pass. Same steps as
+  # the homeserver repo's deploy: pull, copy this app's own Caddy site file,
+  # rebuild, reload Caddy.
+  deploy:
+    needs: test
+    if: github.ref == 'refs/heads/main' && (github.event_name == 'push' || github.event_name == 'workflow_dispatch')
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    concurrency:
+      group: deploy
+      cancel-in-progress: false
+    steps:
+      - name: Deploy via SSH
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.DEPLOY_HOST }}
+          username: andrew
+          key: ${{ secrets.DEPLOY_SSH_KEY }}
+          command_timeout: 15m
+          script: |
+            set -e
+            cd ~/profileRPG
+            git pull --ff-only origin main
+            # Only this app's own site file, never the shared Caddyfile
+            cp caddy/levelup.caddy ~/stack/caddy/sites-enabled/levelup.caddy
+            docker compose up -d --build
+            docker exec "$(docker ps --filter 'ancestor=caddy:2' --format '{{.Names}}')" caddy reload --config /etc/caddy/Caddyfile 2>/dev/null || true

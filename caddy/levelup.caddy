@@ -1,0 +1,5 @@
+levelup.starbasehome.net {
+    log
+    import authelia
+    reverse_proxy levelup:3000
+}

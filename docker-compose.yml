@@ -1,0 +1,32 @@
+# LevelUp at levelup.starbasehome.net.
+#
+# Caddy (on shared_net) terminates TLS, asks Authelia who you are, and forwards
+# Remote-User / Remote-Name / Remote-Email / Remote-Groups. The app believes
+# those headers only from TRUSTED_PROXY_IPS, set in the server's .env (see
+# README). The SQLite database lives in the levelup-data volume.
+
+name: levelup
+
+services:
+  levelup:
+    build: .
+    restart: unless-stopped
+    environment:
+      AUTH_MODE: authelia
+      ORIGIN: https://levelup.starbasehome.net
+      TRUSTED_PROXY_IPS: ${TRUSTED_PROXY_IPS:?set to the shared_net subnet, see README}
+      # Optional second lock behind Authelia's own access rule.
+      ALLOWED_GROUP: ${ALLOWED_GROUP:-}
+    volumes:
+      - levelup-data:/data
+    expose:
+      - "3000"
+    networks:
+      - shared_net
+
+volumes:
+  levelup-data:
+
+networks:
+  shared_net:
+    external: true

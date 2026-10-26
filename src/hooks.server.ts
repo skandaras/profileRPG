@@ -1,15 +1,16 @@
 import type { Handle } from '@sveltejs/kit';
 import { error } from '@sveltejs/kit';
 import { env } from '$env/dynamic/private';
-import { runMigrations } from '$lib/server/db';
+import { db, runMigrations } from '$lib/server/db';
 import { isAllowed, isTrustedProxy, parseAuthHeaders } from '$lib/server/auth';
 import { provisionUser } from '$lib/server/users';
 import { findPlayer } from '$lib/server/modules/player';
-import { db } from '$lib/server/db';
+import { themeCss } from '$lib/content/themes';
 
 runMigrations();
 
 const PUBLIC_PATHS = new Set(['/healthz']);
+const THEME_CSS = themeCss();
 
 export const handle: Handle = async ({ event, resolve }) => {
 	event.locals.user = null;
@@ -36,6 +37,7 @@ export const handle: Handle = async ({ event, resolve }) => {
 	// The theme goes on <html> server-side, so a dark theme never flashes light first.
 	const theme = findPlayer(db, event.locals.user.id)?.themeId ?? 'meadow';
 	return resolve(event, {
-		transformPageChunk: ({ html }) => html.replace('data-theme="meadow"', `data-theme="${theme}"`)
+		transformPageChunk: ({ html }) =>
+			html.replace('data-theme="meadow"', `data-theme="${theme}"`).replace('/*themes*/', THEME_CSS)
 	});
 };
