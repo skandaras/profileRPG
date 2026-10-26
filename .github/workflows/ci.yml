@@ -52,7 +52,20 @@ jobs:
       group: deploy
       cancel-in-progress: false
     steps:
+      # Until the secrets exist there is nowhere to deploy to; skip rather than
+      # turn main red over setup that has not happened yet.
+      - name: Check the deploy secrets are set
+        id: secrets
+        env:
+          HOST: ${{ secrets.DEPLOY_HOST }}
+        run: |
+          if [ -n "$HOST" ]; then
+            echo "ready=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "::notice::DEPLOY_HOST is not set yet, so nothing was deployed. See README, Deploy."
+          fi
       - name: Deploy via SSH
+        if: steps.secrets.outputs.ready == 'true'
         uses: appleboy/ssh-action@v1.0.3
         with:
           host: ${{ secrets.DEPLOY_HOST }}

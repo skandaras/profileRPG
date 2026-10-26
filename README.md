@@ -79,7 +79,8 @@ One-time setup:
    ENV
    ```
 4. **GitHub**: add `DEPLOY_HOST` and `DEPLOY_SSH_KEY` as Actions secrets on this repo
-   (the same values the homeserver repo uses).
+   (the same values the homeserver repo uses). Until they exist, CI skips the deploy step.
+   Once they are in, run **CI** on `main` from the Actions tab for the first deploy.
 5. Optionally, add a tile to the homepage dashboard (`homepage/server.py` in the
    homeserver repo) for the `levelup-users` group.
 
