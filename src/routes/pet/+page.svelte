@@ -13,6 +13,11 @@
 	const others = $derived(data.pets.filter((p) => !p.active && p.stage !== 'egg'));
 	const eggs = $derived(data.pets.filter((p) => p.stage === 'egg'));
 	let renaming = $state(false);
+	let renameInput: HTMLInputElement | undefined = $state();
+	let renameButton: HTMLButtonElement | undefined = $state();
+	$effect(() => {
+		if (renaming) renameInput?.focus();
+	});
 
 	const wait = (ms: number) => {
 		const m = Math.ceil(ms / 60_000);
@@ -22,66 +27,57 @@
 
 <svelte:head><title>Pet · LevelUp</title></svelte:head>
 
+<div class="page-heading"><h1>Pet care</h1><span class="small soft">Your companion</span></div>
+
 {#if companion}
-	<section class="box companion">
-		<div class="spread">
-			<div>
-				<h1>{companion.name}</h1>
-				<p class="small soft">
-					Level {companion.level} {companion.speciesName} · {companion.stage} · loves {companion.affinity.map((a) => STATS[a].name).join(' & ')}
-				</p>
+	<section class="companion">
+		<div class="box pet-summary">
+			<div class="pet-info">
+				<h2>{companion.name}</h2>
+				<p class="small soft">{companion.speciesName} · <span class="numeral">Lv {companion.level}</span><br />{companion.stage} · loves {companion.affinity.map((a) => STATS[a].name).join(' & ')}</p>
+				<p class="pet-mood small soft">{companion.away ? `${companion.name} is away on a mission.` : `${companion.name} ${MOOD_TEXT[companion.mood]}.`}</p>
+				<button bind:this={renameButton} class="rename small soft" type="button" onclick={() => (renaming = !renaming)} aria-expanded={renaming}>Rename</button>
 			</div>
-			<button class="btn ghost small" type="button" onclick={() => (renaming = !renaming)} aria-expanded={renaming}>Rename</button>
+			<PetSprite speciesId={companion.speciesId} stage={companion.stage} accessoryId={companion.accessoryId} mood={companion.mood} scale={4} label={companion.name} />
 		</div>
 		{#if renaming}
-			<form method="POST" action="?/rename" class="row" use:enhance={withNotices({ then: () => (renaming = false) })}>
+			<form method="POST" action="?/rename" class="row" use:enhance={withNotices({ then: (ok) => { if (ok) { renaming = false; renameButton?.focus(); } } })}>
 				<input type="hidden" name="pet" value={companion.id} />
 				<label class="sr-only" for="pet-name">New name</label>
-				<input id="pet-name" name="name" maxlength="24" value={companion.name} />
+				<input bind:this={renameInput} id="pet-name" name="name" maxlength="24" value={companion.name} />
 				<button class="btn small">Save</button>
 			</form>
 		{/if}
 
-		<div class="stage">
-			<PetSprite
-				speciesId={companion.speciesId}
-				stage={companion.stage}
-				accessoryId={companion.accessoryId}
-				mood={companion.mood}
-				scale={6}
-				label={companion.name}
-			/>
-		</div>
-		<p class="center">{companion.away ? `${companion.name} is away on a mission.` : `${companion.name} ${MOOD_TEXT[companion.mood]}.`}</p>
-
-		<div class="needs">
-			<div class="need"><PixelIcon name="food" /><span>Full</span><Bar value={companion.needs.fullness} max={100} color="var(--stat-str)" label="Fullness" /></div>
-			<div class="need"><PixelIcon name="joy" /><span>Joy</span><Bar value={companion.needs.joy} max={100} color="var(--stat-kno)" label="Joy" /></div>
-			<div class="need"><PixelIcon name="tidy" /><span>Tidy</span><Bar value={companion.needs.tidiness} max={100} color="var(--stat-int)" label="Tidiness" /></div>
-			<div class="need"><PixelIcon name="xp" /><span>Grow</span><Bar value={companion.xp} max={petXpToNext(companion.level)} color="var(--xp)" label="Growth to next level" /></div>
+		<div class="box needs">
+			<h2 class="sr-only">Daily care</h2>
+			<div class="need"><PixelIcon name="food" scale={1} /><span>Fullness</span><Bar value={companion.needs.fullness} max={100} label="Fullness" showValue /></div>
+			<div class="need"><PixelIcon name="joy" scale={1} /><span>Joy</span><Bar value={companion.needs.joy} max={100} label="Joy" showValue /></div>
+			<div class="need"><PixelIcon name="tidy" scale={1} /><span>Tidy</span><Bar value={companion.needs.tidiness} max={100} label="Tidiness" showValue /></div>
+			<div class="need"><PixelIcon name="xp" scale={1} /><span>Growth</span><Bar value={companion.xp} max={petXpToNext(companion.level)} color="var(--xp)" label="Growth to next level" showValue /></div>
 		</div>
 
 		{#if !companion.away}
 			<div class="care">
-				{#each [['pat', '💕 Pat', companion.cooldowns.pat], ['play', '🎾 Play', companion.cooldowns.play], ['tidy', '🧹 Tidy', companion.cooldowns.tidy]] as const as [action, label, cd] (action)}
+				{#each [['pat', 'Pat', companion.cooldowns.pat], ['play', 'Play', companion.cooldowns.play], ['tidy', 'Tidy', companion.cooldowns.tidy]] as const as [action, label, cd] (action)}
 					<form method="POST" action="?/{action}" use:enhance={withNotices()}>
 						<input type="hidden" name="pet" value={companion.id} />
-						<button class="btn wide" disabled={cd > 0}>{label}{cd > 0 ? ` (${wait(cd)})` : ''}</button>
+						<button class="btn ghost wide" disabled={cd > 0}>{label}{cd > 0 ? ` (${wait(cd)})` : ''}</button>
 					</form>
 				{/each}
 			</div>
 
-			<h3>Feed</h3>
+			<div class="spread feed-heading"><h2>Feed</h2><span class="small soft">From your bag</span></div>
 			{#if data.food.length}
 				<div class="food">
 					{#each data.food as f (f.id)}
 						<form method="POST" action="?/feed" use:enhance={withNotices()}>
 							<input type="hidden" name="pet" value={companion.id} />
 							<input type="hidden" name="item" value={f.id} />
-							<button class="tile" title={f.blurb}>
+							<button class="tile" title={f.blurb} aria-label="Feed {f.name} to {companion.name}">
 								<PixelIcon art={f.icon} tint={f.tint} scale={2} />
-								<span class="small">{f.name}</span>
-								<span class="chip">×{f.qty}</span>
+								<span class="food-description"><strong>{f.name}</strong><span class="small soft">{f.qty} in your bag{f.effect.fullness ? ` · +${f.effect.fullness} Full` : ''}{f.effect.joy ? ` · +${f.effect.joy} Joy` : ''}</span></span>
+								<span class="feed-label numeral">Feed</span>
 							</button>
 						</form>
 					{/each}
@@ -92,14 +88,14 @@
 		{/if}
 		{#if data.canForage}
 			<form method="POST" action="?/forage" use:enhance={withNotices()} style="margin-top:10px">
-				<button class="btn ghost wide">🫐 Forage for berries (free, once a day)</button>
+				<button class="btn ghost wide">Forage for berries (free, once a day)</button>
 			</form>
 		{/if}
 	</section>
 
 	{#if data.accessories.length}
 		<section class="box">
-			<h3>Dress up {companion.name}</h3>
+			<h2>Dress up {companion.name}</h2>
 			<form method="POST" action="?/accessory" use:enhance={withNotices()} class="row wrap">
 				<input type="hidden" name="pet" value={companion.id} />
 				<button class="btn small" class:ghost={!!companion.accessoryId} name="accessory" value="">Nothing</button>
@@ -153,50 +149,110 @@
 {/if}
 
 <style>
-	.stage {
-		display: flex;
-		justify-content: center;
-		padding: 12px;
-		background: linear-gradient(var(--sky) 0 70%, var(--floor) 70%);
-		border: 3px solid var(--line);
-		border-radius: 8px;
-		margin: 10px 0;
+	.companion {
+		margin-bottom: 24px;
 	}
 
-	.center {
-		text-align: center;
+	.pet-summary {
+		display: grid;
+		grid-template-columns: minmax(0, 1fr) 128px;
+		align-items: center;
+		gap: 8px;
+		min-height: 152px;
+		margin-bottom: 20px;
+		padding: 12px 16px;
+	}
+
+	.pet-info h2 {
+		font-size: 24px;
+		line-height: 28px;
+	}
+
+	.pet-info p {
+		margin-bottom: 0;
+	}
+
+	.rename {
+		background: none;
+		border: 0;
+		padding: 0;
+		font-family: inherit;
+		text-decoration: underline;
+		cursor: pointer;
+		min-height: 24px;
 	}
 
 	.needs {
 		display: grid;
-		gap: 6px;
-		margin-bottom: 14px;
+		gap: 4px;
+		margin-bottom: 20px;
 	}
 
 	.need {
 		display: grid;
-		grid-template-columns: 32px 3.5em 1fr;
+		grid-template-columns: 24px 48px 1fr;
 		align-items: center;
-		gap: 6px;
+		gap: 8px;
+		min-height: 32px;
+		font-size: 13px;
 	}
 
 	.care {
 		display: grid;
 		grid-template-columns: repeat(3, 1fr);
 		gap: 8px;
-		margin-bottom: 14px;
+		margin-bottom: 24px;
 	}
 
-	.food,
 	.nest {
 		display: grid;
-		grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
-		gap: 8px;
+		grid-template-columns: repeat(auto-fill, minmax(96px, 1fr));
+		gap: 12px;
+	}
+
+	.feed-heading {
+		margin-bottom: 16px;
+	}
+
+	.feed-heading h2 {
+		margin: 0;
+	}
+
+	.food {
+		display: grid;
+		gap: 12px;
 	}
 
 	.food .tile {
+		display: grid;
+		grid-template-columns: 32px 1fr auto;
+		align-items: center;
+		gap: 12px;
+		padding: 16px;
 		width: 100%;
+		min-height: 88px;
+		background: var(--bg-2);
+		text-align: left;
 	}
+
+	.food-description {
+		display: flex;
+		flex-direction: column;
+		gap: 4px;
+	}
+
+	.food-description strong {
+		font-size: 15px;
+		font-weight: 600;
+	}
+
+	.feed-label {
+		padding: 10px 12px;
+		background: var(--accent);
+		color: var(--accent-ink);
+		font-size: 18px;
+	}
+
 
 	.egg {
 		display: flex;

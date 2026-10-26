@@ -74,7 +74,7 @@ export const COSMETICS: Cosmetic[] = [
 	// hair
 	{ id: 'hair.short', slot: 'hair', name: 'Short', unlock: starter, layers: [layer(Z.hair, A.hairShort)] },
 	{ id: 'hair.spiky', slot: 'hair', name: 'Spiky', unlock: starter, layers: [layer(Z.hair, A.hairSpiky)] },
-	{ id: 'hair.bob', slot: 'hair', name: 'Bob', unlock: starter, layers: [layer(Z.hair, A.hairBob)] },
+	{ id: 'hair.bob', slot: 'hair', name: 'Curled bob', unlock: starter, layers: [layer(Z.back, A.hairBobBack), layer(Z.hair, A.hairBob)] },
 	{
 		id: 'hair.long',
 		slot: 'hair',

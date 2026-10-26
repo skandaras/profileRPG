@@ -18,6 +18,8 @@ export interface LayerSpec {
 	z: number;
 	art: Art;
 	palette: PaletteSet;
+	/** Pet PNGs carry final colours; avatar and accessory PNGs use reference channels. */
+	fixedColors?: boolean;
 	dx?: number;
 	dy?: number;
 }
@@ -60,7 +62,7 @@ export function petFigure(speciesId: string, stage: PetStage, accessoryId?: stri
 	const art = species.art[stage];
 	const palette = speciesPalette(species);
 	const layers: LayerSpec[] = [
-		{ z: 0, art: 'sprite' in art ? { sprite: art.sprite } : { png: art.png, w: PET.w, h: PET.h }, palette }
+		{ z: 0, art: 'sprite' in art ? { sprite: art.sprite } : { png: art.png, w: PET.w, h: PET.h, frames: art.frames }, palette, fixedColors: true }
 	];
 	const acc = accessoryId && stage !== 'egg' ? getPetAccessory(accessoryId) : undefined;
 	if (acc) {
@@ -96,7 +98,10 @@ export function paintFigure(fig: Figure, pngs: DecodedPngs = new Map()): RgbaIma
 			if ('sprite' in l.art) src = renderSprite(l.art.sprite, l.palette, frame);
 			else {
 				const png = pngs.get(l.art.png);
-				if (png) src = recolor(pngFrame(png, l.art.w, frame), REFERENCE_PALETTE, l.palette);
+				if (png) {
+					src = pngFrame(png, l.art.w, frame);
+					if (!l.fixedColors) src = recolor(src, REFERENCE_PALETTE, l.palette);
+				}
 			}
 			if (src) drawOver(img, src, l.dx ?? 0, l.dy ?? 0);
 		}

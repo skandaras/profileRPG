@@ -10,8 +10,9 @@
  *
  * Set CHROMIUM_PATH to use a browser other than Playwright's own.
  */
+import assert from 'node:assert/strict';
 import { spawn } from 'node:child_process';
-import { mkdirSync, mkdtempSync, rmSync } from 'node:fs';
+import { mkdirSync, mkdtempSync, readdirSync, rmSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { chromium } from 'playwright';
@@ -21,6 +22,9 @@ const BASE = `http://localhost:${PORT}`;
 const OUT = 'test-results/ui';
 const dataDir = mkdtempSync(join(tmpdir(), 'levelup-smoke-'));
 mkdirSync(OUT, { recursive: true });
+for (const file of readdirSync(OUT)) {
+	if (/^\d{2}-.+\.png$/.test(file)) rmSync(join(OUT, file));
+}
 
 const server = spawn('node', ['build'], {
 	env: { ...process.env, PORT: String(PORT), AUTH_MODE: 'dev', DEV_USER: 'smoke', DATA_DIR: dataDir, ORIGIN: BASE },
@@ -80,7 +84,7 @@ try {
 	await page.click('.parts .tile:has-text("Twin tails")');
 	await shot('onboarding-look');
 	await page.click('button:has-text("Next")');
-	await page.click('.starter:has-text("Emberkit")');
+	await page.click('.starter:has-text("Cindlet")');
 	await page.fill('#petname', 'Ember');
 	await page.click('button:has-text("Next")');
 	await shot('onboarding-habits');
@@ -90,10 +94,24 @@ try {
 	await expectText('Today');
 	await shot('home');
 
-	// Tick a habit and see the reward
+	// Tick and undo must restore both the count and the reward.
+	const xpBefore = await page.getByRole('meter', { name: 'Experience to next level' }).getAttribute('aria-valuenow');
+	const gpBefore = await page.locator('a.gp').textContent();
+	const orderBefore = await page.locator('.habit .name').allTextContents();
 	await submit(page.locator('button[aria-label="Tick off Go for a walk"]'));
 	await expectText('XP');
+	await expectText('1 of 3 done');
+	assert.equal(await page.locator('.habit.done').count(), 1);
+	assert.deepEqual(await page.locator('.habit .name').allTextContents(), orderBefore);
+	assert.ok(Number(await page.getByRole('meter', { name: 'Experience to next level' }).getAttribute('aria-valuenow')) > Number(xpBefore));
 	await shot('home-ticked');
+	await submit(page.getByRole('button', { name: 'Undo the last tick of Go for a walk', exact: true }).locator('.undo-label'));
+	await expectText('0 of 3 done');
+	assert.equal(await page.locator('.habit.done').count(), 0);
+	assert.equal(await page.getByRole('meter', { name: 'Experience to next level' }).getAttribute('aria-valuenow'), xpBefore);
+	assert.equal(await page.locator('a.gp').textContent(), gpBefore);
+	await shot('home-undone');
+	await submit(page.getByRole('button', { name: 'Tick off Go for a walk', exact: true }));
 
 	// A custom habit
 	await go('/habits/new');

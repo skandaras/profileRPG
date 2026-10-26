@@ -1,7 +1,6 @@
 /**
- * Pet species. The three starters are placeholders until the real designs
- * exist: change names, blurbs and art freely, but keep the ids, which are
- * stored on every pet row.
+ * Pet species. Names and drawings can change; ids are permanent because saved
+ * pets and inventory entries refer to them.
  */
 import * as P from '$lib/sprites/art/pets';
 import type { PetArt, PetStage } from '$lib/sprites/art/pets';
@@ -20,7 +19,7 @@ export interface Species {
 	rarity: Rarity;
 	palette: { primary: Ramp; secondary: Ramp; accent: Ramp };
 	/** Art per stage, or a PNG per stage with the same anchors. See docs/ART.md. */
-	art: Record<PetStage, PetArt | { png: string; anchors: PetArt['anchors'] }>;
+	art: Record<PetStage, PetArt | { png: string; frames?: number; anchors: PetArt['anchors'] }>;
 }
 
 const NONE: Ramp = ['#000000', '#000000', '#000000'];
@@ -39,17 +38,17 @@ const stages = (draw: (stage: 'baby' | 'teen' | 'adult') => PetArt): Species['ar
 export const SPECIES: Species[] = [
 	{
 		id: 'emberkit',
-		name: 'Emberkit',
-		blurb: 'A fox kit with a flame for a tail. Burns brighter the more you move.',
+		name: 'Cindlet',
+		blurb: 'A little garden dragon with warm scales and small golden wings. Happiest with you by its side.',
 		affinity: ['str'],
 		starter: true,
 		rarity: 'common',
 		palette: {
-			primary: ['#c1532a', '#ee8238', '#ffb46a'],
-			secondary: ['#e6cfa8', '#fff1d6', '#ffffff'],
-			accent: ['#d0451f', '#f5a524', '#ffe27a']
+			primary: ['#9b5140', '#cd815b', '#efbc83'],
+			secondary: ['#b2a77e', '#e5d9ae', '#fff2d3'],
+			accent: ['#9b652d', '#d9a84e', '#f7d998']
 		},
-		art: stages(P.emberkit)
+		art: { ...stages(P.emberkit), egg: P.cindletEgg() }
 	},
 	{
 		id: 'puddlefin',

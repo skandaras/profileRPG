@@ -1,11 +1,16 @@
 <script lang="ts">
+	import PixelIcon from './PixelIcon.svelte';
+	import { noticeIcon } from '$lib/sprites/ui-icons';
 	import { celebration, toasts } from '$lib/toasts.svelte';
 </script>
 
 <div class="toasts" aria-live="polite">
 	{#each toasts as t (t.id)}
 		<div class="toast box" class:warn={t.kind === 'warn'} class:level={t.kind === 'level'}>
-			{#if t.icon}<span aria-hidden="true">{t.icon}</span>{/if}
+			{#if t.icon}
+				{@const icon = noticeIcon(t.icon)}
+				{#if icon}<PixelIcon name={icon} scale={1} />{:else}<span aria-hidden="true">{t.icon}</span>{/if}
+			{/if}
 			<span>{t.text}</span>
 		</div>
 	{/each}
@@ -28,24 +33,31 @@
 <style>
 	.toasts {
 		position: fixed;
-		top: calc(env(safe-area-inset-top) + 64px);
+		bottom: calc(env(safe-area-inset-bottom) + 80px);
 		left: 50%;
 		transform: translateX(-50%);
 		width: min(420px, calc(100% - 32px));
 		z-index: 50;
 		pointer-events: none;
 		display: flex;
-		flex-direction: column;
+		flex-direction: row;
+		flex-wrap: wrap;
+		justify-content: center;
 		gap: 6px;
 	}
 
 	.toast {
 		margin: 0;
 		padding: 8px 12px;
+		border: 1px solid var(--line);
 		display: flex;
 		gap: 8px;
 		align-items: center;
 		animation: pop 180ms steps(3);
+	}
+
+	.toast::before {
+		display: none;
 	}
 
 	.toast.warn {

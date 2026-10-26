@@ -9,13 +9,14 @@
  * Shapes are drawn on the left and mirrored where the part is symmetric.
  */
 import { Pix, type Sprite } from '../grid';
+import * as Garden from './garden-avatar';
 import { AVATAR } from '../frames';
 
 const frame = () => new Pix(AVATAR.w, AVATAR.h);
 
 // ── Bodies ──────────────────────────────────────────────────────────────────
 
-function baseBody(ears: 'round' | 'pointed' | 'none'): Pix {
+function baseBody(ears: 'pointed' | 'none'): Pix {
 	const p = frame();
 	p.ellipse(15.5, 18, 7.5, 7, 'S');
 	p.rect(14, 25, 2, 2, 's');
@@ -26,7 +27,6 @@ function baseBody(ears: 'round' | 'pointed' | 'none'): Pix {
 	p.rect(9, 32, 2, 1, 't');
 	p.rect(12, 33, 3, 4, 'S');
 	p.rect(11, 37, 4, 2, 'S');
-	if (ears === 'round') p.rect(7, 18, 1, 3, 'S').set(7, 19, 's');
 	if (ears === 'pointed') {
 		p.set(4, 15, 'S').rect(4, 16, 2, 1, 'S').rect(5, 17, 3, 1, 'S').rect(6, 18, 2, 1, 'S').set(7, 19, 'S');
 		p.set(6, 17, 's').set(7, 18, 's');
@@ -40,7 +40,7 @@ function baseBody(ears: 'round' | 'pointed' | 'none'): Pix {
 	return p.outline();
 }
 
-export const bodyHuman = (): Sprite => baseBody('round').toSprite();
+export const bodyHuman = Garden.body;
 export const bodyElf = (): Sprite => baseBody('pointed').toSprite();
 export const bodyBeast = (): Sprite => baseBody('none').toSprite();
 
@@ -85,13 +85,7 @@ function blush(p: Pix) {
 	p.set(10, 22, 'r').set(11, 22, 'r').set(20, 22, 'r').set(21, 22, 'r');
 }
 
-export function faceBright(): Sprite {
-	const p = frame();
-	eyes(p, ['kkk', 'kwE', 'kEE', 'eff']);
-	mouth(p, ['mm']);
-	blush(p);
-	return p.toSprite();
-}
+export const faceBright = Garden.face;
 
 export function faceCheery(): Sprite {
 	const p = frame();
@@ -222,14 +216,7 @@ export function hairSpiky(): Sprite {
 	return shadeHair(p).toSprite();
 }
 
-export function hairBob(): Sprite {
-	const p = frame();
-	crown(p, 9.5);
-	p.rect(7, 17, 3, 8, 'H').set(10, 17, 'H').set(10, 18, 'H').rect(7, 25, 2, 1, 'H');
-	p.stamp(11, 17, ['HHHHH', 'HHH.H']);
-	p.mirror();
-	return shadeHair(p).toSprite();
-}
+export const hairBob = Garden.hair;
 
 export function hairLongFront(): Sprite {
 	const p = frame();
@@ -323,14 +310,7 @@ function shadeCloth(p: Pix) {
 	return p.outline();
 }
 
-export function topTee(): Sprite {
-	const p = frame();
-	torso(p, 'short');
-	p.mirror();
-	p.rect(14, 26, 4, 1, 'p');
-	p.set(12, 27, 'q').set(12, 28, 'q');
-	return shadeCloth(p).toSprite();
-}
+export const topTee = Garden.top;
 
 export function topHoodie(): Sprite {
 	const p = frame();
@@ -409,14 +389,7 @@ export function topSweater(): Sprite {
 
 // ── Bottoms ─────────────────────────────────────────────────────────────────
 
-export function bottomShorts(): Sprite {
-	const p = frame();
-	p.rect(11, 32, 5, 3, 'P');
-	p.rect(11, 35, 4, 1, 'P');
-	p.mirror();
-	p.rect(15, 34, 2, 2, '.');
-	return shadeCloth(p).toSprite();
-}
+export const bottomShorts = Garden.bottom;
 
 export function bottomPants(): Sprite {
 	const p = frame();
@@ -447,12 +420,7 @@ export function bottomOveralls(): Sprite {
 
 // ── Shoes ───────────────────────────────────────────────────────────────────
 
-export function shoesSneakers(): Sprite {
-	const p = frame();
-	p.rect(11, 37, 4, 1, 'P').rect(11, 38, 4, 1, 'w').set(14, 37, 'w');
-	p.mirror();
-	return p.outline().toSprite();
-}
+export const shoesSneakers = Garden.shoes;
 
 export function shoesBoots(): Sprite {
 	const p = frame();
@@ -586,3 +554,5 @@ export function accSword(): Sprite {
 	p.set(21, 30, 'A');
 	return p.outline().toSprite();
 }
+
+export const hairBobBack = Garden.hairBack;

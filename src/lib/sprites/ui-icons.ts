@@ -1,6 +1,7 @@
 /** The pixel icons the interface itself uses, each with its colours. */
+import type { Art } from '$lib/content/types';
 import * as I from './art/icons';
-import type { PaletteSet, Ramp, Sprite } from './grid';
+import type { PaletteSet, Ramp } from './grid';
 import { REFERENCE_PALETTE, ACCENT_GOLD } from '$lib/content/palettes';
 
 const RED: Ramp = ['#9c2939', '#d6455a', '#f2808d'];
@@ -14,25 +15,43 @@ const WOOD: Ramp = ['#5a3a24', '#8a5a36', '#b88454'];
 const pal = (over: Partial<PaletteSet>): PaletteSet => ({ ...REFERENCE_PALETTE, ...over });
 
 export const UI_ICONS = {
-	gp: { sprite: I.coin(), palette: pal({ accent: ACCENT_GOLD }) },
-	xp: { sprite: I.star(), palette: pal({ accent: ACCENT_GOLD }) },
-	joy: { sprite: I.heart(), palette: pal({ primary: RED }) },
-	food: { sprite: I.drumstick(), palette: pal({ skin: MEAT }) },
-	tidy: { sprite: I.sparkle(), palette: pal({ accent: ACCENT_GOLD }) },
-	str: { sprite: I.dumbbell(), palette: pal({}) },
-	dex: { sprite: I.feather(), palette: pal({ primary: GREEN }) },
-	int: { sprite: I.bulb(), palette: pal({ accent: ACCENT_GOLD }) },
-	kno: { sprite: I.book(), palette: pal({ primary: PURPLE }) },
-	egg: { sprite: I.egg(), palette: pal({ secondary: CREAM, primary: GREEN }) },
-	chest: { sprite: I.chest(), palette: pal({ primary: WOOD, accent: ACCENT_GOLD }) },
-	map: { sprite: I.map(), palette: pal({ secondary: CREAM, primary: RED }) },
-	shield: { sprite: I.shield(), palette: pal({ primary: BLUE, accent: ACCENT_GOLD }) },
-	flame: { sprite: I.flame(), palette: pal({ accent: ['#d0451f', '#f5a524', '#ffe27a'] }) },
-	hourglass: { sprite: I.hourglass(), palette: pal({ skin: WOOD, accent: ACCENT_GOLD }) },
-	paw: { sprite: I.paw(), palette: pal({ primary: WOOD }) },
-	sword: { sprite: I.sword(), palette: pal({ accent: WOOD }) },
-	scroll: { sprite: I.scroll(), palette: pal({ secondary: CREAM, primary: RED }) },
-	bottle: { sprite: I.bottle(), palette: pal({}) }
-} satisfies Record<string, { sprite: Sprite; palette: PaletteSet }>;
+	gp: { art: { sprite: I.coin() }, palette: pal({ accent: ACCENT_GOLD }) },
+	xp: { art: { sprite: I.star() }, palette: pal({ accent: ACCENT_GOLD }) },
+	joy: { art: { sprite: I.heart() }, palette: pal({ primary: RED }) },
+	food: { art: { sprite: I.drumstick() }, palette: pal({ skin: MEAT }) },
+	tidy: { art: { sprite: I.sparkle() }, palette: pal({ accent: ACCENT_GOLD }) },
+	str: { art: { sprite: I.dumbbell() }, palette: pal({}) },
+	dex: { art: { sprite: I.feather() }, palette: pal({ primary: GREEN }) },
+	int: { art: { sprite: I.bulb() }, palette: pal({ accent: ACCENT_GOLD }) },
+	kno: { art: { sprite: I.book() }, palette: pal({ primary: PURPLE }) },
+	egg: { art: { sprite: I.egg() }, palette: pal({ secondary: CREAM, primary: GREEN }) },
+	chest: { art: { sprite: I.chest() }, palette: pal({ primary: WOOD, accent: ACCENT_GOLD }) },
+	map: { art: { sprite: I.map() }, palette: pal({ secondary: CREAM, primary: RED }) },
+	shield: { art: { sprite: I.shield() }, palette: pal({ primary: BLUE, accent: ACCENT_GOLD }) },
+	flame: { art: { sprite: I.flame() }, palette: pal({ accent: ['#d0451f', '#f5a524', '#ffe27a'] }) },
+	hourglass: { art: { sprite: I.hourglass() }, palette: pal({ skin: WOOD, accent: ACCENT_GOLD }) },
+	paw: { art: { sprite: I.paw() }, palette: pal({ primary: WOOD }) },
+	sword: { art: { sprite: I.sword() }, palette: pal({ accent: WOOD }) },
+	scroll: { art: { sprite: I.scroll() }, palette: pal({ secondary: CREAM, primary: RED }) },
+	bottle: { art: { sprite: I.bottle() }, palette: pal({}) }
+} satisfies Record<string, UiIcon>;
 
 export type UiIconName = keyof typeof UI_ICONS;
+
+export interface UiIcon {
+	art: Art;
+	palette: PaletteSet;
+	fixedColors?: boolean;
+}
+
+export function uiIconFigure(icon: UiIcon) {
+	return { w: 16, h: 16, pivot: 0, layers: [{ z: 0, ...icon }] };
+}
+
+// Saved notices retain their text; familiar symbols use the shared pixel art.
+const NOTICE_ICONS: Record<string, UiIconName> = {
+	'⭐': 'xp', '🌟': 'xp', '🪙': 'gp', '💕': 'joy', '😋': 'food',
+	'🎾': 'paw', '🧹': 'tidy', '🐾': 'paw', '🎁': 'chest', '🛡️': 'shield', '🔥': 'flame'
+};
+
+export const noticeIcon = (text: string): UiIconName | undefined => NOTICE_ICONS[text];

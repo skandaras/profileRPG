@@ -14,7 +14,7 @@
 	<div class="bar" role="meter" aria-label={label} aria-valuemin={0} aria-valuemax={max} aria-valuenow={Math.round(value)}>
 		<span style:width="{pct}%" style:--fill={color}></span>
 	</div>
-	{#if showValue}<span class="val small soft">{Math.round(value)}/{max}</span>{/if}
+	{#if showValue}<span class="val small soft numeral">{Math.round(value)}/{max}</span>{/if}
 </div>
 
 <style>

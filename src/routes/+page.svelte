@@ -1,9 +1,9 @@
 <script lang="ts">
+	import { tick } from 'svelte';
 	import { enhance } from '$app/forms';
 	import { withNotices } from '$lib/act';
-	import { MESS_SPRITES } from '$lib/sprites/art/icons';
-	import { REFERENCE_PALETTE } from '$lib/content/palettes';
-	import { MESS } from '$lib/sprites/frames';
+	import { messFigures } from '$lib/sprites/room';
+	import PixelIcon from '$lib/components/PixelIcon.svelte';
 	import Figure from '$lib/components/Figure.svelte';
 	import HabitRow from '$lib/components/HabitRow.svelte';
 	import Habitat from '$lib/components/Habitat.svelte';
@@ -13,34 +13,17 @@
 
 	// Where the mess lands in the room, in percent, clear of the hero (left) and the
 	// pet's bed (right); enough spots for the maximum.
+	const focusWelcome = () => {
+		void tick().then(() => document.querySelector<HTMLButtonElement>('.mess, .welcome button')?.focus());
+	};
 	const SPOTS = [
-		[8, 76],
-		[56, 92],
-		[9, 93],
-		[54, 70],
-		[38, 95]
+		[12, 29],
+		[50, 29],
+		[86, 29],
+		[52, 65],
+		[52, 88]
 	];
 
-	const messFigures = MESS_SPRITES.map((sprite, i) => ({
-		figure: {
-			w: MESS.w,
-			h: MESS.h,
-			pivot: 0,
-			layers: [
-				{
-					z: 0,
-					art: { sprite },
-					palette: {
-						...REFERENCE_PALETTE,
-						primary: ['#274a98', '#3f72d0', '#86a8f0'] as const,
-						hair: ['#a86a1a', '#d89a3a', '#f5c87a'] as const,
-						skin: ['#b07a4a', '#d8a070', '#f5cca0'] as const
-					}
-				}
-			]
-		},
-		key: `mess:${i}`
-	}));
 
 	const due = $derived(data.habits.filter((h) => h.kind === 'habit' && h.due && !h.done));
 	const done = $derived(data.habits.filter((h) => h.kind === 'habit' && h.due && h.done));
@@ -52,10 +35,12 @@
 
 <svelte:head><title>Home · LevelUp</title></svelte:head>
 
+<div class="page-heading"><h1>Home</h1><span class="small soft">A little progress, every day.</span></div>
+
 <section>
 	<Habitat avatar={data.avatar} heroName={data.heroName} pet={data.companion}>
 		{#if data.welcome.active && data.welcome.mess > 0}
-			<form method="POST" action="?/clean" use:enhance={withNotices()}>
+			<form method="POST" action="?/clean" use:enhance={withNotices({ then: focusWelcome })}>
 				{#each Array(data.welcome.mess) as _, i (i)}
 					<button class="mess" style:left="{SPOTS[i][0]}%" style:top="{SPOTS[i][1]}%" aria-label="Tidy up mess {i + 1}">
 						<Figure figure={messFigures[i % messFigures.length].figure} key={messFigures[i % messFigures.length].key} scale={3} animate={false} />
@@ -79,21 +64,21 @@
 			{:else}
 				<p>All tidy! {petName} is looking at you expectantly…</p>
 				<form method="POST" action="?/greet" use:enhance={withNotices()}>
-					<button class="btn wide">Give {petName} a pat 💕</button>
+					<button class="btn wide"><PixelIcon name="joy" scale={1} /> Give {petName} a pat</button>
 				</form>
 			{/if}
 			{#if data.welcome.returnStreak > 1}
-				<p class="small soft">🔁 {data.welcome.returnStreak} days in a row</p>
+				<p class="small soft">{data.welcome.returnStreak} days in a row</p>
 			{/if}
 		</div>
 	{:else if data.companion && !data.companion.away}
-		<p class="small soft mood">{data.companion.name} {MOOD_TEXT[data.companion.mood as keyof typeof MOOD_TEXT]}.</p>
+		<p class="small soft mood"><PixelIcon name="joy" scale={1} /> {data.companion.name} {MOOD_TEXT[data.companion.mood as keyof typeof MOOD_TEXT]}.</p>
 	{/if}
 </section>
 
 {#if data.awayNote}
 	<section class="box">
-		<h3>While you were away</h3>
+		<h2>While you were away</h2>
 		<ul class="away">
 			{#each data.awayNote.missed as m, i (i)}
 				<li>
@@ -118,25 +103,25 @@
 	</section>
 {/if}
 
-<section class="box">
-	<div class="spread">
+<section class="today">
+	<div class="spread today-heading">
 		<h2>Today</h2>
-		<a class="btn ghost small" href="/habits/new">+ Add</a>
+		<span class="soft">{done.length} of {due.length + done.length} done</span>
 	</div>
 	{#if !data.habits.length}
 		<p class="soft">No habits yet. <a href="/habits/new">Pick a few</a> to get started.</p>
 	{/if}
-	{#each due as h (h.id)}<HabitRow habit={h} />{/each}
+	{#each data.habits.filter((h) => h.kind === 'habit' && h.due) as h (h.id)}<HabitRow habit={h} />{/each}
 	{#if due.length === 0 && done.length > 0}
-		<p class="good small">Everything due is done. Wonderful work! 🌟</p>
+		<p class="good small">Everything due is done. A good day’s work.</p>
 	{/if}
-	{#each done as h (h.id)}<HabitRow habit={h} />{/each}
 	{#if resting.length}
 		<details>
 			<summary class="small soft">Not due today ({resting.length})</summary>
 			{#each resting as h (h.id)}<HabitRow habit={h} />{/each}
 		</details>
 	{/if}
+	<a class="add-habit soft small" href="/habits/new">+ Add a habit</a>
 </section>
 
 {#if tasks.length}
@@ -176,9 +161,33 @@
 	}
 
 	.mood {
-		text-align: center;
-		margin-top: -4px;
+		display: flex;
+		justify-content: center;
+		align-items: center;
+		gap: 8px;
+		min-height: 32px;
+		margin-bottom: 24px;
 	}
+
+	.today {
+		margin-top: 24px;
+	}
+
+	.today-heading {
+		margin-bottom: 12px;
+	}
+
+	.today-heading h2 {
+		margin: 0;
+	}
+
+	.add-habit {
+		display: inline-flex;
+		align-items: center;
+		min-height: 44px;
+		margin-top: 8px;
+	}
+
 
 	.away {
 		margin: 0 0 8px;

@@ -1,8 +1,15 @@
+import { getSpecies } from '$lib/content';
+import { uiIconFigure } from './ui-icons';
+import { paintPreview } from './preview-png';
+import { encodePng } from './png';
+import { mkdtempSync, writeFileSync, rmSync } from 'node:fs';
+import { tmpdir } from 'node:os';
+import { join } from 'node:path';
 import { describe, expect, it } from 'vitest';
-import { DEFAULT_AVATAR } from '$lib/content/cosmetics';
+import { DEFAULT_AVATAR, PET_ACCESSORIES } from '$lib/content/cosmetics';
 import { REFERENCE_PALETTE, SKIN_TONES } from '$lib/content/palettes';
 import { blank, bob, drawOver, recolor, renderSprite } from './compose';
-import { Pix } from './grid';
+import { FIXED_COLORS, Pix } from './grid';
 import { avatarFigure, paintFigure, petFigure } from './layers';
 
 const px = (img: { w: number; data: Uint8ClampedArray }, x: number, y: number) =>
@@ -49,7 +56,73 @@ describe('sprites', () => {
 		const fig = petFigure('emberkit', 'baby', 'petacc.bow');
 		expect(fig.layers).toHaveLength(2);
 		const art = fig.layers[1];
-		expect(art.dy! + 8 - 1).toBe(12);
+		expect(art.dy! + 8 - 1).toBe(getSpecies('emberkit')!.art.baby.anchors.head[1]);
 		expect(petFigure('emberkit', 'egg', 'petacc.bow').layers).toHaveLength(1);
 	});
+});
+
+
+it('preserves fixed white when a reference PNG is recoloured', () => {
+	const sprite = new Pix(2, 1).stamp(0, 0, ['wd']).toSprite();
+	const palette = { ...REFERENCE_PALETTE, secondary: SKIN_TONES[5].ramp };
+	const reference = renderSprite(sprite, REFERENCE_PALETTE);
+	expect(recolor(reference, REFERENCE_PALETTE, palette)).toEqual(renderSprite(sprite, palette));
+	expect(Object.values(REFERENCE_PALETTE).flat()).not.toContain(FIXED_COLORS.w);
+});
+
+it('keeps pet PNG colours and declared frames while accessories still recolour', () => {
+	const species = getSpecies('emberkit')!;
+	const original = species.art.baby;
+	try {
+		species.art.baby = { png: '/dragon.png', frames: 3, anchors: original.anchors };
+		const figure = petFigure(species.id, 'baby', 'petacc.bow');
+		const sheet = renderSprite(new Pix(96, 32).rect(0, 0, 32, 32, 'S').rect(32, 0, 32, 32, 'd').rect(64, 0, 32, 32, 'P').toSprite(), REFERENCE_PALETTE);
+		const accessory = new Pix(12, 8).rect(0, 0, 12, 8, 'P').toSprite();
+		figure.layers[1].art = { png: '/bow.png', w: 12, h: 8 };
+		const frames = paintFigure(figure, new Map([['/dragon.png', sheet], ['/bow.png', renderSprite(accessory, REFERENCE_PALETTE)]]));
+		expect(px(frames[0], figure.layers[1].dx!, figure.layers[1].dy!)).toEqual(px(renderSprite(accessory, figure.layers[1].palette), 0, 0));
+		expect(frames).toHaveLength(3);
+		expect(px(frames[0], 0, 0)).toEqual([245, 198, 165, 255]);
+		expect(px(frames[1], 0, 0)).toEqual([255, 255, 255, 255]);
+		expect(px(frames[2], 0, 0)).toEqual([214, 69, 90, 255]);
+		expect(figure.layers[1].fixedColors).not.toBe(true);
+	} finally {
+		species.art.baby = original;
+	}
+});
+
+it('loads named PNG icons through the same preview and tint path as grids', () => {
+	const root = mkdtempSync(join(tmpdir(), 'sprite-preview-'));
+	try {
+		const sprite = new Pix(16, 16).stamp(2, 2, ['Pdw']).toSprite();
+		writeFileSync(join(root, 'icon.png'), encodePng(renderSprite(sprite, REFERENCE_PALETTE)));
+		const palette = { ...REFERENCE_PALETTE, primary: SKIN_TONES[5].ramp, secondary: SKIN_TONES[0].ramp };
+		const grid = uiIconFigure({ art: { sprite }, palette });
+		const png = uiIconFigure({ art: { png: '/icon.png', w: 16, h: 16 }, palette });
+		expect(paintPreview(png, root)).toEqual(paintFigure(grid));
+		expect(paintPreview(uiIconFigure({ art: { png: '/icon.png', w: 16, h: 16 }, palette, fixedColors: true }), root)[0]).toEqual(renderSprite(sprite, REFERENCE_PALETTE));
+	} finally {
+		rmSync(root, { recursive: true, force: true });
+	}
+});
+
+
+it('keeps the dragon connected and its eyes clear with every accessory', () => {
+	const species = getSpecies('emberkit')!;
+	for (const [stage, eyeY] of [['baby', 20], ['teen', 16], ['adult', 13]] as const) {
+		const base = paintFigure(petFigure(species.id, stage))[0];
+		for (let y = species.art[stage].anchors.head[1] + 1; y < 29; y++) {
+			expect(px(base, 16, y)[3], `${stage} neck at row ${y}`).toBe(255);
+		}
+		for (const accessory of PET_ACCESSORIES) {
+			const figure = petFigure(species.id, stage, accessory.id);
+			const dressed = paintFigure(figure)[0];
+			for (const x of [11, 12, 19, 20]) {
+				for (const y of [eyeY, eyeY + 1]) expect(px(dressed, x, y), `${stage}: ${accessory.id}`).toEqual(px(base, x, y));
+			}
+			const layer = figure.layers[1];
+			expect(layer.dy).toBeGreaterThanOrEqual(0);
+			expect(layer.dy! + 8).toBeLessThanOrEqual(32);
+		}
+	}
 });

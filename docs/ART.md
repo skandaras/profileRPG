@@ -1,7 +1,7 @@
 # Art contract
 
-Everything visible in LevelUp is drawn in code today (`src/lib/sprites/art/`), as
-placeholder art. Any piece can be replaced with a PNG without touching game code. This
+Art is drawn as palette-indexed grids in `src/lib/sprites/art/`. Grids remain the source
+of truth; any piece can also be exported and registered as a PNG without touching game code. This
 page is what a PNG has to satisfy.
 
 To see the current art: `SPRITE_PREVIEW=1 npx vitest run src/lib/sprites/preview`, then
@@ -75,6 +75,9 @@ stays as drawn, so a gold buckle or a white sole can be any colour except these.
 
 These are defined as `REFERENCE_PALETTE` in `src/lib/content/palettes.ts`.
 
+Fixed white uses `#fffefd`, distinct from the secondary highlight `#ffffff`. Keep that
+distinction when exporting grids to PNGs so recolouring cannot change fixed details.
+
 Pets are not recoloured by the player; draw them in their final colours. Their palettes are
 in `src/lib/content/pets.ts`, but a pet PNG can use any colours.
 
@@ -103,16 +106,23 @@ Then point the catalogue entry at it. For an avatar part, in
 For a pet stage, in `src/lib/content/pets.ts`:
 
 ```ts
-teen: { png: '/sprites/pets/emberkit/teen.png', anchors: { head: [13, 8], neck: [14, 19] } }
+teen: { png: '/sprites/pets/emberkit/teen.png', frames: 1, anchors: { head: [16, 10], neck: [16, 23] } }
 ```
 
-For an icon, set `icon: { png: '/sprites/icons/kibble.png', w: 16, h: 16 }`.
+Pet PNGs keep their final colours, including colours that match the reference palette.
+Set `frames` for a horizontal animation strip, as with avatar parts. Accessories still
+use reference recolouring.
+
+Named UI icons in `src/lib/sprites/ui-icons.ts` accept `art: { sprite }` or
+`art: { png, w: 16, h: 16 }`, a palette, and optional `fixedColors: true`.
+
+For a consumable icon, set `icon: { png: '/sprites/icons/kibble.png', w: 16, h: 16 }`.
 
 ## Designing new pets
 
 A species needs four images (egg, baby, teen, adult), a name, a blurb, a stat affinity and a
-rarity. The three starters (Emberkit, Puddlefin, Mossling) are placeholders: their names,
-looks and blurbs can all change, but keep the ids (`emberkit`, `puddlefin`, `mossling`),
-which are stored on every pet. A new species that hatches from mission eggs also needs an
+rarity. Cindlet (`emberkit`) is the first Garden starter. Puddlefin and Mossling await
+their Garden drawings. Names, looks and blurbs can change, but keep the ids
+(`emberkit`, `puddlefin`, `mossling`), which are stored on every pet. A new species that hatches from mission eggs also needs an
 `{ egg: '<id>' }` entry in at least one mission's loot table; the content tests fail until
 it has one.

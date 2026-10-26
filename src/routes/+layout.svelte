@@ -18,11 +18,11 @@
 	});
 
 	const TABS = [
-		{ href: '/', label: 'Home', icon: '🏡' },
-		{ href: '/habits', label: 'Habits', icon: '📋' },
-		{ href: '/pet', label: 'Pet', icon: '🐾' },
-		{ href: '/missions', label: 'Quests', icon: '🗺️' },
-		{ href: '/me', label: 'Me', icon: '⭐' }
+		{ href: '/', label: 'Home' },
+		{ href: '/habits', label: 'Habits' },
+		{ href: '/pet', label: 'Pet' },
+		{ href: '/missions', label: 'Quests' },
+		{ href: '/me', label: 'Me' }
 	];
 
 	const isActive = (href: string) => (href === '/' ? page.url.pathname === '/' : page.url.pathname.startsWith(href));
@@ -31,6 +31,8 @@
 <svelte:head>
 	<title>LevelUp</title>
 </svelte:head>
+
+<a class="skip-link" href="#main">Skip to content</a>
 
 {#if data.hero}
 	<header class="top">
@@ -42,9 +44,10 @@
 			</a>
 			<div class="xp">
 				<Bar value={data.hero.xp} max={data.hero.xpNext} label="Experience to next level" />
+				<span class="numeral">{data.hero.xp} / {data.hero.xpNext} XP</span>
 			</div>
 			<a class="gp" href="/shop" aria-label="{data.hero.gp} GP, open shop">
-				<PixelIcon name="gp" scale={1.5} />
+				<PixelIcon name="gp" scale={2} />
 				<span>{data.hero.gp}</span>
 			</a>
 		</div>
@@ -54,7 +57,7 @@
 	</header>
 {/if}
 
-<main class:onboarding={!data.hero}>
+<main id="main" tabindex="-1" class:onboarding={!data.hero}>
 	{@render children()}
 </main>
 
@@ -62,7 +65,6 @@
 	<nav class="tabbar" aria-label="Main">
 		{#each TABS as t (t.href)}
 			<a href={t.href} aria-current={isActive(t.href) ? 'page' : undefined}>
-				<span class="ico" aria-hidden="true">{t.icon}</span>
 				<span class="lbl">{t.label}</span>
 			</a>
 		{/each}
@@ -73,34 +75,34 @@
 
 <style>
 	.top {
-		position: sticky;
-		top: 0;
-		z-index: 20;
 		background: var(--bg-2);
-		border-bottom: 3px solid var(--line);
+		border-bottom: 1px solid var(--line);
 		padding-top: env(safe-area-inset-top);
 	}
 
 	.inner {
 		max-width: 560px;
-		margin: 0 auto;
-		padding: 8px 16px;
-		display: flex;
+		margin: auto;
+		padding: 16px 20px 20px;
+		display: grid;
+		grid-template-columns: 1fr auto;
+		gap: 12px;
+		min-height: 100px;
 		align-items: center;
-		gap: 10px;
 	}
 
 	.who {
 		display: flex;
 		align-items: center;
-		gap: 6px;
+		gap: 8px;
 		text-decoration: none;
 		min-width: 0;
+		min-height: 32px;
 	}
 
 	.name {
 		margin: 0;
-		font-size: 1.05rem;
+		font-size: 24px;
 		overflow: hidden;
 		text-overflow: ellipsis;
 		white-space: nowrap;
@@ -113,29 +115,35 @@
 	}
 
 	.xp {
-		flex: 1;
-		min-width: 40px;
+		grid-row: 2;
+		grid-column: 1 / -1;
+		display: grid;
+		grid-template-columns: 1fr auto;
+		align-items: center;
+		gap: 12px;
 	}
 
 	.gp {
+		grid-row: 1;
+		grid-column: 2;
 		display: flex;
 		align-items: center;
-		gap: 4px;
+		gap: 8px;
+		min-height: 32px;
 		text-decoration: none;
-		font-weight: 700;
-		font-family: 'Pixelify Sans', system-ui, sans-serif;
+		font: 500 20px 'Pixelify Sans', system-ui, sans-serif;
 	}
 
 	.resting {
 		max-width: 560px;
-		margin: 0 auto;
-		padding: 4px 16px 8px;
+		margin: auto;
+		padding: 4px 20px 12px;
 	}
 
 	main {
 		max-width: 560px;
-		margin: 0 auto;
-		padding: 16px 16px calc(96px + env(safe-area-inset-bottom));
+		margin: auto;
+		padding: 24px 20px calc(96px + env(safe-area-inset-bottom));
 	}
 
 	main.onboarding {
@@ -151,36 +159,30 @@
 		display: flex;
 		justify-content: center;
 		background: var(--bg-2);
-		border-top: 3px solid var(--line);
-		padding-bottom: env(safe-area-inset-bottom);
+		border-top: 1px solid var(--trim);
+		padding: 8px 12px calc(8px + env(safe-area-inset-bottom));
 	}
 
 	.tabbar a {
 		flex: 1;
 		max-width: 112px;
 		display: flex;
-		flex-direction: column;
 		align-items: center;
-		padding: 6px 0 8px;
+		justify-content: center;
 		text-decoration: none;
-		color: var(--ink-soft);
-		min-height: 56px;
+		color: var(--ink);
+		min-height: 55px;
 	}
 
 	.tabbar a[aria-current='page'] {
-		color: var(--ink);
+		color: var(--accent);
 		background: var(--bg-3);
-		box-shadow: inset 0 3px 0 var(--accent);
-	}
-
-	.ico {
-		font-size: 1.35rem;
-		line-height: 1.2;
 	}
 
 	.lbl {
 		font-family: 'Pixelify Sans', system-ui, sans-serif;
-		font-size: 0.8rem;
-		font-weight: 700;
+		font-size: 16px;
+		font-weight: 500;
 	}
+
 </style>

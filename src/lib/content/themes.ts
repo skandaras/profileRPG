@@ -12,6 +12,8 @@ export type ThemeTokens = {
 	ink: string;
 	inkSoft: string;
 	line: string;
+	focus: string;
+	trim: string;
 	accent: string;
 	accentInk: string;
 	good: string;
@@ -35,8 +37,8 @@ export interface Theme {
 	tokens: ThemeTokens;
 }
 
-const STATS_LIGHT = { statStr: '#d6455a', statDex: '#3f9f52', statInt: '#3f72d0', statKno: '#9a5cd0' };
-const STATS_DARK = { statStr: '#ff7a8a', statDex: '#72d88a', statInt: '#7aa8ff', statKno: '#c99aff' };
+const STATS_LIGHT = { statStr: '#a52e43', statDex: '#376b3e', statInt: '#315d9e', statKno: '#76429b' };
+const STATS_DARK = { statStr: '#ff94a0', statDex: '#72d88a', statInt: '#8ab5ff', statKno: '#c99aff' };
 
 export const THEMES: Theme[] = [
 	{
@@ -46,20 +48,22 @@ export const THEMES: Theme[] = [
 		unlock: { kind: 'starter' },
 		dark: false,
 		tokens: {
-			bg: '#e3f1d9',
-			bg2: '#fffaf0',
-			bg3: '#f1ead8',
-			ink: '#22202b',
-			inkSoft: '#57525f',
-			line: '#2b1f33',
-			accent: '#2f6f4f',
-			accentInk: '#ffffff',
-			good: '#2a7a3a',
-			bad: '#b3283c',
-			xp: '#4a90e2',
-			gp: '#e0a800',
-			sky: '#bfe6ff',
-			floor: '#d8b98c',
+			bg: '#f1eadc',
+			bg2: '#fff9ee',
+			bg3: '#e6dfcc',
+			ink: '#3b3329',
+			inkSoft: '#665b4a',
+			line: '#83745f',
+			accent: '#4d6740',
+			accentInk: '#fff9ee',
+			good: '#4d6740',
+			bad: '#a23932',
+			xp: '#687b46',
+			gp: '#906324',
+			sky: '#e6dfcc',
+			floor: '#d7c7ab',
+			focus: '#8d3c2b',
+			trim: '#d7c7ab',
 			...STATS_LIGHT
 		}
 	},
@@ -70,20 +74,22 @@ export const THEMES: Theme[] = [
 		unlock: { kind: 'level', level: 3 },
 		dark: true,
 		tokens: {
-			bg: '#141428',
-			bg2: '#1f2140',
-			bg3: '#2a2d52',
-			ink: '#f1eefc',
-			inkSoft: '#b8b4d4',
-			line: '#08080f',
-			accent: '#a596ff',
-			accentInk: '#120f2a',
-			good: '#7ee08a',
-			bad: '#ff8a9a',
-			xp: '#7ab8ff',
-			gp: '#ffd04a',
-			sky: '#26305e',
-			floor: '#3b3366',
+			bg: '#24251e',
+			bg2: '#303128',
+			bg3: '#3d4032',
+			ink: '#fbefda',
+			inkSoft: '#d0c7ae',
+			line: '#a99d80',
+			accent: '#c2cd92',
+			accentInk: '#292e1d',
+			good: '#c2cd92',
+			bad: '#f3ac98',
+			xp: '#c2cd92',
+			gp: '#f7d998',
+			sky: '#3d4032',
+			floor: '#5f624b',
+			focus: '#f3ba98',
+			trim: '#5f624b',
 			...STATS_DARK
 		}
 	},
@@ -94,18 +100,20 @@ export const THEMES: Theme[] = [
 		unlock: { kind: 'drop' },
 		dark: false,
 		tokens: {
+			focus: '#813455',
+			trim: '#e8b5c4',
 			bg: '#fde8ef',
 			bg2: '#fffafc',
 			bg3: '#f8e3ea',
 			ink: '#3a1f2b',
 			inkSoft: '#6b4757',
-			line: '#3a1f2b',
+			line: '#816273',
 			accent: '#b2366a',
 			accentInk: '#ffffff',
-			good: '#2a7a3a',
+			good: '#30683c',
 			bad: '#b3283c',
-			xp: '#e872a6',
-			gp: '#e0a800',
+			xp: '#a43c70',
+			gp: '#906324',
 			sky: '#ffd6e6',
 			floor: '#e8b5c4',
 			...STATS_LIGHT
@@ -118,18 +126,20 @@ export const THEMES: Theme[] = [
 		unlock: { kind: 'drop' },
 		dark: false,
 		tokens: {
+			focus: '#245c85',
+			trim: '#b7d0d8',
 			bg: '#dff1f7',
 			bg2: '#f7fdff',
 			bg3: '#e5f3f8',
 			ink: '#12313f',
 			inkSoft: '#3d5e6d',
-			line: '#12313f',
+			line: '#557681',
 			accent: '#1d6a88',
 			accentInk: '#ffffff',
-			good: '#1e7a45',
+			good: '#286c43',
 			bad: '#b3283c',
-			xp: '#2fa8c9',
-			gp: '#e0a800',
+			xp: '#23768e',
+			gp: '#906324',
 			sky: '#a8e0f5',
 			floor: '#e9d9a8',
 			...STATS_LIGHT
@@ -142,12 +152,14 @@ export const THEMES: Theme[] = [
 		unlock: { kind: 'shop', price: 150, level: 6 },
 		dark: true,
 		tokens: {
+			focus: '#ffd1ae',
+			trim: '#6d493a',
 			bg: '#24130f',
 			bg2: '#331c16',
 			bg3: '#43261d',
 			ink: '#fbeee6',
 			inkSoft: '#d8bcae',
-			line: '#0f0705',
+			line: '#ba927c',
 			accent: '#f08a3c',
 			accentInk: '#24130f',
 			good: '#8be09a',
@@ -166,12 +178,14 @@ export const THEMES: Theme[] = [
 		unlock: { kind: 'drop' },
 		dark: true,
 		tokens: {
+			focus: '#b8eaf0',
+			trim: '#574775',
 			bg: '#1b1430',
 			bg2: '#261d42',
 			bg3: '#332858',
 			ink: '#f3eeff',
 			inkSoft: '#c4b8e8',
-			line: '#0a0714',
+			line: '#a494c0',
 			accent: '#5fd6e0',
 			accentInk: '#10202a',
 			good: '#8be0b0',
@@ -192,6 +206,8 @@ const CSS_NAMES: Record<keyof ThemeTokens, string> = {
 	ink: '--ink',
 	inkSoft: '--ink-soft',
 	line: '--line',
+	focus: '--focus',
+	trim: '--trim',
 	accent: '--accent',
 	accentInk: '--accent-ink',
 	good: '--good',

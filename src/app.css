@@ -1,8 +1,37 @@
-/*
- * The look: dialog boxes with a hard dark border and an inner rule, chunky
- * buttons that press down, pixel fonts. Colours only ever come from the theme
- * tokens (content/themes.ts), so every theme restyles the whole app.
- */
+@font-face {
+	font-family: 'Pixelify Sans';
+	font-style: normal;
+	font-weight: 500;
+	font-display: swap;
+	src: url('/fonts/pixelify-sans-500.ttf') format('truetype');
+}
+
+@font-face {
+	font-family: 'DM Sans';
+	font-style: normal;
+	font-weight: 400;
+	font-display: swap;
+	src: url('/fonts/dm-sans-400.ttf') format('truetype');
+}
+
+@font-face {
+	font-family: 'DM Sans';
+	font-style: normal;
+	font-weight: 500;
+	font-display: swap;
+	src: url('/fonts/dm-sans-500.ttf') format('truetype');
+}
+
+@font-face {
+	font-family: 'DM Sans';
+	font-style: normal;
+	font-weight: 600;
+	font-display: swap;
+	src: url('/fonts/dm-sans-600.ttf') format('truetype');
+}
+
+
+/* Garden paper, open groups and clear controls. Colours come from the theme. */
 *,
 *::before,
 *::after {
@@ -17,32 +46,34 @@ body {
 	margin: 0;
 	background: var(--bg);
 	color: var(--ink);
-	font-family: 'DotGothic16', ui-monospace, system-ui, sans-serif;
-	font-size: 16px;
+	font-family: 'DM Sans', system-ui, sans-serif;
+	font-size: 14px;
 	line-height: 1.5;
-	-webkit-font-smoothing: none;
 }
 
 h1,
 h2,
 h3,
 .title {
-	font-family: 'Pixelify Sans', 'DotGothic16', system-ui, sans-serif;
-	font-weight: 700;
+	font-family: 'Pixelify Sans', system-ui, sans-serif;
+	font-weight: 500;
 	line-height: 1.2;
 	margin: 0 0 0.5rem;
 }
 
 h1 {
-	font-size: 1.6rem;
+	font-size: 28px;
+	line-height: 32px;
 }
 
 h2 {
-	font-size: 1.25rem;
+	font-size: 22px;
+	line-height: 28px;
 }
 
 h3 {
-	font-size: 1.05rem;
+	font-size: 18px;
+	line-height: 24px;
 }
 
 p {
@@ -59,16 +90,28 @@ a {
 }
 
 .box {
+	position: relative;
 	background: var(--bg-2);
-	border: 3px solid var(--line);
-	border-radius: 8px;
-	box-shadow:
-		inset 0 0 0 2px var(--bg-2),
-		inset 0 0 0 4px var(--bg-3),
-		0 4px 0 color-mix(in srgb, var(--line) 35%, transparent);
-	padding: 14px 16px;
-	margin-bottom: 16px;
+	border: 0;
+	border-radius: 0;
+	box-shadow: 0 2px 0 var(--trim);
+	padding: 16px;
+	margin: 0 4px 20px;
 }
+
+/* Inset side strips make paper corners without clipping keyboard focus. */
+.box::before {
+	content: '';
+	position: absolute;
+	inset: 4px -4px;
+	background: inherit;
+	z-index: -1;
+}
+
+.box {
+	isolation: isolate;
+}
+
 
 .box > h2:first-child,
 .box > h3:first-child {
@@ -79,17 +122,20 @@ a {
 	display: inline-flex;
 	align-items: center;
 	justify-content: center;
-	gap: 6px;
+	gap: 8px;
 	min-height: 44px;
-	padding: 8px 14px;
+	padding: 8px 12px;
+	min-width: 44px;
 	font: inherit;
-	font-family: 'Pixelify Sans', 'DotGothic16', system-ui, sans-serif;
-	font-weight: 700;
+	font-size: 18px;
+	line-height: 24px;
+	font-family: 'Pixelify Sans', system-ui, sans-serif;
+	font-weight: 500;
 	color: var(--accent-ink);
 	background: var(--accent);
-	border: 3px solid var(--line);
-	border-radius: 6px;
-	box-shadow: 0 3px 0 var(--line);
+	border: 1px solid var(--accent);
+	border-radius: 0;
+	box-shadow: none;
 	cursor: pointer;
 	text-decoration: none;
 	transition: transform 60ms;
@@ -98,7 +144,7 @@ a {
 
 .btn:active:not(:disabled) {
 	transform: translateY(2px);
-	box-shadow: 0 1px 0 var(--line);
+	box-shadow: none;
 }
 
 .btn:disabled {
@@ -107,14 +153,15 @@ a {
 }
 
 .btn.ghost {
+	border-color: var(--line);
 	background: var(--bg-3);
 	color: var(--ink);
 }
 
 .btn.small {
-	min-height: 36px;
+	min-height: 44px;
 	padding: 4px 10px;
-	font-size: 0.9rem;
+	font-size: 18px;
 }
 
 .btn.wide {
@@ -127,18 +174,19 @@ select:focus-visible,
 textarea:focus-visible,
 a:focus-visible,
 button:focus-visible {
-	outline: 3px solid var(--xp);
-	outline-offset: 2px;
+	outline: 3px solid var(--focus);
+	outline-offset: 3px;
 }
 
 input,
 select,
 textarea {
 	font: inherit;
+	font-size: 16px;
 	color: var(--ink);
 	background: var(--bg-3);
-	border: 2px solid var(--line);
-	border-radius: 6px;
+	border: 1px solid var(--line);
+	border-radius: 0;
 	padding: 8px 10px;
 	min-height: 44px;
 	width: 100%;
@@ -146,7 +194,7 @@ textarea {
 
 label {
 	display: block;
-	font-weight: 700;
+	font-weight: 500;
 	margin-bottom: 4px;
 }
 
@@ -186,18 +234,20 @@ label {
 }
 
 .small {
-	font-size: 0.875rem;
+	font-size: 13px;
+	line-height: 20px;
 }
 
 .chip {
+	font-family: 'Pixelify Sans', system-ui, sans-serif;
 	display: inline-flex;
 	align-items: center;
 	gap: 4px;
 	padding: 2px 8px;
-	border: 2px solid var(--line);
-	border-radius: 999px;
+	border: 0;
+	border-radius: 0;
 	background: var(--bg-3);
-	font-size: 0.8rem;
+	font-size: 14px;
 	white-space: nowrap;
 }
 
@@ -211,10 +261,10 @@ label {
 
 .bar {
 	position: relative;
-	height: 14px;
+	height: 10px;
 	background: var(--bg-3);
-	border: 2px solid var(--line);
-	border-radius: 4px;
+	border: 1px solid var(--line);
+	border-radius: 0;
 	overflow: hidden;
 }
 
@@ -222,7 +272,6 @@ label {
 	display: block;
 	height: 100%;
 	background: var(--fill, var(--xp));
-	box-shadow: inset 0 3px 0 rgb(255 255 255 / 0.35);
 	transition: width 300ms steps(8);
 }
 
@@ -240,7 +289,7 @@ label {
 
 .tabs {
 	display: flex;
-	gap: 6px;
+	gap: 8px;
 	overflow-x: auto;
 	padding-bottom: 6px;
 	margin-bottom: 10px;
@@ -258,8 +307,8 @@ label {
 	gap: 4px;
 	padding: 8px 6px;
 	background: var(--bg-3);
-	border: 2px solid var(--line);
-	border-radius: 6px;
+	border: 1px solid var(--line);
+	border-radius: 0;
 	font: inherit;
 	color: var(--ink);
 	cursor: pointer;
@@ -284,4 +333,63 @@ label {
 		animation: none !important;
 		transition: none !important;
 	}
+}
+
+.page-heading {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: 12px;
+	margin-bottom: 16px;
+}
+
+.page-heading h1 {
+	margin: 0;
+}
+
+.numeral {
+	font-family: 'Pixelify Sans', system-ui, sans-serif;
+	font-weight: 500;
+}
+
+button {
+	min-width: 24px;
+	min-height: 24px;
+}
+
+summary {
+	min-height: 44px;
+}
+
+
+.skip-link {
+	position: fixed;
+	left: 20px;
+	top: -100px;
+	z-index: 100;
+	padding: 12px;
+	background: var(--bg-2);
+	color: var(--ink);
+}
+
+.skip-link:not(:focus) {
+	clip-path: inset(50%);
+}
+
+.skip-link:focus {
+	top: 12px;
+}
+
+:focus-visible {
+	outline: 3px solid var(--focus);
+	outline-offset: 3px;
+}
+
+.tile:focus-visible {
+	outline: 3px solid var(--focus);
+	outline-offset: 3px;
+}
+
+strong {
+	font-weight: 600;
 }

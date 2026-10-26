@@ -60,71 +60,40 @@ export function egg(): PetArt {
 	return finish(p, [15.5, 14], [15.5, 20]);
 }
 
-// ── Emberkit: a fox kit with a flame for a tail ─────────────────────────────
+// ── Cindlet: a round garden dragon with a warm belly and small wings ────────
 
-function flame(p: Pix, x: number, y: number, size: number) {
-	p.ellipse(x, y, size * 0.8, size, 'A');
-	p.ellipse(x - 0.5, y - size, size * 0.5, size * 0.7, 'A');
-	p.ellipse(x + size * 0.4, y - size * 0.4, size * 0.4, size * 0.6, 'A');
-	p.ellipse(x, y + size * 0.2, size * 0.45, size * 0.55, 'b', true);
-	p.rim('A', 'a', 1, 0);
-}
-
-function foxEars(p: Pix, cx: number, top: number, h: number, spread: number) {
-	for (let i = 0; i < h; i++) {
-		const w = Math.max(0, Math.round((i * 3) / h));
-		for (let dx = -w; dx <= w; dx++) {
-			p.set(Math.round(cx - spread) + dx, top + i, 'P');
-			p.set(Math.round(cx + spread) - 1 + dx, top + i, 'P');
-		}
-	}
-	p.set(Math.round(cx - spread), top + h - 2, 'r').set(Math.round(cx + spread) - 1, top + h - 2, 'r');
+export function cindletEgg(): PetArt {
+	const p = frame().ellipse(15.5, 24, 7.5, 6, 'C').ellipse(15.5, 20, 5, 5, 'C');
+	p.rim('C', 'c').rect(11, 18, 2, 3, 'd');
+	p.stamp(12, 22, ['.AA.', 'AAAA', '.aa.']).rect(18, 26, 3, 2, 'P');
+	return finish(p, [16, 15], [16, 26]);
 }
 
 export function emberkit(stage: Exclude<PetStage, 'egg'>): PetArt {
+	const n = stage === 'baby' ? 0 : stage === 'teen' ? 1 : 2;
+	const y = [20, 16, 13][n];
 	const p = frame();
-	if (stage === 'baby') {
-		flame(p, 22, 22, 3);
-		p.ellipse(15.5, 25, 6, 5, 'P');
-		foxEars(p, 15.5, 11, 5, 4);
-		p.ellipse(15.5, 18, 6.5, 5.5, 'P');
-		p.ellipse(15.5, 21, 3, 2, 'C', true);
-		p.ellipse(15.5, 26, 3, 3, 'C', true);
-		p.rect(12, 29, 2, 2, 'P').rect(18, 29, 2, 2, 'P');
-		shade(p);
-		eyes(p, 15.5, 17, 5);
-		cheeks(p, 15.5, 20, 5);
-		p.set(15, 20, 'k').set(16, 20, 'k');
-		return finish(p, [15.5, 12], [15.5, 23]);
-	}
-	if (stage === 'teen') {
-		flame(p, 24, 19, 4);
-		p.ellipse(16, 24, 7, 5, 'P');
-		foxEars(p, 13, 6, 6, 4);
-		p.ellipse(13, 14, 6, 5, 'P');
-		p.ellipse(11, 17, 3, 2, 'C', true);
-		p.ellipse(15, 25, 4, 3, 'C', true);
-		p.rect(10, 28, 2, 3, 'P').rect(13, 28, 2, 3, 'P').rect(19, 28, 2, 3, 'P').rect(22, 28, 2, 3, 'P');
-		shade(p);
-		eyes(p, 13, 13, 4);
-		cheeks(p, 13, 16, 4);
-		p.set(10, 17, 'k');
-		return finish(p, [13, 8], [14, 19]);
-	}
-	flame(p, 25, 14, 5);
-	p.ellipse(18, 23, 8, 6, 'P');
-	p.rect(22, 18, 4, 6, 'P');
-	foxEars(p, 12, 2, 7, 4);
-	p.ellipse(12, 11, 6, 5, 'P');
-	p.rect(6, 13, 4, 3, 'P');
-	p.ellipse(10, 19, 4, 4, 'C', true);
-	p.ellipse(8, 14, 2, 1.5, 'C', true);
-	p.rect(10, 26, 2, 5, 'P').rect(14, 27, 2, 4, 'P').rect(20, 27, 2, 4, 'P').rect(24, 26, 2, 5, 'P');
-	shade(p);
-	eyes(p, 12, 9, 3);
-	p.set(6, 14, 'k');
-	p.rect(10, 15, 4, 1, 'A').set(12, 16, 'b');
-	return finish(p, [12, 5], [11, 16]);
+	// A long hooked tail and folded wings distinguish even the hatchling.
+	p.stamp(22, 25 - n, ['.....PP', '....PPP', '...PPp.', 'PPPPp..', 'PPpp...']);
+	p.stamp(25, 22 - n, ['.AA', 'AAA', '.a.']);
+	const wingY = 19 - n;
+	p.stamp(2, wingY, ['A......', 'AA.....', 'APA....', 'APPAA..', 'APPPPA.', 'APPPPAA', '.AppAA.', '..AA...']);
+	p.stamp(23, wingY, ['......A', '.....AA', '....APA', '..AAPPA', '.APPPPA', 'AAPPPPA', '.AAppA.', '...AA..']);
+	p.ellipse(15.5, 26, 6.5 + n, 4, 'P');
+	p.rect(12, y + 4, 8, 22 - y, 'P');
+	p.rect(10 - n, 29, 4, 2, 'P').rect(18, 29, 4 + n, 2, 'P');
+	p.ellipse(15.5, y, 6.5 + n, 6, 'P');
+	p.rim('P', 'p');
+	p.ellipse(15.5, 27, 3.5 + n, 3, 'C').rim('C', 'c');
+	// Golden horns turn outward; the centre crown stays clear for hats.
+	p.stamp(8 - n, y - 7, ['AA.', 'aA.', '.AA']);
+	p.stamp(21 + n, y - 7, ['.AA', '.Aa', 'AA.']);
+	p.rect(11 - n, y - 4, 4, 2, 'q');
+	p.ellipse(15.5, y + 3, 5.5, 2, 'q');
+	p.rect(11, y, 2, 2, 'k').rect(19, y, 2, 2, 'k');
+	p.set(14, y + 2, 'p').set(17, y + 2, 'p').rect(15, y + 4, 2, 1, 'p');
+	if (n > 0) p.rect(9, 25, 2, 3, 'q').rect(21, 25, 2, 3, 'p');
+	return finish(p, [16, y - 6], [16, y + 7]);
 }
 
 // ── Puddlefin: an axolotl-ish water sprite with frilly gills ────────────────

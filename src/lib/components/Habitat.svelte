@@ -1,8 +1,7 @@
 <script lang="ts">
 	import type { Snippet } from 'svelte';
 	import type { AvatarConfig } from '$lib/content/types';
-	import { petBed } from '$lib/sprites/art/icons';
-	import { REFERENCE_PALETTE } from '$lib/content/palettes';
+	import { bed } from '$lib/sprites/room';
 	import Avatar from './Avatar.svelte';
 	import Figure from './Figure.svelte';
 	import PetSprite from './PetSprite.svelte';
@@ -19,16 +18,11 @@
 		children?: Snippet;
 	} = $props();
 
-	const bed = {
-		w: 28,
-		h: 10,
-		pivot: 0,
-		layers: [{ z: 0, art: { sprite: petBed() }, palette: { ...REFERENCE_PALETTE, primary: ['#8a3a5a', '#c05a80', '#e88aaa'] as const, secondary: ['#c8b0a0', '#f0e0d0', '#ffffff'] as const } }]
-	};
+
 </script>
 
 <div class="room">
-	<div class="window" aria-hidden="true"></div>
+	<div class="room-label small soft"><span>{heroName}{pet ? ` & ${pet.name}` : ''}</span><span>{pet?.away ? 'Away' : 'At home'}</span></div>
 	<div class="bed"><Figure figure={bed} key="bed" scale={4} animate={false} /></div>
 	<div class="hero"><Avatar {avatar} scale={4} label={heroName} /></div>
 	{#if pet && !pet.away}
@@ -44,57 +38,56 @@
 <style>
 	.room {
 		position: relative;
-		height: 240px;
-		border: 3px solid var(--line);
-		border-radius: 8px;
-		overflow: hidden;
-		background:
-			repeating-linear-gradient(90deg, transparent 0 46px, color-mix(in srgb, var(--line) 10%, transparent) 46px 48px) 0 0 / 100% 62%
-				no-repeat,
-			linear-gradient(var(--sky) 0 62%, var(--line) 62% calc(62% + 3px), var(--floor) calc(62% + 3px));
-		margin-bottom: 12px;
+		height: 224px;
+		background: var(--bg-3);
+		margin: 0 4px 12px;
+		box-shadow: 0 2px 0 var(--trim);
+		isolation: isolate;
 	}
 
-	.window {
+	.room::before {
+		content: '';
 		position: absolute;
-		top: 18px;
-		left: 50%;
-		transform: translateX(-50%);
-		width: 72px;
-		height: 56px;
-		border: 3px solid var(--line);
-		border-radius: 4px;
-		background:
-			linear-gradient(90deg, transparent 47%, var(--line) 47% 53%, transparent 53%),
-			linear-gradient(transparent 47%, var(--line) 47% 53%, transparent 53%),
-			linear-gradient(#bfe6ff, #e8f6ff);
+		inset: 4px -4px;
+		background: inherit;
+		z-index: -1;
+	}
+
+	.room-label {
+		position: absolute;
+		top: 16px;
+		left: 16px;
+		right: 16px;
+		display: flex;
+		justify-content: space-between;
+		gap: 8px;
 	}
 
 	.bed {
 		position: absolute;
-		right: 14px;
-		bottom: 26px;
+		right: 16px;
+		bottom: 16px;
 	}
 
 	.hero {
 		position: absolute;
-		left: 16%;
-		bottom: 18px;
+		left: 16px;
+		bottom: 20px;
 	}
 
 	.pet {
 		position: absolute;
-		right: 24px;
-		bottom: 36px;
+		right: 8px;
+		bottom: 28px;
 	}
 
 	.away {
 		position: absolute;
-		right: 12px;
-		bottom: 70px;
+		right: 16px;
+		bottom: 64px;
+		max-width: 128px;
+		padding: 8px;
 		background: var(--bg-2);
-		border: 2px solid var(--line);
-		border-radius: 6px;
-		padding: 2px 8px;
 	}
+
 </style>

@@ -1,8 +1,8 @@
 <script lang="ts">
-	import type { PaletteSet, Ramp, Sprite } from '$lib/sprites/grid';
+	import type { PaletteSet, Ramp } from '$lib/sprites/grid';
 	import { REFERENCE_PALETTE } from '$lib/content/palettes';
 	import { ICON } from '$lib/sprites/frames';
-	import { UI_ICONS, type UiIconName } from '$lib/sprites/ui-icons';
+	import { UI_ICONS, type UiIcon, type UiIconName } from '$lib/sprites/ui-icons';
 	import type { Art } from '$lib/content/types';
 	import Figure from './Figure.svelte';
 
@@ -14,10 +14,10 @@
 		label = ''
 	}: { name?: UiIconName; art?: Art; tint?: Ramp; scale?: number; label?: string } = $props();
 
-	const spec = $derived.by((): { art: Art; palette: PaletteSet; key: string } => {
+	const spec = $derived.by((): { art: Art; palette: PaletteSet; fixedColors?: boolean; key: string } => {
 		if (name) {
-			const ui = UI_ICONS[name] as { sprite: Sprite; palette: PaletteSet };
-			return { art: { sprite: ui.sprite }, palette: ui.palette, key: `ui:${name}` };
+			const ui = UI_ICONS[name] as UiIcon;
+			return { ...ui, key: `ui:${name}` };
 		}
 		return {
 			art: art!,
@@ -25,7 +25,7 @@
 			key: `icon:${'png' in art! ? art!.png : art!.sprite.rows.join('')}:${tint?.join() ?? ''}`
 		};
 	});
-	const figure = $derived({ w: ICON.w, h: ICON.h, pivot: 0, layers: [{ z: 0, art: spec.art, palette: spec.palette }] });
+	const figure = $derived({ w: ICON.w, h: ICON.h, pivot: 0, layers: [{ z: 0, art: spec.art, palette: spec.palette, fixedColors: spec.fixedColors }] });
 </script>
 
 <Figure {figure} key={spec.key} {scale} animate={false} {label} />

@@ -16,19 +16,21 @@ export function contrast(a: string, b: string): number {
 }
 
 // Every pair the UI actually puts text on.
+const SURFACES = ['bg', 'bg2', 'bg3'] as const;
 const TEXT_PAIRS: [keyof ThemeTokens, keyof ThemeTokens][] = [
-	['ink', 'bg'],
-	['ink', 'bg2'],
-	['ink', 'bg3'],
-	['inkSoft', 'bg2'],
-	['inkSoft', 'bg'],
 	['accentInk', 'accent'],
-	['good', 'bg2'],
-	['bad', 'bg2']
+	...SURFACES.flatMap((bg) => (['ink', 'inkSoft', 'accent', 'good', 'bad', 'statStr', 'statDex', 'statInt', 'statKno'] as const).map((fg): [keyof ThemeTokens, keyof ThemeTokens] => [fg, bg]))
 ];
 
 describe('themes', () => {
 	for (const t of THEMES) {
+		it(`${t.id} has visible focus, controls and progress`, () => {
+			for (const bg of SURFACES) {
+				for (const fg of ['focus', 'line', 'xp', 'gp'] as const) {
+					expect(contrast(t.tokens[fg], t.tokens[bg]), `${t.id}: ${fg} on ${bg}`).toBeGreaterThanOrEqual(3);
+				}
+			}
+		});
 		it(`${t.id} meets WCAG AA for text`, () => {
 			for (const [fg, bg] of TEXT_PAIRS) {
 				expect(contrast(t.tokens[fg], t.tokens[bg]), `${t.id}: ${fg} on ${bg}`).toBeGreaterThanOrEqual(4.5);

@@ -50,7 +50,8 @@ export const CHANNEL_CHARS: Record<string, [Channel, 0 | 1 | 2]> = {
 export const FIXED_COLORS: Record<string, string> = {
 	o: '#2b1f33',
 	k: '#1a1322',
-	w: '#ffffff',
+	// Keep fixed white distinct from the secondary highlight in PNG exports.
+	w: '#fffefd',
 	r: '#f59bb0',
 	m: '#a33d55',
 	g: '#9a93a8',
