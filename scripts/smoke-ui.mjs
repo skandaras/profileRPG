@@ -69,6 +69,18 @@ try {
 	const shot = async (name) => {
 		await page.evaluate(() => document.fonts.ready);
 		await page.waitForFunction(() => [...document.querySelectorAll('.figure')].every((f) => f.style.backgroundImage.startsWith('url(')));
+		const rawEmoji = await page.locator('body').evaluate((body) => {
+			const walker = document.createTreeWalker(body, NodeFilter.SHOW_TEXT);
+			const found = [];
+			while (walker.nextNode()) {
+				const node = walker.currentNode;
+				if (!node.parentElement?.closest('script, style') && /\p{Extended_Pictographic}/u.test(node.textContent ?? '')) found.push(node.textContent);
+			}
+			return found;
+		});
+		assert.deepEqual(rawEmoji, [], `${name}: built-in emoji use pixel art`);
+		const iconSizes = await page.locator('.display-icon .figure, .tabbar .figure').evaluateAll((nodes) => nodes.map((node) => node.getBoundingClientRect()).filter((r) => r.width % 16 || r.height % 16));
+		assert.deepEqual(iconSizes, [], `${name}: integer icon scales`);
 		assert.equal(await page.locator('h1').count(), 1, `${name}: one h1`);
 		assert.equal(await page.evaluate(() => document.documentElement.scrollWidth > innerWidth), false, `${name}: horizontal overflow`);
 		const headings = await page.locator('main h1, main h2, main h3').evaluateAll((nodes) => nodes.map((n) => Number(n.tagName.slice(1))));
@@ -209,6 +221,17 @@ try {
 	await shot('habits');
 	await page.getByRole('link', { name: 'Stretch before bed', exact: true }).click();
 	await shot('habit-edit');
+	assert.equal(await page.locator('input[name=icon]').inputValue(), '🧘', 'saved emoji stays unchanged');
+	await page.getByRole('textbox', { name: 'Custom icon or emoji' }).fill('🦄');
+	await submit(page.getByRole('button', { name: 'Save', exact: true }));
+	await page.reload();
+	assert.equal(await page.locator('input[name=icon]').inputValue(), '🦄', 'custom emoji persists');
+	assert.ok(await page.locator('.display-icon').filter({ hasText: '🦄' }).count(), 'unknown emoji renders as text');
+	await page.getByRole('button', { name: 'Reading', exact: true }).click();
+	await submit(page.getByRole('button', { name: 'Save', exact: true }));
+	await page.reload();
+	assert.equal(await page.locator('input[name=icon]').inputValue(), '📖', 'picker keeps the original text value');
+	assert.equal(await page.getByRole('textbox', { name: 'Custom icon or emoji' }).inputValue(), '', 'known emoji uses the preview');
 	await page.getByRole('button', { name: 'Delete…', exact: true }).click();
 	assert.equal(await page.locator('#delete-confirm').evaluate((n) => n === document.activeElement), true);
 	await page.getByRole('button', { name: 'Keep it', exact: true }).click();

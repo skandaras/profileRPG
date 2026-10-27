@@ -1,4 +1,5 @@
 <script lang="ts">
+	import DisplayIcon from '$lib/components/DisplayIcon.svelte';
 	import { tick } from 'svelte';
 	import { enhance } from '$app/forms';
 	import { withNotices } from '$lib/act';
@@ -86,7 +87,7 @@
 			{/each}
 		</ul>
 		{#if data.awayNote.fined > 0}<p class="small">That cost {data.awayNote.fined} GP. No harm done, you've got this.</p>{/if}
-		{#if data.awayNote.shielded > 0}<p class="small good"><span aria-hidden="true">🛡️</span> Your Streak Shield saved {data.awayNote.shielded}.</p>{/if}
+		{#if data.awayNote.shielded > 0}<p class="small good"><PixelIcon name="shield" scale={1} /> Your Streak Shield saved {data.awayNote.shielded}.</p>{/if}
 		<form method="POST" action="?/dismiss" use:enhance={withNotices()}>
 			<button class="btn ghost small">Got it</button>
 		</form>
@@ -96,9 +97,9 @@
 {#if ready.length || data.eggsReady}
 	<section class="box alerts">
 		{#each ready as r (r.id)}
-			<a class="btn wide" href="/missions"><span aria-hidden="true">{r.icon}</span> Back from {r.name}! Claim rewards</a>
+			<a class="btn wide" href="/missions"><DisplayIcon value={r.icon} scale={2} /> Back from {r.name}! Claim rewards</a>
 		{/each}
-		{#if data.eggsReady}<a class="btn wide" href="/pet"><span aria-hidden="true">🥚</span> An egg is ready to hatch!</a>{/if}
+		{#if data.eggsReady}<a class="btn wide" href="/pet"><PixelIcon name="egg" scale={1} /> An egg is ready to hatch!</a>{/if}
 	</section>
 {/if}
 
@@ -133,7 +134,7 @@
 {#if data.runs.length > ready.length}
 	<section class="box small">
 		{#each data.runs.filter((r) => !ready.includes(r)) as r (r.id)}
-			<p><span aria-hidden="true">{r.icon}</span> Out on <a href="/missions">{r.name}</a></p>
+			<p><DisplayIcon value={r.icon} scale={2} /> Out on <a href="/missions">{r.name}</a></p>
 		{/each}
 	</section>
 {/if}

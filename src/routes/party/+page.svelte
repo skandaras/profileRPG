@@ -1,4 +1,6 @@
 <script lang="ts">
+	import PixelIcon from '$lib/components/PixelIcon.svelte';
+	import DisplayIcon from '$lib/components/DisplayIcon.svelte';
 	import { STAT_IDS, STATS } from '$lib/content/stats';
 	import Avatar from '$lib/components/Avatar.svelte';
 	import PetSprite from '$lib/components/PetSprite.svelte';
@@ -29,12 +31,12 @@
 		<div class="grow">
 			<h2>{c.heroName}{#if c.userId === data.me}<span class="small soft"> (you)</span>{/if}</h2>
 			<p class="small">
-				Level {c.level}{#if c.pet} · with {c.pet.name} the {c.pet.speciesName}{/if}{#if c.resting} · resting <span aria-hidden="true">🛌</span>{/if}
+				Level {c.level}{#if c.pet} · with {c.pet.name} the {c.pet.speciesName}{/if}{#if c.resting} · resting <PixelIcon name="rest" scale={1} />{/if}
 			</p>
 			<div class="row wrap">
 				{#each STAT_IDS as s (s)}<span class="chip" style:color={STATS[s].color}>{STATS[s].short} {c.stats[s]}</span>{/each}
-				{#if c.bestStreak > 1}<span class="chip"><span aria-hidden="true">🔥</span> Streak {c.bestStreak}</span>{/if}
-				{#if c.returnStreak > 1}<span class="chip"><span aria-hidden="true">🔁</span> Back {c.returnStreak} days in a row</span>{/if}
+				{#if c.bestStreak > 1}<span class="chip"><PixelIcon name="flame" scale={1} /> Streak {c.bestStreak}</span>{/if}
+				{#if c.returnStreak > 1}<span class="chip"><PixelIcon name="repeat" scale={1} /> Back {c.returnStreak} days in a row</span>{/if}
 			</div>
 		</div>
 	</section>
@@ -43,7 +45,7 @@
 <section class="box">
 	<h2>Party news</h2>
 	{#each data.feed as e (e.id)}
-		<p class="news list-row"><span aria-hidden="true">{e.icon}</span> {e.text} <span class="small soft">{ago(e.at)}</span></p>
+		<p class="news list-row"><DisplayIcon value={e.icon} /> {e.text} <span class="small soft">{ago(e.at)}</span></p>
 	{:else}
 		<p class="soft">Nothing yet. Go make some news!</p>
 	{/each}

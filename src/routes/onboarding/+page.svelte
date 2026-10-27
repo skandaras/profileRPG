@@ -1,4 +1,6 @@
 <script lang="ts">
+	import PixelIcon from '$lib/components/PixelIcon.svelte';
+	import DisplayIcon from '$lib/components/DisplayIcon.svelte';
 	import { tick } from 'svelte';
 	import { enhance } from '$app/forms';
 	import { DEFAULT_AVATAR } from '$lib/content/cosmetics';
@@ -52,7 +54,7 @@
 
 <ol class="steps" aria-label="Progress">
 	{#each STEPS as s, i (s)}
-		<li class:done={i < step} class:now={i === step} aria-current={i === step ? 'step' : undefined}><span aria-hidden="true">{i < step ? '✓' : i + 1}</span> {s}<span class="sr-only">{i < step ? ', complete' : i === step ? ', current' : ''}</span></li>
+		<li class:done={i < step} class:now={i === step} aria-current={i === step ? 'step' : undefined}><span aria-hidden="true">{#if i < step}<PixelIcon name="check" scale={1} />{:else}{i + 1}{/if}</span> {s}<span class="sr-only">{i < step ? ', complete' : i === step ? ', current' : ''}</span></li>
 	{/each}
 </ol>
 
@@ -81,12 +83,12 @@
 		<p class="soft small">Your partner grows as you do. Feed it, play with it, and it'll come on missions with you.</p>
 		<fieldset><legend class="sr-only">Partner species</legend><div class="starters">
 			{#each STARTERS as s (s.id)}
-				<button type="button" class="tile starter" class:selection={starter === s.id} aria-pressed={starter === s.id} onclick={() => (starter = s.id)}>
+				<button type="button" class="tile starter" aria-pressed={starter === s.id} onclick={() => (starter = s.id)}>
 					<PetSprite speciesId={s.id} stage="baby" scale={3} label={s.name} />
 					<span class="title">{s.name}</span>
 					<span class="small soft">{s.blurb}</span>
 					<span class="small">Loves {s.affinity.map((a) => STATS[a].name).join(' & ')}</span>
-				</button>
+				{#if starter === s.id}<PixelIcon name="check" scale={1} />{/if}</button>
 			{/each}
 		</div>
 		</fieldset>
@@ -103,13 +105,13 @@
 		<p class="soft small">Start small: three is plenty. You can add, change or make your own any time.</p>
 		<fieldset><legend class="sr-only">Starting habits</legend><div class="templates">
 			{#each HABIT_TEMPLATES as t (t.id)}
-				<button type="button" class="tile tpl" class:selection={picked.includes(t.id)} aria-pressed={picked.includes(t.id)} onclick={() => toggle(t.id)}>
-					<span class="emoji" aria-hidden="true">{t.icon}</span>
+				<button type="button" class="tile tpl" aria-pressed={picked.includes(t.id)} onclick={() => toggle(t.id)}>
+					<DisplayIcon value={t.icon} scale={2} />
 					<span class="tpl-text">
 						<span class="title">{t.title}</span>
 						<span class="small soft">{describeSchedule(t.schedule)}{t.quantity ? ` · ${t.quantity} ${t.unit}` : ''}</span>
 					</span>
-				</button>
+				{#if picked.includes(t.id)}<PixelIcon name="check" scale={1} />{/if}</button>
 			{/each}
 		</div></fieldset>
 	</section>

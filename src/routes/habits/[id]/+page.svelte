@@ -1,4 +1,6 @@
 <script lang="ts">
+	import PixelIcon from '$lib/components/PixelIcon.svelte';
+	import DisplayIcon from '$lib/components/DisplayIcon.svelte';
 	import { tick } from 'svelte';
 	import { enhance } from '$app/forms';
 	import { withNotices } from '$lib/act';
@@ -16,13 +18,13 @@
 <svelte:head><title>{data.habit.title} · LevelUp</title></svelte:head>
 
 <a href="/habits" class="back small">← Habits</a>
-<h1><span aria-hidden="true">{data.habit.icon}</span> {data.habit.title}</h1>
+<h1><DisplayIcon value={data.habit.icon} /> {data.habit.title}</h1>
 
 {#if data.habit.kind === 'habit'}
 	<section class="box">
 		<div class="row wrap">
-			<span class="chip"><span aria-hidden="true">🔥</span> Streak {data.habit.streak}</span>
-			<span class="chip"><span aria-hidden="true">🏆</span> Best {data.habit.bestStreak}</span>
+			<span class="chip"><PixelIcon name="flame" scale={1} /> Streak {data.habit.streak}</span>
+			<span class="chip"><PixelIcon name="trophy" scale={1} /> Best {data.habit.bestStreak}</span>
 		</div>
 		<h2 class="mt">Last four weeks</h2>
 		<p class="small soft">Numbers show ticks; a dot means none.</p>

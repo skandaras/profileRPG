@@ -1,4 +1,6 @@
 <script lang="ts">
+	import PixelIcon from '$lib/components/PixelIcon.svelte';
+	import DisplayIcon from '$lib/components/DisplayIcon.svelte';
 	import { enhance } from '$app/forms';
 	import { withNotices } from '$lib/act';
 	import { HABIT_TEMPLATES } from '$lib/content/habits';
@@ -17,8 +19,8 @@
 <h1>Add a habit</h1>
 
 <div class="tabs">
-	<button type="button" class="btn small" class:ghost={custom} class:selection={!custom} aria-pressed={!custom} onclick={() => (custom = false)}>Templates</button>
-	<button type="button" class="btn small" class:ghost={!custom} class:selection={custom} aria-pressed={custom} onclick={() => (custom = true)}>Build your own</button>
+	<button type="button" class="btn small" class:ghost={custom} aria-pressed={!custom} onclick={() => (custom = false)}>Templates{#if !custom}<PixelIcon name="check" scale={1} />{/if}</button>
+	<button type="button" class="btn small" class:ghost={!custom} aria-pressed={custom} onclick={() => (custom = true)}>Build your own{#if custom}<PixelIcon name="check" scale={1} />{/if}</button>
 </div>
 
 {#if !custom}
@@ -27,7 +29,7 @@
 		{#each HABIT_TEMPLATES as t (t.id)}
 			<form method="POST" action="?/template" use:enhance={withNotices()} class="tpl list-row">
 				<input type="hidden" name="template" value={t.id} />
-				<span class="emoji" aria-hidden="true">{t.icon}</span>
+				<DisplayIcon value={t.icon} scale={2} />
 				<div class="grow">
 					<strong>{t.title}</strong>
 					<div class="small soft">

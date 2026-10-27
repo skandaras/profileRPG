@@ -1,4 +1,5 @@
 <script lang="ts">
+	import PixelIcon from '$lib/components/PixelIcon.svelte';
 	import { enhance } from '$app/forms';
 	import { withNotices } from '$lib/act';
 
@@ -30,7 +31,7 @@
 	<form method="POST" action="?/rest" use:enhance={withNotices()}>
 		<input type="hidden" name="resting" value={data.resting ? 'off' : 'on'} />
 		<p class="small soft">Rest mode is {data.resting ? 'on' : 'off'}.</p>
-		<button class="btn" aria-pressed={data.resting} class:ghost={data.resting}><span aria-hidden="true">{data.resting ? '☀️' : '🛌'}</span>{data.resting ? 'I’m back. Turn rest mode off' : 'Turn rest mode on'}</button>
+		<button class="btn" aria-pressed={data.resting} class:ghost={data.resting}><PixelIcon name={data.resting ? 'sun' : 'rest'} scale={1} />{data.resting ? 'I’m back. Turn rest mode off' : 'Turn rest mode on'}</button>
 	</form>
 </section>
 
@@ -39,7 +40,7 @@
 	<form method="POST" action="?/theme" use:enhance={withNotices()} class="catalogue">
 		{#each data.themes as t (t.id)}
 			<button
-				class="theme tile" class:selection={data.themeId === t.id}
+				class="theme tile"
 				name="theme"
 				value={t.id}
 				disabled={!t.owned}
@@ -51,7 +52,7 @@
 				<span class="swatch" aria-hidden="true"><i></i><i></i><i></i></span>
 				<strong>{t.name}</strong>
 				<span class="small soft">{t.owned ? t.blurb : `Locked: ${t.hint}`}</span>
-			</button>
+			{#if data.themeId === t.id}<PixelIcon name="check" scale={1} />{/if}</button>
 		{/each}
 	</form>
 </section>

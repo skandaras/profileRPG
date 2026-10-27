@@ -1,4 +1,7 @@
 <script lang="ts">
+	import DisplayIcon from './DisplayIcon.svelte';
+	import PixelIcon from './PixelIcon.svelte';
+	import { displayIcon } from '$lib/display-icon';
 	import { HABIT_ICONS } from '$lib/content/habits';
 	import { STAT_IDS, STATS } from '$lib/content/stats';
 	import type { Difficulty, StatId } from '$lib/content/types';
@@ -64,12 +67,14 @@
 </div>
 
 <div class="field">
-	<label for="icon">Icon</label>
-	<div class="row">
-		<input id="icon" name="icon" bind:value={icon} maxlength="4" class="icon-input" />
+	<label for="custom-icon">Icon</label>
+	<div class="row wrap">
+		<input type="hidden" name="icon" value={icon} />
+		<DisplayIcon value={icon} scale={2} />
+		<input id="custom-icon" value={displayIcon(icon) ? '' : icon} oninput={(event) => (icon = event.currentTarget.value)} maxlength="4" placeholder="Custom symbol" aria-label="Custom icon or emoji" class="icon-input" />
 		<div class="icons" role="group" aria-label="Quick icons">
 			{#each HABIT_ICONS as e, i (e)}
-				<button type="button" class="ic" aria-label={ICON_NAMES[i]} aria-pressed={icon === e} onclick={() => (icon = e)}><span aria-hidden="true">{e}</span>{#if icon === e}<span class="chosen" aria-hidden="true">✓</span>{/if}</button>
+				<button type="button" class="ic" aria-label={ICON_NAMES[i]} aria-pressed={icon === e} onclick={() => (icon = e)}><DisplayIcon value={e} scale={2} />{#if icon === e}<span class="chosen" aria-hidden="true"><PixelIcon name="check" scale={1} /></span>{/if}</button>
 			{/each}
 		</div>
 	</div>
@@ -131,7 +136,7 @@
 				{#each WEEK as [d, l] (d)}
 					<label class="day" title={DAY_NAMES[d]}>
 						<input type="checkbox" name="days" value={d} checked={days.includes(d)} onchange={() => toggleDay(d)} />
-						<span aria-hidden="true">{l}</span><span class="sr-only">{DAY_NAMES[d]}</span>
+						<span aria-hidden="true">{l}{#if days.includes(d)}<PixelIcon name="check" scale={1} />{/if}</span><span class="sr-only">{DAY_NAMES[d]}</span>
 					</label>
 				{/each}
 			</div>
@@ -182,21 +187,24 @@
 	}
 
 	.icon-input {
-		width: 64px;
-		text-align: center;
-		font-size: 24px;
+		width: 160px;
+		font-size: 16px;
 		flex: none;
 	}
 
 	.icons {
-		display: flex;
-		gap: 4px;
-		overflow-x: auto;
+		display: grid;
+		grid-template-columns: repeat(auto-fit, 44px);
+		gap: 8px;
+		width: 100%;
 		padding: 8px;
 	}
 
 	.ic {
 		position: relative;
+		display: grid;
+		place-items: center;
+		padding: 0;
 		color: var(--ink);
 		flex: none;
 		width: 44px;
@@ -277,9 +285,5 @@
 		color: var(--ink);
 		font-size: 13px;
 		line-height: 16px;
-	}
-	.day input:checked + span::after {
-		content: '✓';
-		font-size: 12px;
 	}
 </style>

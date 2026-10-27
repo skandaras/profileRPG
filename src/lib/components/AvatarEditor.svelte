@@ -1,4 +1,5 @@
 <script lang="ts">
+	import PixelIcon from '$lib/components/PixelIcon.svelte';
 	import { COSMETICS, OPTIONAL_SLOTS, SLOT_NAMES, SLOT_ORDER } from '$lib/content/cosmetics';
 	import { DYES, EYE_COLORS, HAIR_COLORS, SKIN_TONES, type Swatch } from '$lib/content/palettes';
 	import { dyeItemId } from '$lib/content';
@@ -87,7 +88,7 @@
 				class="btn small"
 				class:ghost={slot !== s}
 				aria-pressed={slot === s}
-				onclick={() => (slot = s)}>{SLOT_NAMES[s]}{#if slot === s}<span aria-hidden="true">✓</span>{/if}</button
+				onclick={() => (slot = s)}>{SLOT_NAMES[s]}{#if slot === s}<PixelIcon name="check" scale={1} />{/if}</button
 			>
 		{/each}
 	</div>
@@ -96,7 +97,7 @@
 		{#if OPTIONAL_SLOTS.includes(slot)}
 			<button type="button" class="tile" aria-pressed={!avatar.parts[slot]} onclick={() => wear(null)}>
 				<Avatar avatar={preview(null)} scale={2} animate={false} label="" />
-				<span class="small">None{#if !avatar.parts[slot]} <span aria-hidden="true">✓</span>{/if}</span>
+				<span class="small">None{#if !avatar.parts[slot]} <PixelIcon name="check" scale={1} />{/if}</span>
 			</button>
 		{/if}
 		{#each options as o (o.id)}
@@ -111,8 +112,8 @@
 					onclick={() => wear(o.id)}
 				>
 					<Avatar avatar={preview(o.id)} scale={2} animate={false} label="" />
-					<span class="small">{o.name}{#if avatar.parts[slot] === o.id} <span aria-hidden="true">✓</span>{/if}</span>
-					{#if !ok}<span class="lock small soft"><span aria-hidden="true">🔒</span> {unlockHint(o.unlock)}</span>{/if}
+					<span class="small">{o.name}{#if avatar.parts[slot] === o.id} <PixelIcon name="check" scale={1} />{/if}</span>
+					{#if !ok}<span class="lock small soft"><PixelIcon name="lock" scale={1} /> {unlockHint(o.unlock)}</span>{/if}
 				</button>
 			{/if}
 		{/each}
@@ -134,7 +135,7 @@
 					style:--c2={s.ramp[2]}
 					onclick={() => tint(s.id)}
 				>
-					{#if s.locked}<span class="swatch-mark" aria-hidden="true">🔒</span>{:else if avatar.colors[colorSlot] === s.id}<span class="swatch-mark" aria-hidden="true">✓</span>{/if}
+					{#if s.locked}<span class="swatch-mark"><PixelIcon name="lock" scale={1} /></span>{:else if avatar.colors[colorSlot] === s.id}<span class="swatch-mark"><PixelIcon name="check" scale={1} /></span>{/if}
 				</button>
 			{/each}
 		</div>

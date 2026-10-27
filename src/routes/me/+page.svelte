@@ -1,4 +1,5 @@
 <script lang="ts">
+	import DisplayIcon from '$lib/components/DisplayIcon.svelte';
 	import { enhance } from '$app/forms';
 	import { withNotices } from '$lib/act';
 	import { STAT_IDS, STATS } from '$lib/content/stats';
@@ -18,10 +19,10 @@
 		<p class="small">Level {data.hero.level} · {data.hero.totalXp} XP earned</p>
 		<Bar value={data.hero.xp} max={data.hero.xpNext} label="Experience" showValue />
 		<div class="links row wrap">
-			<a class="btn small" href="/wardrobe"><span aria-hidden="true">👕</span> Wardrobe</a>
-			<a class="btn small ghost" href="/shop"><span aria-hidden="true">🛍️</span> Shop</a>
-			<a class="btn small ghost" href="/party"><span aria-hidden="true">🎉</span> Party</a>
-			<a class="btn small ghost" href="/settings"><span aria-hidden="true">⚙️</span> Settings</a>
+			<a class="btn small" href="/wardrobe"><PixelIcon name="shirt" scale={1} /> Wardrobe</a>
+			<a class="btn small ghost" href="/shop"><PixelIcon name="bag" scale={1} /> Shop</a>
+			<a class="btn small ghost" href="/party"><PixelIcon name="confetti" scale={1} /> Party</a>
+			<a class="btn small ghost" href="/settings"><PixelIcon name="gear" scale={1} /> Settings</a>
 		</div>
 	</div>
 </section>
@@ -64,7 +65,7 @@
 	{#if data.hero.abilityPoints < 1}<p class="small soft">Reach your next level to earn a point to learn an ability.</p>{/if}
 	{#each data.abilities as a (a.id)}
 		<div class="ability list-row" class:learned={a.learned}>
-			<span class="big" aria-hidden="true">{a.icon}</span>
+			<span class="ability-icon"><DisplayIcon value={a.icon} scale={2} /></span>
 			<div class="grow">
 				<strong>{a.name}</strong>
 				<div class="small">{a.blurb}</div>
@@ -98,7 +99,7 @@
 		margin: 0;
 	}
 
-	.ability:not(.learned) .big {
+	.ability:not(.learned) .ability-icon {
 		filter: grayscale(0.4);
 	}
 

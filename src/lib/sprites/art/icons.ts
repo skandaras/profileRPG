@@ -103,10 +103,11 @@ export const yarn = () => icon([
 	'PpPPqPPpPp.', 'PPqqPPpPPp.', '.PPPPpPPp..', '..pppppp..P', '.......PPPP'
 ], 2, 3);
 
+// A stitched Brambleback: long muzzle, cream horn, folded wing and trailing tail.
 export const plush = () => icon([
-	'.PP....PP.', 'PqqP..PqqP', 'PPPPPPPPPP', '.PqqPPPPP.', '.PqkPPkPP.',
-	'.PPCCCCPp.', '..PCkkCp..', '.PPCCCCPP.', 'PqPPCCPPPp', '.ppp..ppp.'
-], 3, 2);
+	'....CC......', '....CPPP....', '...PqqPkP...', '.PPqqPPPP...', 'PqqPPCCPP.P.',
+	'PPPPPCCPPAAP', '.pppPPPPAAPp', '...PqCkPAapp', '...PqCCPPpp.', '..PPp..PPPp.'
+], 2, 3);
 
 export const shield = () => icon([
 	'..PPPPPP..', 'PPqqPPPPPP', 'PqPPAAPPPp', 'PqPAbbAPPp', 'PPPPAAPPPp',

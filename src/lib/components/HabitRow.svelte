@@ -1,4 +1,6 @@
 <script lang="ts">
+	import DisplayIcon from './DisplayIcon.svelte';
+	import PixelIcon from './PixelIcon.svelte';
 	import { tick } from 'svelte';
 	import { enhance } from '$app/forms';
 	import { withNotices } from '$lib/act';
@@ -37,9 +39,9 @@
 <div class="habit" class:done={habit.done}>
 	<div class="body">
 		{#if link}
-			<a class="name" href="/habits/{habit.id}">{habit.title}</a>
+			<a class="name" href="/habits/{habit.id}"><DisplayIcon value={habit.icon} /> {habit.title}</a>
 		{:else}
-			<span class="name">{habit.title}</span>
+			<span class="name"><DisplayIcon value={habit.icon} /> {habit.title}</span>
 		{/if}
 		<div class="meta small soft">
 			{#if habit.quantity}
@@ -58,7 +60,7 @@
 		<input type="hidden" name="id" value={habit.id} />
 		<button bind:this={tickButton} class="tick" disabled={busy || (habit.kind === 'task' && habit.done && !canUndo)}
 			aria-label={canUndo ? `Undo the last tick of ${habit.title}` : habit.done ? `${habit.title}, done. Log again` : `Tick off ${habit.title}`}>
-			{#if habit.done}<svg viewBox="0 0 16 16" width="24" height="24" aria-hidden="true"><path fill="currentColor" d="M2 8h3v3h3V8h3V5h3V2h-3v3H8v3H5V5H2z" /></svg>
+			{#if habit.done}<PixelIcon name={canUndo ? 'undo' : 'check'} scale={1} />
 			{:else}<span aria-hidden="true">+</span>{/if}
 			{#if canUndo}<span class="undo-label small">Undo</span>{/if}
 		</button>
@@ -72,7 +74,7 @@
 			{#if habit.completedToday && !canUndo}
 				<form method="POST" action={undoAction} use:enhance={withNotices()}>
 					<input type="hidden" name="id" value={habit.id} />
-					<button class="amount-toggle small soft" aria-label="Undo the last tick of {habit.title}">Undo last tick</button>
+					<button class="amount-toggle small soft" aria-label="Undo the last tick of {habit.title}"><PixelIcon name="undo" scale={1} /> Undo last tick</button>
 				</form>
 			{/if}
 		</div>
@@ -99,6 +101,7 @@
 	}
 
 	.name {
+		gap: 8px;
 		display: flex;
 		align-items: center;
 		min-height: 24px;

@@ -1,4 +1,5 @@
 <script lang="ts">
+	import DisplayIcon from '$lib/components/DisplayIcon.svelte';
 	import { enhance } from '$app/forms';
 	import { withNotices } from '$lib/act';
 	import HabitRow from '$lib/components/HabitRow.svelte';
@@ -30,7 +31,7 @@
 		<h2>Archived</h2>
 		{#each data.archived as h (h.id)}
 			<div class="spread arch">
-				<span><span aria-hidden="true">{h.icon}</span> {h.title}</span>
+				<span><DisplayIcon value={h.icon} /> {h.title}</span>
 				<form method="POST" action="?/restore" use:enhance={withNotices()}>
 					<input type="hidden" name="id" value={h.id} />
 					<button class="btn ghost small">Restore</button>

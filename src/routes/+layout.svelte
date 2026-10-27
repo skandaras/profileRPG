@@ -19,12 +19,12 @@
 	});
 
 	const TABS = [
-		{ href: '/', label: 'Home' },
-		{ href: '/habits', label: 'Habits' },
-		{ href: '/pet', label: 'Pet' },
-		{ href: '/missions', label: 'Quests' },
-		{ href: '/me', label: 'Me' }
-	];
+		{ href: '/', label: 'Home', icon: 'house' },
+		{ href: '/habits', label: 'Habits', icon: 'clipboard' },
+		{ href: '/pet', label: 'Pet', icon: 'paw' },
+		{ href: '/missions', label: 'Quests', icon: 'map' },
+		{ href: '/me', label: 'Me', icon: 'xp' }
+	] as const;
 
 	const activeTheme = $derived(THEMES.find((t) => t.id === data.hero?.themeId) ?? THEMES[0]);
 	const isActive = (href: string) => {
@@ -59,7 +59,7 @@
 			</a>
 		</div>
 		{#if data.hero.resting}
-			<div class="resting small"><span aria-hidden="true">🛌</span> Rest mode is on. Nothing is lost while you recover. <a href="/settings">Change</a></div>
+			<div class="resting small"><PixelIcon name="rest" scale={1} /> Rest mode is on. Nothing is lost while you recover. <a href="/settings">Change</a></div>
 		{/if}
 	</header>
 {/if}
@@ -72,6 +72,7 @@
 	<nav class="tabbar" aria-label="Main">
 		{#each TABS as t (t.href)}
 			<a href={t.href} aria-current={isActive(t.href) ? 'page' : undefined}>
+				<PixelIcon name={t.icon} scale={1} />
 				<span class="lbl">{t.label}</span>
 			</a>
 		{/each}
@@ -166,6 +167,8 @@
 	}
 
 	.tabbar a {
+		flex-direction: column;
+		gap: 4px;
 		flex: 1;
 		max-width: 112px;
 		display: flex;

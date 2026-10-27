@@ -62,7 +62,7 @@
 				{#each [['pat', 'Pat', companion.cooldowns.pat], ['play', 'Play', companion.cooldowns.play], ['tidy', 'Tidy', companion.cooldowns.tidy]] as const as [action, label, cd] (action)}
 					<form method="POST" action="?/{action}" use:enhance={withNotices()}>
 						<input type="hidden" name="pet" value={companion.id} />
-						<button class="btn ghost wide" disabled={cd > 0}>{label}{cd > 0 ? ` (${wait(cd)})` : ''}</button>
+						<button class="btn ghost wide" disabled={cd > 0}><PixelIcon name={action === 'pat' ? 'joy' : action === 'play' ? 'ball' : 'broom'} scale={1} /> {label}{cd > 0 ? ` (${wait(cd)})` : ''}</button>
 					</form>
 				{/each}
 			</div>
@@ -88,7 +88,7 @@
 		{/if}
 		{#if data.canForage}
 			<form method="POST" action="?/forage" use:enhance={withNotices()} class="mt">
-				<button class="btn ghost wide">Forage for berries (free, once a day)</button>
+				<button class="btn ghost wide"><PixelIcon name="berry" scale={1} /> Forage for berries (free, once a day)</button>
 			</form>
 		{/if}
 	</section>
@@ -98,9 +98,9 @@
 			<h2>Dress up {companion.name}</h2>
 			<form method="POST" action="?/accessory" use:enhance={withNotices()} class="row wrap">
 				<input type="hidden" name="pet" value={companion.id} />
-				<button class="btn small" class:ghost={!!companion.accessoryId} aria-pressed={!companion.accessoryId} class:selection={!companion.accessoryId} name="accessory" value="">Nothing</button>
+				<button class="btn small" class:ghost={!!companion.accessoryId} aria-pressed={!companion.accessoryId} name="accessory" value="">Nothing{#if !companion.accessoryId}<PixelIcon name="check" scale={1} />{/if}</button>
 				{#each data.accessories as a (a.id)}
-					<button class="btn small" class:ghost={companion.accessoryId !== a.id} aria-pressed={companion.accessoryId === a.id} class:selection={companion.accessoryId === a.id} name="accessory" value={a.id}>{a.name}</button>
+					<button class="btn small" class:ghost={companion.accessoryId !== a.id} aria-pressed={companion.accessoryId === a.id} name="accessory" value={a.id}>{a.name}{#if companion.accessoryId === a.id}<PixelIcon name="check" scale={1} />{/if}</button>
 				{/each}
 			</form>
 		</section>
@@ -202,6 +202,12 @@
 		grid-template-columns: repeat(3, 1fr);
 		gap: 8px;
 		margin-bottom: 24px;
+	}
+
+	.care .btn {
+		padding: 8px 4px;
+		gap: 4px;
+		font-size: 16px;
 	}
 
 	.nest {

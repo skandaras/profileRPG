@@ -28,7 +28,7 @@
 	const frames = $derived(strip?.frames ?? 1);
 </script>
 
-<div
+<span
 	class="figure pixel"
 	class:animate={animate && frames > 1}
 	role={label ? 'img' : undefined}
@@ -41,10 +41,12 @@
 	style:--frames={frames}
 	style:--shift="-{figure.w * frames * scale}px"
 	style:--speed="{speed}s"
-></div>
+></span>
 
 <style>
 	.figure {
+		display: inline-block;
+		vertical-align: middle;
 		flex: none;
 		background-repeat: no-repeat;
 		background-position: 0 0;

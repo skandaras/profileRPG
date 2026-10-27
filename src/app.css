@@ -467,12 +467,6 @@ strong {
 	text-align: center;
 }
 
-.selection::after {
-	content: '✓';
-	font-family: 'DM Sans', sans-serif;
-	font-size: 16px;
-	line-height: 20px;
-}
 
 .btn.danger {
 	background: var(--bg-3);

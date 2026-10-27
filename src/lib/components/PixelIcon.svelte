@@ -28,4 +28,4 @@
 	const figure = $derived({ w: ICON.w, h: ICON.h, pivot: 0, layers: [{ z: 0, art: spec.art, palette: spec.palette, fixedColors: spec.fixedColors }] });
 </script>
 
-<Figure {figure} key={spec.key} {scale} animate={false} {label} />
+<Figure {figure} key={spec.key} scale={Math.max(1, Math.floor(scale))} animate={false} {label} />

@@ -1,6 +1,6 @@
 <script lang="ts">
 	import PixelIcon from './PixelIcon.svelte';
-	import { noticeIcon } from '$lib/sprites/ui-icons';
+	import DisplayIcon from './DisplayIcon.svelte';
 	import { celebration, toasts, dismissToast, pauseToast, resumeToast } from '$lib/toasts.svelte';
 
 	let dialog: HTMLDialogElement | undefined = $state();
@@ -46,8 +46,7 @@
 		<div role="group" class="toast box" class:warn={t.kind === 'warn'} onpointerenter={() => pauseToast(t.id)} onpointerleave={() => resumeToast(t.id)} onfocusin={() => pauseToast(t.id)} onfocusout={() => resumeToast(t.id)}>
 			<div class="notice" role={t.kind === 'warn' ? 'alert' : undefined}>
 				{#if t.icon}
-					{@const icon = noticeIcon(t.icon)}
-					{#if icon}<PixelIcon name={icon} scale={1} />{:else}<span aria-hidden="true">{t.icon}</span>{/if}
+					<DisplayIcon value={t.icon} />
 				{/if}
 				<span>{t.text}</span>
 			</div>
@@ -57,7 +56,7 @@
 </div>
 
 <dialog bind:this={dialog} class="box celebrate" onkeydown={trapFocus} aria-modal="true" aria-labelledby="lvl-title" aria-describedby="lvl-description" oncancel={(event) => { event.preventDefault(); close(); }} onclose={() => { if (celebration.level) close(); }}>
-	<div class="burst" aria-hidden="true">✦ ✧ ✦</div>
+	<div class="burst" aria-hidden="true"><PixelIcon name="tidy" scale={2} /><PixelIcon name="confetti" scale={2} /><PixelIcon name="tidy" scale={2} /></div>
 	<h2 id="lvl-title">Level {celebration.level ?? ''}!</h2>
 	<p id="lvl-description">You have new points to spend on stats and abilities.</p>
 	<div class="row wrap center">
@@ -150,8 +149,8 @@
 	}
 
 	.burst {
-		font-size: 24px;
-		color: var(--gp);
-		letter-spacing: 0.4em;
+		display: flex;
+		justify-content: center;
+		gap: 12px;
 	}
 </style>
