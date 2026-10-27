@@ -32,13 +32,16 @@ export function resumeToast(id: number) {
 }
 
 export function pushNotices(list: Notice[]) {
-	// XP and GP from one action read better as one line each than as a burst.
+	// Each call is one action; keep its rewards together without merging later actions.
+	const rewards = list.filter((n) => n.kind === 'xp' || n.kind === 'gp');
 	for (const n of list) {
+		const isReward = n.kind === 'xp' || n.kind === 'gp';
+		if (isReward && n !== rewards[0]) continue;
 		if (n.kind === 'level') {
 			const m = n.text.match(/level (\d+)/);
 			if (m) celebration.level = Number(m[1]);
 		}
-		const toast = { ...n, id: next++ };
+		const toast = { ...n, text: isReward ? rewards.map((r) => r.text).join(' · ') : n.text, id: next++ };
 		toasts.push(toast);
 		resumeToast(toast.id);
 	}

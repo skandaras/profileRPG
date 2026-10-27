@@ -145,6 +145,16 @@
 </div>
 
 <style>
+	.tabs {
+		flex-wrap: wrap;
+		overflow: visible;
+	}
+
+	.tabs .btn {
+		flex: none;
+		white-space: nowrap;
+	}
+
 	.stage {
 		display: flex;
 		justify-content: center;

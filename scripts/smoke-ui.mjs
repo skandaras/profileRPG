@@ -124,6 +124,25 @@ try {
 	};
 
 	const checkAvatarChoices = async () => {
+		const categories = page.getByRole('group', { name: 'Avatar parts', exact: true });
+		for (const width of [320, 390]) {
+			await page.setViewportSize({ width, height: 844 });
+			await categories.getByRole('button').first().focus();
+			for (const button of await categories.getByRole('button').all()) {
+				assert.equal(await button.evaluate((n) => n === document.activeElement), true, 'Tab reaches every avatar category');
+				await page.keyboard.press('Enter');
+				assert.equal(await button.getAttribute('aria-pressed'), 'true', 'Enter selects the category');
+				const clipped = await categories.evaluate((group) => {
+					const bounds = group.getBoundingClientRect();
+					return [...group.querySelectorAll('button')].filter((node) => {
+						const rect = node.getBoundingClientRect();
+						return rect.left < bounds.left || rect.right > bounds.right || node.scrollWidth > node.clientWidth;
+					}).map((node) => node.textContent);
+				});
+				assert.deepEqual(clipped, [], `all category labels fit at ${width}px`);
+				await page.keyboard.press('Tab');
+			}
+		}
 		await page.getByRole('button', { name: 'Hair', exact: false }).click();
 		assert.equal(await page.locator('.parts .tile').count(), 8, 'eight free hair styles');
 		assert.equal(await page.getByRole('group', { name: 'Hair colour', exact: true }).getByRole('button').count(), 10, 'ten hair colours');
@@ -201,6 +220,10 @@ try {
 	assert.equal(await page.locator('.habit.done').count(), 1);
 	assert.deepEqual(await page.locator('.habit .name').allTextContents(), orderBefore);
 	assert.ok(Number(await page.getByRole('meter', { name: 'Experience to next level' }).getAttribute('aria-valuenow')) > Number(xpBefore));
+	assert.equal(await page.locator('.toast').count(), 1, 'one reward notice for the activity');
+	assert.match(await page.locator('.toast .notice').innerText(), /\+\d+ XP · \+\d+ GP/);
+	assert.equal(await page.getByRole('region', { name: 'Notices' }).getAttribute('aria-live'), 'polite');
+	assert.equal(await page.locator('.toast .notice').getAttribute('aria-atomic'), 'true');
 	await shot('home-ticked');
 	await submit(page.getByRole('button', { name: 'Undo the last tick of Go for a walk', exact: true }).locator('.undo-label'));
 	await expectText('0 of 3 done');
@@ -285,6 +308,7 @@ try {
 	]) {
 		await go(path);
 		await expectText(text);
+		if (path === '/party') assert.match(await page.locator('.card h2').first().textContent(), /Smokey\s\(you\)/);
 		await shot(path.slice(1));
 		if (path === '/wardrobe') {
 			await checkAvatarChoices();

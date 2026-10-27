@@ -199,7 +199,8 @@ The habit picker saves the original emoji value. Icons beside text are decorativ
 
 Run `node scripts/generate-icons.mjs` from the repo root to rebuild all app icons. The
 Brambleback portrait uses a 16 × 16 grid, the Garden pet ramps and Meadow paper. The SVG
-uses integer rectangles and `shape-rendering="crispEdges"`. PNGs use 11×, 12× and 32×
+keeps a projecting snout, narrow swept horns and an angular folded wing legible at 16px.
+It uses integer rectangles and `shape-rendering="crispEdges"`. PNGs use 11×, 12× and 32×
 pixels; the 180px icon has a 2px paper inset so no sprite pixel needs fractional scaling.
 Manifest background/theme colours and the default browser theme colour use Meadow's
 `bg`, currently `#f1eadc`. The browser colour follows the player's theme on server render

@@ -44,7 +44,7 @@
 <div class="toasts" role="region" aria-label="Notices" aria-live="polite" aria-relevant="additions">
 	{#each toasts as t (t.id)}
 		<div role="group" class="toast box" class:warn={t.kind === 'warn'} onpointerenter={() => pauseToast(t.id)} onpointerleave={() => resumeToast(t.id)} onfocusin={() => pauseToast(t.id)} onfocusout={() => resumeToast(t.id)}>
-			<div class="notice" role={t.kind === 'warn' ? 'alert' : undefined}>
+			<div class="notice" aria-atomic="true" role={t.kind === 'warn' ? 'alert' : undefined}>
 				{#if t.icon}
 					<DisplayIcon value={t.icon} />
 				{/if}

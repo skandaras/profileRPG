@@ -29,7 +29,7 @@
 			{#if c.pet}<PetSprite speciesId={c.pet.speciesId} stage={c.pet.stage} accessoryId={c.pet.accessoryId} mood={c.pet.mood} scale={2} label={c.pet.name} />{/if}
 		</div>
 		<div class="grow">
-			<h2>{c.heroName}{#if c.userId === data.me}<span class="small soft"> (you)</span>{/if}</h2>
+			<h2>{c.heroName}{#if c.userId === data.me}<span class="small soft">&nbsp;(you)</span>{/if}</h2>
 			<p class="small">
 				Level {c.level}{#if c.pet} · with {c.pet.name} the {c.pet.speciesName}{/if}{#if c.resting} · resting <PixelIcon name="rest" scale={1} />{/if}
 			</p>
