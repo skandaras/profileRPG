@@ -1,7 +1,7 @@
 import { expect, it } from 'vitest';
 import { COSMETICS, DEFAULT_AVATAR, PET_ACCESSORIES } from '$lib/content/cosmetics';
 import { DYES, HAIR_COLORS, REFERENCE_PALETTE, SKIN_TONES } from '$lib/content/palettes';
-import { STARTERS } from '$lib/content/pets';
+import { SPECIES } from '$lib/content/pets';
 import { Z } from './frames';
 import { blank, recolor, renderSprite, type RgbaImage } from './compose';
 import { avatarFigure, paintFigure, petFigure } from './layers';
@@ -94,8 +94,8 @@ it('keeps both hair layers under closed hats and preserves hair under bands and 
 	expect(pixel(source, 16, 13)[3]).toBe(255);
 });
 
-it('fits every accessory on every starter stage and preserves the eyes in both idle frames', () => {
-	for (const species of STARTERS) for (const stage of ['baby', 'teen', 'adult'] as const) {
+it('fits every accessory on every species and stage and preserves the eyes in both idle frames', () => {
+	for (const species of SPECIES) for (const stage of ['baby', 'teen', 'adult'] as const) {
 		const base = paintFigure(petFigure(species.id, stage));
 		for (const accessory of PET_ACCESSORIES) {
 			const figure = petFigure(species.id, stage, accessory.id);
@@ -119,7 +119,7 @@ it('fits every accessory on every starter stage and preserves the eyes in both i
 			}
 		}
 	}
-	for (const species of STARTERS) for (const accessory of PET_ACCESSORIES) {
+	for (const species of SPECIES) for (const accessory of PET_ACCESSORIES) {
 		expect(petFigure(species.id, 'egg', accessory.id).layers).toHaveLength(1);
 	}
 });
@@ -190,5 +190,17 @@ it('puts the overalls bib over shirts and hair backs behind capes and wings', ()
 		for (let y = 0; y < 40; y++) for (let x = 0; x < 32; x++) {
 			if (pixel(cover, x, y)[3]) expect(pixel(composed, x, y)).toEqual(pixel(cover, x, y));
 		}
+	}
+});
+
+it('renders Garden pet accessories identically from reference PNGs on every species', () => {
+	for (const species of SPECIES) for (const stage of ['baby', 'teen', 'adult'] as const) for (const accessory of PET_ACCESSORIES) {
+		const figure = petFigure(species.id, stage, accessory.id);
+		const layer = figure.layers[1];
+		if (!('sprite' in layer.art)) throw Error('Expected an accessory grid');
+		expect([layer.art.sprite.w, layer.art.sprite.h]).toEqual([12, 8]);
+		const png = renderSprite(layer.art.sprite, REFERENCE_PALETTE);
+		const fromPng = paintFigure({ ...figure, layers: [figure.layers[0], { ...layer, art: { png: '/accessory.png', w: 12, h: 8 } }] }, new Map([['/accessory.png', png]]));
+		expect(fromPng, `${species.id}, ${stage}, ${accessory.id}`).toEqual(paintFigure(figure));
 	}
 });

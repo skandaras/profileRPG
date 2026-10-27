@@ -133,8 +133,12 @@ For a consumable icon, set `icon: { png: '/sprites/icons/kibble.png', w: 16, h: 
 
 A species needs four images (egg, baby, teen, adult), a name, a blurb, a stat affinity and a
 rarity. The Garden starters are Brambleback (`emberkit`), a hedge dragon; Brookbell
-(`puddlefin`), a river seal; and Cloverruff (`mossling`), a moss pup. Names, looks and
-blurbs can change, but keep the ids
-(`emberkit`, `puddlefin`, `mossling`), which are stored on every pet. A new species that hatches from mission eggs also needs an
+(`puddlefin`), a river seal; and Cloverruff (`mossling`), a moss pup. The mission cast
+adds Cairnback (`pebblet`), a stone tortoise; Cloudwool (`fluffle`),
+a curled-horn lamb; and Lamplume (`glimmerwing`), a lantern moth. All six face left,
+with their own cream eggs and stage-specific anchors. Pet accessories use Garden
+ramps in the cosmetic catalogue and fit all six species in both idle frames.
+Names, looks and blurbs can change, but all six ids stay: they are stored on every pet.
+A new species that hatches from mission eggs also needs an
 `{ egg: '<id>' }` entry in at least one mission's loot table; the content tests fail until
 it has one.

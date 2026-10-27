@@ -9,7 +9,7 @@ import * as A from '$lib/sprites/art/avatar';
 import * as P from '$lib/sprites/art/pets';
 import { Z } from '$lib/sprites/frames';
 import type { Ramp } from '$lib/sprites/grid';
-import { ACCENT_GOLD, ACCENT_RUBY, ACCENT_SILVER, DYES, WHITE_RAMP } from './palettes';
+import { ACCENT_RUBY, ACCENT_SILVER, DYES, WHITE_RAMP } from './palettes';
 import type { Art, AvatarConfig, AvatarSlot, Unlock } from './types';
 
 export interface CosmeticLayer {
@@ -221,11 +221,17 @@ export interface PetAccessory {
 	accent?: Ramp;
 }
 
+const PET_GOLD: Ramp = ['#9b652d', '#d9a84e', '#f7d998'];
+const PET_ROSE: Ramp = ['#9d4f57', '#cd7f82', '#f0b4a7'];
+const PET_CLAY: Ramp = ['#9b5140', '#cd815b', '#efbc83'];
+const PET_MOSS: Ramp = ['#426647', '#78915c', '#b2c98a'];
+const PET_SLATE: Ramp = ['#414953', '#687584', '#a6b6ba'];
+
 export const PET_ACCESSORIES: PetAccessory[] = [
-	{ id: 'petacc.bow', name: 'Ribbon bow', unlock: shop(25), place: 'head', art: { sprite: P.petBow() }, tint: DYES[6].ramp, accent: ACCENT_GOLD },
-	{ id: 'petacc.bandana', name: 'Bandana', unlock: shop(30), place: 'neck', art: { sprite: P.petBandana() }, tint: DYES[0].ramp },
-	{ id: 'petacc.bell', name: 'Bell collar', unlock: level(4), place: 'neck', art: { sprite: P.petBell() }, tint: DYES[4].ramp, accent: ACCENT_GOLD },
-	{ id: 'petacc.tophat', name: 'Tiny top hat', unlock: shop(80, 5), place: 'head', art: { sprite: P.petTopHat() }, tint: DYES[8].ramp, accent: ACCENT_RUBY },
-	{ id: 'petacc.flower', name: 'Flower', unlock: drop, place: 'head', art: { sprite: P.petFlower() }, tint: DYES[6].ramp, accent: ACCENT_GOLD },
-	{ id: 'petacc.crown', name: 'Tiny crown', unlock: drop, place: 'head', art: { sprite: P.petCrown() }, tint: ACCENT_GOLD, accent: ACCENT_GOLD }
+	{ id: 'petacc.bow', name: 'Ribbon bow', unlock: shop(25), place: 'head', art: { sprite: P.petBow() }, tint: PET_ROSE, accent: PET_GOLD },
+	{ id: 'petacc.bandana', name: 'Bandana', unlock: shop(30), place: 'neck', art: { sprite: P.petBandana() }, tint: PET_CLAY },
+	{ id: 'petacc.bell', name: 'Bell collar', unlock: level(4), place: 'neck', art: { sprite: P.petBell() }, tint: PET_MOSS, accent: PET_GOLD },
+	{ id: 'petacc.tophat', name: 'Tiny top hat', unlock: shop(80, 5), place: 'head', art: { sprite: P.petTopHat() }, tint: PET_SLATE, accent: PET_ROSE },
+	{ id: 'petacc.flower', name: 'Flower', unlock: drop, place: 'head', art: { sprite: P.petFlower() }, tint: PET_ROSE, accent: PET_GOLD },
+	{ id: 'petacc.crown', name: 'Tiny crown', unlock: drop, place: 'head', art: { sprite: P.petCrown() }, tint: PET_GOLD, accent: PET_GOLD }
 ];
