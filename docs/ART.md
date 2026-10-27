@@ -15,7 +15,8 @@ Inspect art at native size and an integer enlargement, against light and dark su
 - Outline silhouettes with one dark pixel, `#2b1f33`. Pupils use `#1a1322`.
 - Round shapes with broad, even stair steps, usually runs of 2–3 pixels. Keep related
   curls and lobes joined. Leave space between face, hair and clothes.
-- Use three flat shades per material. Base colour fills most of the shape; broad
+- Use two flat shades for tiny materials, up to three where space supports them.
+  Base colour fills most of the shape; broad
   highlights sit upper left, with one connected shadow below or to the right.
 - Join highlights into patches of at least two pixels. Single eye glints and small
   fittings may use one pixel. Avoid speckled fur, checkerboards and dithering.
@@ -91,6 +92,15 @@ brows and eyes. Closed hats declare `coversHairAbove` at their brim row. The ren
 clips both hair layers above that row for grids and PNGs. Bands and crowns keep full hair.
 Check all hair/hat fits and faces on light and dark skin, in both idle frames.
 
+`avatar-cleanup.test.ts` guards every avatar layer: no detached single pixels except
+the four named freckles, no one-pixel shade patches except eye ink/glints, two shades
+per connected material smaller than 32 pixels (up to three for larger pieces), a
+majority base fill when shaded, and at most one shadow per connected material.
+Diagonal pixel neighbours count as joined. Mirrored parts compare outline and material
+boundaries about x=15.5 before lighting; all faces, the skirt, tunic and boots also
+compare exact shade values. Directional parts (ponytail, tail, overlapping kimono, side
+features, scarf, held sword and asymmetric hats) are listed explicitly in the guard.
+
 ## Reference colours and fixed colours
 
 Avatar and accessory PNGs use the exact reference colours below. The renderer swaps each
@@ -110,10 +120,12 @@ Fixed white is **`#fffefd`**, distinct from secondary light **`#ffffff`**. Prese
 one-value difference in PNGs so white soles and eye glints keep their colours.
 `FIXED_COLORS` in `sprites/grid.ts` also supplies outline, pupil and blush colours.
 
-Faces put mouths, brows and sleepy lids in primary shadow; cheery lids use primary base.
+Faces put mouths, brows, calm and sleepy lids in primary shadow; cheery lids use primary base.
 Freckles use the same ink channel. `faceInkRamp()` supplies dark ink on lighter skin and
 warm light ink on Umber and Deep. Export those strokes in reference primary colours;
-fixed dark strokes would lose contrast on dark skin.
+fixed dark strokes would lose contrast on dark skin. Open eyes use a pupil, a flat iris
+and one glint; Sparkly joins the glint into a single bright corner. Determined leaves an
+empty row between brows and eyes.
 
 Pet grids use their species palette from `content/pets.ts`. **Pet PNGs keep their final
 colours**, even where they match a reference colour. `petFigure()` marks their layer
