@@ -157,6 +157,12 @@ try {
 	// Onboarding
 	await go('/');
 	await expectText('Welcome to LevelUp');
+	assert.equal(await page.locator('meta[name=theme-color]').count(), 1);
+	const meadowColor = await page.evaluate(() => getComputedStyle(document.documentElement).getPropertyValue('--bg').trim());
+	assert.equal(await page.locator('meta[name=theme-color]').getAttribute('content'), meadowColor);
+	const manifest = await (await fetch(`${BASE}/manifest.webmanifest`)).json();
+	assert.equal(manifest.theme_color, meadowColor);
+	assert.equal(manifest.background_color, meadowColor);
 	await page.fill('#name', 'Smokey');
 	await shot('onboarding-name');
 	await page.locator('#name').press('Enter');
@@ -351,6 +357,7 @@ try {
 	await submit(page.getByRole('button', { name: /Turn rest mode off/ }));
 	await submit(page.getByRole('button', { name: /Starry night/ }));
 	assert.equal(await page.locator('html').getAttribute('data-theme'), 'night');
+	assert.equal(await page.locator('meta[name=theme-color]').count(), 1);
 	const nightMeta = await page.locator('meta[name=theme-color]').getAttribute('content');
 	await page.reload();
 	assert.equal(await page.locator('html').getAttribute('data-theme'), 'night');

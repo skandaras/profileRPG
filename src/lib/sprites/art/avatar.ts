@@ -28,8 +28,6 @@ export const faceDetermined = () => Garden.face('determined');
 export const faceSleepy = () => Garden.face('sleepy');
 export const faceSparkle = () => Garden.face('sparkle');
 
-// ── Features ────────────────────────────────────────────────────────────────
-
 // ── Hair ────────────────────────────────────────────────────────────────────
 
 export const hairShort = () => Garden.hair('short');

@@ -5,7 +5,7 @@ import { db, runMigrations } from '$lib/server/db';
 import { isAllowed, isTrustedProxy, parseAuthHeaders } from '$lib/server/auth';
 import { provisionUser } from '$lib/server/users';
 import { findPlayer } from '$lib/server/modules/player';
-import { themeCss } from '$lib/content/themes';
+import { THEMES, themeCss } from '$lib/content/themes';
 
 runMigrations();
 
@@ -36,8 +36,11 @@ export const handle: Handle = async ({ event, resolve }) => {
 
 	// The theme goes on <html> server-side, so a dark theme never flashes light first.
 	const theme = findPlayer(db, event.locals.user.id)?.themeId ?? 'meadow';
+	const themeColor = (THEMES.find((t) => t.id === theme) ?? THEMES[0]).tokens.bg;
 	return resolve(event, {
 		transformPageChunk: ({ html }) =>
-			html.replace('data-theme="meadow"', `data-theme="${theme}"`).replace('/*themes*/', THEME_CSS)
+			html.replace('data-theme="meadow"', `data-theme="${theme}"`)
+				.replace('<meta name="theme-color" content="#f1eadc" />', `<meta name="theme-color" content="${themeColor}" />`)
+				.replace('/*themes*/', THEME_CSS)
 	});
 };

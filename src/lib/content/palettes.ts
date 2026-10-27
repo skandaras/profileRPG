@@ -68,7 +68,6 @@ export const DYES: Dye[] = [
 export const ACCENT_GOLD: Ramp = ['#a2761a', '#e0b030', '#ffe48a'];
 export const ACCENT_SILVER: Ramp = ['#7c8296', '#b9bfd0', '#eef0f8'];
 export const ACCENT_RUBY: Ramp = ['#8a1d36', '#d0345a', '#ff8aa8'];
-export const ACCENT_LEAF: Ramp = ['#2d773d', '#4aa85a', '#8ad890'];
 export const WHITE_RAMP: Ramp = ['#b3b7c8', '#e6e8f0', '#ffffff'];
 
 /**

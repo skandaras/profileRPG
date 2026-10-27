@@ -15,7 +15,8 @@
 
 	// The server sets the theme on first load; this keeps it right after a change.
 	$effect(() => {
-		if (data.hero) document.documentElement.dataset.theme = data.hero.themeId;
+		document.documentElement.dataset.theme = activeTheme.id;
+		document.querySelector('meta[name="theme-color"]')?.setAttribute('content', activeTheme.tokens.bg);
 	});
 
 	const TABS = [
@@ -36,7 +37,6 @@
 
 <svelte:head>
 	<title>LevelUp</title>
-	<meta name="theme-color" content={activeTheme.tokens.bg} />
 </svelte:head>
 
 <a class="skip-link" href="#main">Skip to content</a>

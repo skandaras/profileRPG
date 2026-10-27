@@ -52,11 +52,7 @@ export const FIXED_COLORS: Record<string, string> = {
 	k: '#1a1322',
 	// Keep fixed white distinct from the secondary highlight in PNG exports.
 	w: '#fffefd',
-	r: '#f59bb0',
-	m: '#a33d55',
-	g: '#9a93a8',
-	G: '#cfc9d9',
-	n: '#5b4a66'
+	r: '#f59bb0'
 };
 
 export const TRANSPARENT = '.';

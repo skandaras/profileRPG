@@ -228,10 +228,6 @@ label {
 	gap: 12px;
 }
 
-.stack > * + * {
-	margin-top: 12px;
-}
-
 .grid {
 	display: grid;
 	gap: 12px;
@@ -406,12 +402,6 @@ strong {
 .grow {
 	flex: 1;
 	min-width: 0;
-}
-
-.big,
-.emoji {
-	font-size: 24px;
-	line-height: 32px;
 }
 
 .pts {
