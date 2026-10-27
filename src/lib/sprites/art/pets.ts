@@ -236,10 +236,10 @@ function acc() {
 }
 
 export function petBow(): Sprite {
-	// The clear loop centres survive the outline at this small size.
+	// Low, wide loops spread beside the knot, above the short tails.
 	return acc().stamp(0, 0, [
-		'............', '.ooo....ooo.', 'oPPPo..oPPPo', 'oP.PoAAoP.Po',
-		'.oPPPAAPPPo.', '..ooPAAPoo..', '...oPooPo...', '....o..o....'
+		'............', '............', '.oooo..oooo.', 'oPPPPooPPPPo',
+		'oP.PPAAPP.Po', '.oPPPAAPPPo.', '..ooPAAPoo..', '...oPooPo...'
 	]).toSprite();
 }
 

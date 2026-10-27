@@ -70,6 +70,12 @@ export function face(style: Face = 'bright') {
 
 export type Hair = 'short' | 'spiky' | 'bob' | 'long' | 'twintails' | 'ponytail' | 'bun' | 'curly';
 
+const SPIKY_CROWN = [
+	'.........HH.........', '........HHHH........', '.......HHHHHH.......',
+	'......HHHHHHHH......', 'HH....HHHHHHHH....HH', 'HHHH.HHHHHHHHHH.HHHH',
+	'.HHHHHHHHHHHHHHHHHH.', '..HHHHHHHHHHHHHHHH..'
+];
+
 export function hairBack(style: Hair = 'bob') {
 	const p = frame().ellipse(15.5, 16, 9, 7, 'H');
 	if (style === 'bob') {
@@ -84,7 +90,10 @@ export function hairBack(style: Hair = 'bob') {
 	} else if (style === 'bun') {
 		p.ellipse(15.5, 6, 4.5, 3, 'H').rect(12, 8, 8, 1, 'h');
 	} else if (style === 'curly') {
-		p.ellipse(6.5, 17, 3.5, 5, 'H').ellipse(6.5, 23, 3.5, 5, 'H').mirror();
+		p.ellipse(7, 14, 4, 3, 'H').ellipse(5, 21, 3, 3, 'H').ellipse(7, 26, 3, 3, 'H').mirror();
+		p.ellipse(10, 9, 4, 3, 'H').mirror();
+	} else if (style === 'spiky') {
+		p.stamp(6, 3, SPIKY_CROWN);
 	}
 	return p.outline().toSprite();
 }
@@ -94,10 +103,7 @@ export function hair(style: Hair = 'bob') {
 	if (style === 'short') {
 		p.rect(7, 14, 2, 4, 'H').mirror();
 	} else if (style === 'spiky') {
-		p.stamp(6, 6, [
-			'.........HH.........', '........HHHH........', '...HH..HHHHHH..HH...',
-			'..HHHHHHHHHHHHHHHH..', '.HHHHHHHHHHHHHHHHHH.', 'HHHHHHHHHHHHHHHHHHHH'
-		]);
+		p.stamp(6, 3, SPIKY_CROWN);
 	} else if (style === 'bob') {
 		p.stamp(4, 14, ['..HHHH', '.HHHHH', 'HHHHHH', 'HHHHHH', '.HHHHH', '..HHHH', '..HHHH', '.HHHHH', 'HHHHHH', 'HHHHHH', '.HHHHH', '..HHHH']).mirror();
 	} else if (style === 'long') {
@@ -107,8 +113,8 @@ export function hair(style: Hair = 'bob') {
 	} else if (style === 'ponytail') {
 		p.rect(7, 14, 2, 4, 'H').rect(23, 14, 2, 5, 'H');
 	} else {
-		p.ellipse(10, 10, 4, 3, 'H').ellipse(15.5, 8, 4.5, 3, 'H');
-		p.ellipse(6.5, 16, 2.5, 4, 'H').ellipse(6.5, 23, 2.5, 4, 'H').mirror();
+		p.ellipse(10, 8, 4, 3, 'H').ellipse(15.5, 8, 3, 3, 'H');
+		p.ellipse(6, 14, 3, 3, 'H').ellipse(5, 21, 3, 3, 'H').ellipse(7, 26, 3, 3, 'H').mirror();
 	}
 	// The fringe ends on row 17 so every brow and glasses rim stays clear.
 	p.rect(9, 17, 14, 15, '.');
