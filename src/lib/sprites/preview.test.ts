@@ -38,10 +38,10 @@ it.skipIf(!process.env.SPRITE_PREVIEW)('renders contact sheets', () => {
 		(['egg', 'baby', 'teen', 'adult'] as const).map((stage) => paintPreview(petFigure(s.id, stage, a.id))[0])
 	));
 	writeFileSync('test-results/sprites/pets.png', encodePng(sheet([...pets, ...dressed], 4, 34, 34), 3));
-	const cindlets = [undefined, ...PET_ACCESSORIES.map((a) => a.id)].flatMap((accessory) =>
+	const bramblebacks = [undefined, ...PET_ACCESSORIES.map((a) => a.id)].flatMap((accessory) =>
 		(['egg', 'baby', 'teen', 'adult'] as const).map((stage) => paintPreview(petFigure('emberkit', stage, accessory))[0])
 	);
-	writeFileSync('test-results/sprites/cindlet.png', encodePng(sheet(cindlets, 4, 34, 34), 4));
+	writeFileSync('test-results/sprites/brambleback.png', encodePng(sheet(bramblebacks, 4, 34, 34), 4));
 	const keeper = [DEFAULT_AVATAR, { ...DEFAULT_AVATAR, colors: { ...DEFAULT_AVATAR.colors, skin: 'deep', hair: 'silver', top: 'teal' } }];
 	writeFileSync('test-results/sprites/keeper.png', encodePng(sheet(keeper.map((a) => paintPreview(avatarFigure(a))[0]), 2, 34, 42), 4));
 

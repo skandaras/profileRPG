@@ -99,3 +99,10 @@ export const getDye = (id: string) => dyeMap.get(id);
 export const isSkin = (id: string) => skinMap.has(id);
 export const isHair = (id: string) => hairMap.has(id);
 export const isEye = (id: string) => eyeMap.has(id);
+
+/** Warm light ink keeps closed lids and mouths legible on the two darkest tones. */
+export function faceInkRamp(id?: string): Ramp {
+	if (id === 'umber') return ['#edc29b', '#edc29b', '#edc29b'];
+	if (id === 'deep') return ['#dca982', '#dca982', '#dca982'];
+	return ['#2b1f33', '#1a1322', '#fffefd'];
+}

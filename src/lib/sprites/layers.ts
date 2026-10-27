@@ -4,7 +4,7 @@
  * tests all agree on what a character looks like.
  */
 import { getCosmetic, getPetAccessory, getSpecies } from '$lib/content';
-import { ACCENT_GOLD, dyeRamp, eyeRamp, hairRamp, REFERENCE_PALETTE, skinRamp, WHITE_RAMP } from '$lib/content/palettes';
+import { ACCENT_GOLD, dyeRamp, eyeRamp, faceInkRamp, hairRamp, REFERENCE_PALETTE, skinRamp, WHITE_RAMP } from '$lib/content/palettes';
 import { speciesPalette } from '$lib/content/pets';
 import { SLOT_ORDER } from '$lib/content/cosmetics';
 import type { Art, AvatarConfig, ColorSlot } from '$lib/content/types';
@@ -20,6 +20,8 @@ export interface LayerSpec {
 	palette: PaletteSet;
 	/** Pet PNGs carry final colours; avatar and accessory PNGs use reference channels. */
 	fixedColors?: boolean;
+	/** Keep a closed hat from being pierced by the hair beneath it. */
+	clipTop?: number;
 	dx?: number;
 	dy?: number;
 }
@@ -36,6 +38,7 @@ const TINTED_SLOTS: ColorSlot[] = ['top', 'bottom', 'shoes', 'headwear', 'access
 export function avatarFigure(avatar: AvatarConfig): Figure {
 	const c = avatar.colors;
 	const layers: LayerSpec[] = [];
+	const headwear = avatar.parts.headwear ? getCosmetic(avatar.parts.headwear) : undefined;
 	for (const slot of SLOT_ORDER) {
 		const id = avatar.parts[slot];
 		const part = id ? getCosmetic(id) : undefined;
@@ -45,11 +48,14 @@ export function avatarFigure(avatar: AvatarConfig): Figure {
 			skin: skinRamp(c.skin),
 			hair: hairRamp(c.hair),
 			eye: eyeRamp(c.eyes),
-			primary: dyeRamp(tint),
+			primary: slot === 'face' ? faceInkRamp(c.skin) : dyeRamp(tint),
 			secondary: part.secondary ?? WHITE_RAMP,
 			accent: part.accent ?? ACCENT_GOLD
 		};
-		for (const l of part.layers) layers.push({ z: l.z, art: l.art, palette });
+		for (const l of part.layers) layers.push({
+			z: l.z, art: l.art, palette,
+			clipTop: slot === 'hair' ? headwear?.coversHairAbove : undefined
+		});
 	}
 	// Stable: parts at the same depth keep slot order.
 	layers.sort((a, b) => a.z - b.z);
@@ -103,7 +109,13 @@ export function paintFigure(fig: Figure, pngs: DecodedPngs = new Map()): RgbaIma
 					if (!l.fixedColors) src = recolor(src, REFERENCE_PALETTE, l.palette);
 				}
 			}
-			if (src) drawOver(img, src, l.dx ?? 0, l.dy ?? 0);
+			if (src) {
+				if (l.clipTop) {
+					src = { ...src, data: src.data.slice() };
+					src.data.fill(0, 0, Math.min(src.h, l.clipTop) * src.w * 4);
+				}
+				drawOver(img, src, l.dx ?? 0, l.dy ?? 0);
+			}
 		}
 		return img;
 	};

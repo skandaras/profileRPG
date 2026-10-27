@@ -23,6 +23,8 @@ export interface Cosmetic {
 	name: string;
 	unlock: Unlock;
 	layers: CosmeticLayer[];
+	/** Closed hats hide hair above their brim, including buns and rear layers. */
+	coversHairAbove?: number;
 	/** Fixed colours for the channels the player does not choose. */
 	secondary?: Ramp;
 	accent?: Ramp;
@@ -72,8 +74,8 @@ export const COSMETICS: Cosmetic[] = [
 	{ id: 'feature.star', slot: 'feature', name: 'Star mark', unlock: level(4), layers: [layer(Z.feature, A.featureStar)] },
 
 	// hair
-	{ id: 'hair.short', slot: 'hair', name: 'Short', unlock: starter, layers: [layer(Z.hair, A.hairShort)] },
-	{ id: 'hair.spiky', slot: 'hair', name: 'Spiky', unlock: starter, layers: [layer(Z.hair, A.hairSpiky)] },
+	{ id: 'hair.short', slot: 'hair', name: 'Short', unlock: starter, layers: [layer(Z.back, A.hairShortBack), layer(Z.hair, A.hairShort)] },
+	{ id: 'hair.spiky', slot: 'hair', name: 'Spiky', unlock: starter, layers: [layer(Z.back, A.hairSpikyBack), layer(Z.hair, A.hairSpiky)] },
 	{ id: 'hair.bob', slot: 'hair', name: 'Curled bob', unlock: starter, layers: [layer(Z.back, A.hairBobBack), layer(Z.hair, A.hairBob)] },
 	{
 		id: 'hair.long',
@@ -88,7 +90,7 @@ export const COSMETICS: Cosmetic[] = [
 		name: 'Twin tails',
 		unlock: starter,
 		accent: ACCENT_RUBY,
-		layers: [layer(Z.back, A.hairTwinTailsBack), layer(Z.hair, A.hairBob)]
+		layers: [layer(Z.back, A.hairTwinTailsBack), layer(Z.hair, A.hairTwinTails)]
 	},
 	{
 		id: 'hair.ponytail',
@@ -96,10 +98,10 @@ export const COSMETICS: Cosmetic[] = [
 		name: 'Ponytail',
 		unlock: starter,
 		accent: ACCENT_RUBY,
-		layers: [layer(Z.back, A.hairPonytailBack), layer(Z.hair, A.hairShort)]
+		layers: [layer(Z.back, A.hairPonytailBack), layer(Z.hair, A.hairPonytail)]
 	},
-	{ id: 'hair.bun', slot: 'hair', name: 'Top bun', unlock: starter, layers: [layer(Z.hair, A.hairBun)] },
-	{ id: 'hair.curly', slot: 'hair', name: 'Curly', unlock: starter, layers: [layer(Z.hair, A.hairCurly)] },
+	{ id: 'hair.bun', slot: 'hair', name: 'Top bun', unlock: starter, layers: [layer(Z.back, A.hairBunBack), layer(Z.hair, A.hairBun)] },
+	{ id: 'hair.curly', slot: 'hair', name: 'Curly', unlock: starter, layers: [layer(Z.back, A.hairCurlyBack), layer(Z.hair, A.hairCurly)] },
 
 	// tops
 	{ id: 'top.tee', slot: 'top', name: 'T-shirt', unlock: starter, layers: [layer(Z.top, A.topTee)] },
@@ -137,8 +139,8 @@ export const COSMETICS: Cosmetic[] = [
 	{ id: 'shoes.boots', slot: 'shoes', name: 'Trail boots', unlock: level(2), layers: [layer(Z.shoes, A.shoesBoots)] },
 
 	// headwear
-	{ id: 'hat.cap', slot: 'headwear', name: 'Cap', unlock: starter, layers: [layer(Z.headwear, A.hatCap)] },
-	{ id: 'hat.beanie', slot: 'headwear', name: 'Beanie', unlock: shop(40), layers: [layer(Z.headwear, A.hatBeanie)] },
+	{ id: 'hat.cap', slot: 'headwear', coversHairAbove: 14, name: 'Cap', unlock: starter, layers: [layer(Z.headwear, A.hatCap)] },
+	{ id: 'hat.beanie', slot: 'headwear', coversHairAbove: 15, name: 'Beanie', unlock: shop(40), layers: [layer(Z.headwear, A.hatBeanie)] },
 	{ id: 'hat.headband', slot: 'headwear', name: 'Headband', unlock: level(4), layers: [layer(Z.headwear, A.hatHeadband)] },
 	{
 		id: 'hat.flowers',
@@ -147,7 +149,7 @@ export const COSMETICS: Cosmetic[] = [
 		unlock: drop,
 		layers: [layer(Z.headwear, A.hatFlowers)]
 	},
-	{ id: 'hat.wizard', slot: 'headwear', name: 'Wizard hat', unlock: drop, layers: [layer(Z.headwear, A.hatWizard)] },
+	{ id: 'hat.wizard', slot: 'headwear', coversHairAbove: 14, name: 'Wizard hat', unlock: drop, layers: [layer(Z.headwear, A.hatWizard)] },
 	{ id: 'hat.crown', slot: 'headwear', name: 'Crown', unlock: drop, layers: [layer(Z.headwear, A.hatCrown)] },
 
 	// accessories

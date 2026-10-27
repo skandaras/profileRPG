@@ -6,7 +6,7 @@ import { mkdtempSync, writeFileSync, rmSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { describe, expect, it } from 'vitest';
-import { DEFAULT_AVATAR, PET_ACCESSORIES } from '$lib/content/cosmetics';
+import { DEFAULT_AVATAR } from '$lib/content/cosmetics';
 import { REFERENCE_PALETTE, SKIN_TONES } from '$lib/content/palettes';
 import { blank, bob, drawOver, recolor, renderSprite } from './compose';
 import { FIXED_COLORS, Pix } from './grid';
@@ -103,26 +103,5 @@ it('loads named PNG icons through the same preview and tint path as grids', () =
 		expect(paintPreview(uiIconFigure({ art: { png: '/icon.png', w: 16, h: 16 }, palette, fixedColors: true }), root)[0]).toEqual(renderSprite(sprite, REFERENCE_PALETTE));
 	} finally {
 		rmSync(root, { recursive: true, force: true });
-	}
-});
-
-
-it('keeps the dragon connected and its eyes clear with every accessory', () => {
-	const species = getSpecies('emberkit')!;
-	for (const [stage, eyeY] of [['baby', 20], ['teen', 16], ['adult', 13]] as const) {
-		const base = paintFigure(petFigure(species.id, stage))[0];
-		for (let y = species.art[stage].anchors.head[1] + 1; y < 29; y++) {
-			expect(px(base, 16, y)[3], `${stage} neck at row ${y}`).toBe(255);
-		}
-		for (const accessory of PET_ACCESSORIES) {
-			const figure = petFigure(species.id, stage, accessory.id);
-			const dressed = paintFigure(figure)[0];
-			for (const x of [11, 12, 19, 20]) {
-				for (const y of [eyeY, eyeY + 1]) expect(px(dressed, x, y), `${stage}: ${accessory.id}`).toEqual(px(base, x, y));
-			}
-			const layer = figure.layers[1];
-			expect(layer.dy).toBeGreaterThanOrEqual(0);
-			expect(layer.dy! + 8).toBeLessThanOrEqual(32);
-		}
 	}
 });

@@ -55,7 +55,11 @@ Parts are drawn back to front by depth (`src/lib/sprites/frames.ts`):
 | 60 | hats |
 | 70 | held items |
 
-One part can contribute several layers. Long hair is a back layer at 0 and a fringe at 50.
+One part can contribute several layers. Every Garden hair style has a back layer at 0
+and a front at 50. Its fringe outline ends on row 17 so brows and eyes stay clear.
+Closed hats set `coversHairAbove` to their brim row in the cosmetic catalogue. The
+renderer clips both hair layers above that row for grids and PNGs; bands and crowns
+leave the whole hair shape visible.
 
 ## Colours: the reference palette
 
@@ -72,6 +76,11 @@ stays as drawn, so a gold buckle or a white sole can be any colour except these.
 | primary | `#9c2939` | `#d6455a` | `#f2808d` | the dyeable part of clothing |
 | secondary | `#b3b7c8` | `#e6e8f0` | `#ffffff` | a part's second colour (fixed per item) |
 | accent | `#a2761a` | `#e0b030` | `#ffe48a` | trims, buckles, hair ties (fixed per item) |
+
+Face layers use the primary shadow for mouths, brows and sleepy lids, and primary
+base for cheery lids. `faceInkRamp()` supplies dark ink on the four lighter skin tones
+and warm light ink on Umber and Deep. Keep these strokes in the reference primary
+colours when exporting a face PNG; fixed outline ink will lose contrast on dark skin.
 
 These are defined as `REFERENCE_PALETTE` in `src/lib/content/palettes.ts`.
 
@@ -121,8 +130,9 @@ For a consumable icon, set `icon: { png: '/sprites/icons/kibble.png', w: 16, h: 
 ## Designing new pets
 
 A species needs four images (egg, baby, teen, adult), a name, a blurb, a stat affinity and a
-rarity. Cindlet (`emberkit`) is the first Garden starter. Puddlefin and Mossling await
-their Garden drawings. Names, looks and blurbs can change, but keep the ids
+rarity. The Garden starters are Brambleback (`emberkit`), a hedge dragon; Brookbell
+(`puddlefin`), a river seal; and Cloverruff (`mossling`), a moss pup. Names, looks and
+blurbs can change, but keep the ids
 (`emberkit`, `puddlefin`, `mossling`), which are stored on every pet. A new species that hatches from mission eggs also needs an
 `{ egg: '<id>' }` entry in at least one mission's loot table; the content tests fail until
 it has one.

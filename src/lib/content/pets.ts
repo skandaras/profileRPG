@@ -38,8 +38,8 @@ const stages = (draw: (stage: 'baby' | 'teen' | 'adult') => PetArt): Species['ar
 export const SPECIES: Species[] = [
 	{
 		id: 'emberkit',
-		name: 'Cindlet',
-		blurb: 'A little garden dragon with warm scales and small golden wings. Happiest with you by its side.',
+		name: 'Brambleback',
+		blurb: 'A gentle hedge dragon who folds up his wings to follow you down narrow paths.',
 		affinity: ['str'],
 		starter: true,
 		rarity: 'common',
@@ -48,35 +48,35 @@ export const SPECIES: Species[] = [
 			secondary: ['#b2a77e', '#e5d9ae', '#fff2d3'],
 			accent: ['#9b652d', '#d9a84e', '#f7d998']
 		},
-		art: { ...stages(P.emberkit), egg: P.cindletEgg() }
+		art: { ...stages(P.emberkit), egg: P.bramblebackEgg() }
 	},
 	{
 		id: 'puddlefin',
-		name: 'Puddlefin',
-		blurb: 'A water sprite with frilly gills. Nimble, playful, always splashing.',
+		name: 'Brookbell',
+		blurb: 'A soft river seal with a cream bib and broad little flippers. Turns every puddle into a place to play.',
 		affinity: ['dex'],
 		starter: true,
 		rarity: 'common',
 		palette: {
-			primary: ['#4d86c9', '#7fb6ef', '#bfe0ff'],
-			secondary: ['#bcd6ef', '#e8f4ff', '#ffffff'],
-			accent: ['#c9507a', '#f285a8', '#ffc2d6']
+			primary: ['#536e76', '#8aafb1', '#c0d8cf'],
+			secondary: ['#b2a77e', '#e5d9ae', '#fff2d3'],
+			accent: ['#9b652d', '#d9a84e', '#f7d998']
 		},
-		art: stages(P.puddlefin)
+		art: { ...stages(P.puddlefin), egg: P.brookbellEgg() }
 	},
 	{
 		id: 'mossling',
-		name: 'Mossling',
-		blurb: 'A round little sprout that blooms as it learns. Loves a good book.',
+		name: 'Cloverruff',
+		blurb: 'A floppy-eared moss pup who noses through clover and naps beside your books.',
 		affinity: ['int', 'kno'],
 		starter: true,
 		rarity: 'common',
 		palette: {
-			primary: ['#3f8a46', '#6cbf5c', '#a9e48c'],
-			secondary: ['#2d6b33', '#5aa84e', '#8cd07a'],
-			accent: ['#d0577f', '#f58fb0', '#ffd0e0']
+			primary: ['#426647', '#78915c', '#b2c98a'],
+			secondary: ['#b2a77e', '#e5d9ae', '#fff2d3'],
+			accent: ['#9b652d', '#d9a84e', '#f7d998']
 		},
-		art: stages(P.mossling)
+		art: { ...stages(P.mossling), egg: P.cloverruffEgg() }
 	},
 	{
 		id: 'pebblet',

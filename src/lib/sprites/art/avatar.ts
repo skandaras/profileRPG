@@ -16,115 +16,21 @@ const frame = () => new Pix(AVATAR.w, AVATAR.h);
 
 // ── Bodies ──────────────────────────────────────────────────────────────────
 
-function baseBody(ears: 'pointed' | 'none'): Pix {
-	const p = frame();
-	p.ellipse(15.5, 18, 7.5, 7, 'S');
-	p.rect(14, 25, 2, 2, 's');
-	// torso and limbs, left side then mirrored
-	p.rect(11, 26, 5, 7, 'S');
-	p.set(10, 26, 'S');
-	p.rect(9, 27, 2, 5, 'S');
-	p.rect(9, 32, 2, 1, 't');
-	p.rect(12, 33, 3, 4, 'S');
-	p.rect(11, 37, 4, 2, 'S');
-	if (ears === 'pointed') {
-		p.set(4, 15, 'S').rect(4, 16, 2, 1, 'S').rect(5, 17, 3, 1, 'S').rect(6, 18, 2, 1, 'S').set(7, 19, 'S');
-		p.set(6, 17, 's').set(7, 18, 's');
-	}
-	p.mirror();
-	// light from the upper left: shade the right-hand rim, catch a highlight on the left cheek
-	p.rim('S', 's', 1, 0);
-	p.rim('S', 's', 0, 1);
-	p.set(10, 16, 't').set(11, 15, 't').set(10, 17, 't');
-	p.rect(14, 25, 4, 1, 's');
-	return p.outline();
-}
-
-export const bodyHuman = Garden.body;
-export const bodyElf = (): Sprite => baseBody('pointed').toSprite();
-export const bodyBeast = (): Sprite => baseBody('none').toSprite();
-
-/** Cat ears in the hair colour, drawn above the hair layer. */
-export function catEars(): Sprite {
-	const p = frame();
-	p.stamp(8, 7, ['H.....', 'HH....', 'HrH...', 'HrrH..', 'HHHHH.']);
-	p.mirror();
-	p.rim('H', 'h', 1, 0);
-	return p.outline().toSprite();
-}
-
-export function catTail(): Sprite {
-	const p = frame();
-	p.line(21, 31, 24, 30, 'H').line(24, 30, 26, 27, 'H').line(26, 27, 26, 23, 'H').line(26, 23, 25, 21, 'H');
-	p.line(22, 31, 25, 30, 'H').line(25, 30, 27, 27, 'H').line(27, 27, 27, 23, 'H');
-	p.set(25, 20, 'j').set(26, 21, 'j');
-	return p.outline().toSprite();
-}
-
-export function bunnyEars(): Sprite {
-	const p = frame();
-	p.stamp(9, 1, ['.HH.', 'HHHH', 'HrrH', 'HrrH', 'HrrH', 'HrrH', 'HrrH', 'HrrH', '.HrH', '..HH']);
-	p.mirror();
-	p.rim('H', 'h', 1, 0);
-	return p.outline().toSprite();
-}
+export const bodyHuman = () => Garden.body('human');
+export const bodyElf = () => Garden.body('elf');
+export const bodyBeast = () => Garden.body('beast');
+export const catEars = Garden.catEars;
+export const catTail = Garden.catTail;
+export const bunnyEars = Garden.bunnyEars;
 
 // ── Faces ───────────────────────────────────────────────────────────────────
 
-/** Draw an eye at (x, 18) from a 3-wide stamp; the right eye reuses the same stamp. */
-function eyes(p: Pix, rows: string[], y = 18) {
-	p.stamp(10, y, rows);
-	p.stamp(19, y, rows);
-}
-
-function mouth(p: Pix, rows: string[], y = 23) {
-	p.stamp(16 - Math.ceil(rows[0].length / 2), y, rows);
-}
-
-function blush(p: Pix) {
-	p.set(10, 22, 'r').set(11, 22, 'r').set(20, 22, 'r').set(21, 22, 'r');
-}
-
-export const faceBright = Garden.face;
-
-export function faceCheery(): Sprite {
-	const p = frame();
-	eyes(p, ['.k.', 'k.k'], 19);
-	mouth(p, ['mmmm', '.mm.'], 22);
-	blush(p);
-	return p.toSprite();
-}
-
-export function faceCalm(): Sprite {
-	const p = frame();
-	eyes(p, ['kkk', 'kEE', 'eff'], 19);
-	mouth(p, ['m.', '.m'].map((r) => r), 23);
-	return p.toSprite();
-}
-
-export function faceDetermined(): Sprite {
-	const p = frame();
-	p.stamp(10, 16, ['kk.']).stamp(19, 16, ['.kk']);
-	eyes(p, ['kkk', 'kwE', 'eEf']);
-	mouth(p, ['kkk'], 23);
-	return p.toSprite();
-}
-
-export function faceSleepy(): Sprite {
-	const p = frame();
-	eyes(p, ['...', 'kkk', '.k.'], 18);
-	mouth(p, ['mm', 'mm'], 22);
-	blush(p);
-	return p.toSprite();
-}
-
-export function faceSparkle(): Sprite {
-	const p = frame();
-	eyes(p, ['kkk', 'kwE', 'Ewf', 'eEf']);
-	mouth(p, ['m..m', '.mm.'], 22);
-	blush(p);
-	return p.toSprite();
-}
+export const faceBright = () => Garden.face('bright');
+export const faceCheery = () => Garden.face('cheery');
+export const faceCalm = () => Garden.face('calm');
+export const faceDetermined = () => Garden.face('determined');
+export const faceSleepy = () => Garden.face('sleepy');
+export const faceSparkle = () => Garden.face('sparkle');
 
 // ── Features ────────────────────────────────────────────────────────────────
 
@@ -158,141 +64,22 @@ export function featureBandage(): Sprite {
 
 // ── Hair ────────────────────────────────────────────────────────────────────
 
-/**
- * The crown every front style starts from: a dome a little wider than the
- * head, cut away where the face shows. Styles then add a fringe and sides.
- */
-function crown(p: Pix, top = 9.5) {
-	p.ellipse(15.5, 18, 8.5, 18 - top, 'H');
-	for (let y = 17; y < AVATAR.h; y++) for (let x = 0; x < AVATAR.w; x++) p.set(x, y, '.');
-}
-
-function shadeHair(p: Pix) {
-	p.rim('H', 'h', 0, 1);
-	p.rim('H', 'h', 1, 0);
-	// a shine band across the crown
-	for (const [x, y] of [
-		[10, 11],
-		[11, 11],
-		[12, 10],
-		[13, 10],
-		[14, 10],
-		[9, 12]
-	])
-		p.paint(x, y, 'j');
-	return p.outline();
-}
-
-export function hairShort(): Sprite {
-	const p = frame();
-	crown(p, 9.5);
-	p.stamp(8, 17, ['HHH', 'HH.', 'H..']);
-	p.stamp(12, 17, ['HHH.H', 'HH...']);
-	p.mirror();
-	return shadeHair(p).toSprite();
-}
-
-export function hairSpiky(): Sprite {
-	const p = frame();
-	crown(p, 10);
-	// spikes leaning outward from the crown, tallest in the middle
-	const spikes: [number, number, number][] = [
-		[7, 4, -1],
-		[10.5, 6, -1],
-		[14.5, 7, 0],
-		[18.5, 6, 1],
-		[22, 5, 1],
-		[24.5, 3, 1]
-	];
-	for (const [cx, height, lean] of spikes) {
-		for (let i = 0; i <= height; i++) {
-			const half = ((height - i) / height) * 2;
-			const x0 = cx + (lean * i) / 2;
-			for (let x = Math.round(x0 - half); x <= Math.round(x0 + half); x++) p.set(x, 12 - i, 'H');
-		}
-	}
-	p.stamp(8, 17, ['HHHH.HHH', 'HH...H..', 'H.......']);
-	p.stamp(16, 17, ['HHH.HHHH', '..H...HH', '.......H']);
-	return shadeHair(p).toSprite();
-}
-
-export const hairBob = Garden.hair;
-
-export function hairLongFront(): Sprite {
-	const p = frame();
-	crown(p, 9.5);
-	p.rect(7, 17, 2, 13, 'H').set(9, 17, 'H').set(9, 18, 'H');
-	p.stamp(10, 17, ['HHHHHH', 'H.HH.H', '..H...']);
-	p.mirror();
-	return shadeHair(p).toSprite();
-}
-
-/** Long hair falls behind the shoulders, under the body layer. */
-export function hairLongBack(): Sprite {
-	const p = frame();
-	p.ellipse(15.5, 19, 9, 9, 'H');
-	p.rect(6, 19, 20, 14, 'H');
-	p.stamp(6, 33, ['HHH....', '.H.....']);
-	p.mirror();
-	p.rim('H', 'h', 0, 1);
-	p.rim('H', 'h', 1, 0);
-	return p.outline().toSprite();
-}
-
-export function hairTwinTailsBack(): Sprite {
-	const p = frame();
-	p.ellipse(4.5, 25, 3, 7, 'H');
-	p.ellipse(4, 33, 2, 3, 'H');
-	p.mirror();
-	p.rim('H', 'h', 1, 0);
-	p.rim('H', 'h', 0, 1);
-	p.outline();
-	// hair ties sit on top of the tails, in the accent colour
-	p.rect(5, 17, 3, 2, 'A').set(5, 17, 'b');
-	p.rect(24, 17, 3, 2, 'A').set(24, 17, 'b');
-	return p.toSprite();
-}
-
-export function hairPonytailBack(): Sprite {
-	const p = frame();
-	p.ellipse(25, 22, 3, 8, 'H');
-	p.ellipse(26, 30, 2, 3, 'H');
-	p.rim('H', 'h', 1, 0);
-	p.rim('H', 'h', 0, 1);
-	p.outline();
-	p.rect(22, 14, 3, 2, 'A');
-	return p.toSprite();
-}
-
-export function hairBun(): Sprite {
-	const p = frame();
-	crown(p, 9.5);
-	p.ellipse(15.5, 7, 4, 3.5, 'H');
-	p.rect(8, 17, 2, 4, 'H');
-	p.stamp(10, 17, ['HHHHHH', 'HH..H.']);
-	p.mirror();
-	shadeHair(p);
-	p.paint(13, 5, 'j').paint(14, 4, 'j');
-	return p.toSprite();
-}
-
-export function hairCurly(): Sprite {
-	const p = frame();
-	crown(p, 9);
-	for (const [x, y] of [
-		[7, 12],
-		[6, 16],
-		[7, 20],
-		[7, 24],
-		[11, 9],
-		[15.5, 8]
-	])
-		p.ellipse(x, y, 2.5, 2.5, 'H');
-	p.stamp(9, 17, ['HHHHHH', 'H.HH.H']);
-	p.mirror();
-	for (let x = 0; x < AVATAR.w; x++) for (let y = 17; y < 24; y++) if (x > 9 && x < 22 && y > 18) p.set(x, y, '.');
-	return shadeHair(p).toSprite();
-}
+export const hairShort = () => Garden.hair('short');
+export const hairShortBack = () => Garden.hairBack('short');
+export const hairSpiky = () => Garden.hair('spiky');
+export const hairSpikyBack = () => Garden.hairBack('spiky');
+export const hairBob = () => Garden.hair('bob');
+export const hairBobBack = () => Garden.hairBack('bob');
+export const hairLongFront = () => Garden.hair('long');
+export const hairLongBack = () => Garden.hairBack('long');
+export const hairTwinTails = () => Garden.hair('twintails');
+export const hairTwinTailsBack = () => Garden.hairBack('twintails');
+export const hairPonytail = () => Garden.hair('ponytail');
+export const hairPonytailBack = () => Garden.hairBack('ponytail');
+export const hairBun = () => Garden.hair('bun');
+export const hairBunBack = () => Garden.hairBack('bun');
+export const hairCurly = () => Garden.hair('curly');
+export const hairCurlyBack = () => Garden.hairBack('curly');
 
 // ── Tops ────────────────────────────────────────────────────────────────────
 
@@ -554,5 +341,3 @@ export function accSword(): Sprite {
 	p.set(21, 30, 'A');
 	return p.outline().toSprite();
 }
-
-export const hairBobBack = Garden.hairBack;
