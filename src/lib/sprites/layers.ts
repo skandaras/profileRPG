@@ -48,7 +48,7 @@ export function avatarFigure(avatar: AvatarConfig): Figure {
 			skin: skinRamp(c.skin),
 			hair: hairRamp(c.hair),
 			eye: eyeRamp(c.eyes),
-			primary: slot === 'face' ? faceInkRamp(c.skin) : dyeRamp(tint),
+			primary: (slot === 'face' || slot === 'feature') ? faceInkRamp(c.skin) : dyeRamp(tint),
 			secondary: part.secondary ?? WHITE_RAMP,
 			accent: part.accent ?? ACCENT_GOLD
 		};

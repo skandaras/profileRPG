@@ -55,7 +55,8 @@ Parts are drawn back to front by depth (`src/lib/sprites/frames.ts`):
 | 60 | hats |
 | 70 | held items |
 
-One part can contribute several layers. Every Garden hair style has a back layer at 0
+One part can contribute several layers. Overalls keep trousers at 20 and a front bib
+at 35 so every top can sit underneath. Every Garden hair style has a back layer at 0
 and a front at 50. Its fringe outline ends on row 17 so brows and eyes stay clear.
 Closed hats set `coversHairAbove` to their brim row in the cosmetic catalogue. The
 renderer clips both hair layers above that row for grids and PNGs; bands and crowns
@@ -78,8 +79,9 @@ stays as drawn, so a gold buckle or a white sole can be any colour except these.
 | accent | `#a2761a` | `#e0b030` | `#ffe48a` | trims, buckles, hair ties (fixed per item) |
 
 Face layers use the primary shadow for mouths, brows and sleepy lids, and primary
-base for cheery lids. `faceInkRamp()` supplies dark ink on the four lighter skin tones
-and warm light ink on Umber and Deep. Keep these strokes in the reference primary
+base for cheery lids. Feature layers share this ink ramp for freckles; their metal,
+plaster and star use secondary and accent channels. `faceInkRamp()` supplies dark ink
+on the four lighter skin tones and warm light ink on Umber and Deep. Keep these strokes in the reference primary
 colours when exporting a face PNG; fixed outline ink will lose contrast on dark skin.
 
 These are defined as `REFERENCE_PALETTE` in `src/lib/content/palettes.ts`.

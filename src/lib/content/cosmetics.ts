@@ -131,7 +131,7 @@ export const COSMETICS: Cosmetic[] = [
 	{ id: 'bottom.shorts', slot: 'bottom', name: 'Shorts', unlock: starter, layers: [layer(Z.bottom, A.bottomShorts)] },
 	{ id: 'bottom.pants', slot: 'bottom', name: 'Trousers', unlock: starter, layers: [layer(Z.bottom, A.bottomPants)] },
 	{ id: 'bottom.skirt', slot: 'bottom', name: 'Skirt', unlock: starter, layers: [layer(Z.bottom, A.bottomSkirt)] },
-	{ id: 'bottom.overalls', slot: 'bottom', name: 'Overalls', unlock: shop(60), layers: [layer(Z.bottom, A.bottomOveralls)] },
+	{ id: 'bottom.overalls', slot: 'bottom', name: 'Overalls', unlock: shop(60), layers: [layer(Z.bottom, A.bottomOveralls), layer(Z.neck, A.bottomOverallBib)] },
 
 	// shoes
 	{ id: 'shoes.sneakers', slot: 'shoes', name: 'Sneakers', unlock: starter, layers: [layer(Z.shoes, A.shoesSneakers)] },

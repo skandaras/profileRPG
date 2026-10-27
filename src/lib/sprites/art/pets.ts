@@ -127,8 +127,9 @@ export function puddlefin(stage: Exclude<PetStage, 'egg'>): PetArt {
 	p.ellipse(18, 28, 4 + n / 2, 2, 'p').line(16, 28, 20, 29, 'P');
 	p.ellipse(9, top + 8, 5, 2.5, 'C').rim('C', 'c');
 	p.rect(6, top + 6, 2, 1, 'k').set(6, top + 7, 'k');
-	p.rect(10, top + 3, 2, 2, 'k').rect(16, top + 4, 2, 2, 'k');
-	p.set(10, top + 3, 'w').set(16, top + 4, 'w');
+	// A level eye pair stays inside the brow and two rows above the snout.
+	p.rect(10, top + 4, 2, 2, 'k').rect(15, top + 4, 2, 2, 'k');
+	p.set(10, top + 4, 'w').set(15, top + 4, 'w');
 	p.rect(9, top + 9, 3, 1, 'c');
 	p.rect(7, top + 10, 2, 1, 'p');
 	p.rect(9, top + 1, 4, 1, 'q');

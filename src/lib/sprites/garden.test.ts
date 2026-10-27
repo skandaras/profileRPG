@@ -1,6 +1,6 @@
 import { expect, it } from 'vitest';
 import { COSMETICS, DEFAULT_AVATAR, PET_ACCESSORIES } from '$lib/content/cosmetics';
-import { HAIR_COLORS, REFERENCE_PALETTE, SKIN_TONES } from '$lib/content/palettes';
+import { DYES, HAIR_COLORS, REFERENCE_PALETTE, SKIN_TONES } from '$lib/content/palettes';
 import { STARTERS } from '$lib/content/pets';
 import { Z } from './frames';
 import { blank, recolor, renderSprite, type RgbaImage } from './compose';
@@ -12,7 +12,7 @@ const hair = COSMETICS.filter((c) => c.slot === 'hair');
 const faces = COSMETICS.filter((c) => c.slot === 'face');
 const hats = COSMETICS.filter((c) => c.slot === 'headwear');
 
-it('leaves every face clear under every Garden hair style and existing hat', () => {
+it('leaves every face clear under every Garden hair style and hat', () => {
 	for (const face of faces) {
 		const avatar = { ...DEFAULT_AVATAR, parts: { ...DEFAULT_AVATAR.parts, face: face.id, hair: undefined } };
 		const base = paintFigure(avatarFigure(avatar));
@@ -121,5 +121,74 @@ it('fits every accessory on every starter stage and preserves the eyes in both i
 	}
 	for (const species of STARTERS) for (const accessory of PET_ACCESSORIES) {
 		expect(petFigure(species.id, 'egg', accessory.id).layers).toHaveLength(1);
+	}
+});
+
+it('keeps Brookbell’s eyes level inside the brow at every age', () => {
+	for (const stage of ['baby', 'teen', 'adult'] as const) {
+		const figure = petFigure('puddlefin', stage);
+		const image = paintFigure(figure)[0];
+		const top = { baby: 16, teen: 12, adult: 9 }[stage];
+		for (const x of [10, 15]) {
+			expect(pixel(image, x, top + 4)).toEqual([255, 254, 253, 255]);
+			expect(pixel(image, x, top + 5)).toEqual([26, 19, 34, 255]);
+		}
+	}
+});
+
+it('preserves the eyes under every wardrobe piece, body and hair in both frames', () => {
+	const parts = COSMETICS.filter((c) => ['top', 'bottom', 'shoes', 'headwear', 'feature', 'accessory'].includes(c.slot));
+	for (const body of COSMETICS.filter((c) => c.slot === 'body')) for (const style of hair) {
+		const avatar = { ...DEFAULT_AVATAR, parts: { ...DEFAULT_AVATAR.parts, body: body.id, hair: style.id } };
+		const base = paintFigure(avatarFigure(avatar));
+		for (const part of parts) {
+			const dressed = paintFigure(avatarFigure({ ...avatar, parts: { ...avatar.parts, [part.slot]: part.id } }));
+			for (let f = 0; f < base.length; f++) for (let y = 19; y <= 21; y++) for (const start of [10, 19]) for (let x = start; x < start + 3; x++) {
+				expect(pixel(dressed[f], x, y + f), `${body.id}, ${style.id}, ${part.id}`).toEqual(pixel(base[f], x, y + f));
+			}
+		}
+	}
+});
+
+it('recolours every wardrobe layer from reference PNGs with every dye', () => {
+	const parts = COSMETICS.filter((c) => ['top', 'bottom', 'shoes', 'headwear', 'feature', 'accessory'].includes(c.slot));
+	for (const part of parts) for (const dye of DYES) {
+		for (const skin of ['peach', 'deep']) {
+			const avatar = { ...DEFAULT_AVATAR, parts: { ...DEFAULT_AVATAR.parts, [part.slot]: part.id }, colors: { ...DEFAULT_AVATAR.colors, [part.slot]: dye.id, skin } };
+			const figure = avatarFigure(avatar);
+			const pngs = new Map<string, RgbaImage>();
+			let number = 0;
+			const layers = figure.layers.map((layer) => {
+				if (!part.layers.some((p) => p.art === layer.art)) return layer;
+				if (!('sprite' in layer.art)) throw Error('Expected a wardrobe grid');
+				expect([layer.art.sprite.w, layer.art.sprite.h]).toEqual([32, 40]);
+				const path = `/wardrobe-${number++}.png`;
+				pngs.set(path, renderSprite(layer.art.sprite, REFERENCE_PALETTE));
+				return { ...layer, art: { png: path, w: 32, h: 40 } };
+			});
+			const fromPng = paintFigure({ ...figure, layers }, pngs);
+			const fromGrid = paintFigure(figure);
+			for (let f = 0; f < fromGrid.length; f++) {
+				expect(Buffer.compare(Buffer.from(fromPng[f].data), Buffer.from(fromGrid[f].data)), `${part.id}, ${dye.id}, ${skin}, frame ${f}`).toBe(0);
+			}
+		}
+	}
+});
+
+it('puts the overalls bib over shirts and hair backs behind capes and wings', () => {
+	const overall = avatarFigure({ ...DEFAULT_AVATAR, parts: { ...DEFAULT_AVATAR.parts, bottom: 'bottom.overalls', top: 'top.hoodie' } });
+	const bib = overall.layers.find((l) => l.z === Z.neck)!;
+	const image = paintFigure(overall)[0];
+	const alone = paintFigure({ ...overall, layers: [bib] })[0];
+	expect(pixel(image, 14, 29)).toEqual(pixel(alone, 14, 29));
+	for (const style of hair) for (const accessory of ['acc.cape', 'acc.wings', 'acc.backpack']) {
+		const figure = avatarFigure({ ...DEFAULT_AVATAR, parts: { ...DEFAULT_AVATAR.parts, hair: style.id, accessory } });
+		const backs = figure.layers.filter((l) => l.z === Z.back);
+		expect(backs).toHaveLength(2);
+		const cover = paintFigure({ ...figure, layers: [backs[1]] })[0];
+		const composed = paintFigure({ ...figure, layers: backs })[0];
+		for (let y = 0; y < 40; y++) for (let x = 0; x < 32; x++) {
+			if (pixel(cover, x, y)[3]) expect(pixel(composed, x, y)).toEqual(pixel(cover, x, y));
+		}
 	}
 });

@@ -154,8 +154,6 @@
 
 	.parts {
 		grid-template-columns: repeat(auto-fill, minmax(84px, 1fr));
-		max-height: 420px;
-		overflow-y: auto;
 		padding: 8px;
 	}
 
