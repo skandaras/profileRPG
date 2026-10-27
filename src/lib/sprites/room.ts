@@ -7,7 +7,7 @@ export const bed = {
 	w: 28,
 	h: 10,
 	pivot: 0,
-	layers: [{ z: 0, art: { sprite: petBed() }, palette: { ...REFERENCE_PALETTE, primary: ['#8a3a5a', '#c05a80', '#e88aaa'] as const, secondary: ['#c8b0a0', '#f0e0d0', '#ffffff'] as const } }]
+	layers: [{ z: 0, art: { sprite: petBed() }, palette: { ...REFERENCE_PALETTE, primary: ['#426647', '#78915c', '#b2c98a'] as const, secondary: ['#b2a77e', '#e5d9ae', '#fff2d3'] as const } }]
 };
 
 export const messFigures = MESS_SPRITES.map((sprite, i) => ({
@@ -21,9 +21,10 @@ export const messFigures = MESS_SPRITES.map((sprite, i) => ({
 				art: { sprite },
 				palette: {
 					...REFERENCE_PALETTE,
-					primary: ['#274a98', '#3f72d0', '#86a8f0'] as const,
-					hair: ['#a86a1a', '#d89a3a', '#f5c87a'] as const,
-					skin: ['#b07a4a', '#d8a070', '#f5cca0'] as const
+					secondary: ['#8b8777', '#b9b5a0', '#e2ddc7'] as const,
+					primary: ['#526970', '#829f9c', '#bed3bb'] as const,
+					hair: ['#9b652d', '#d9a84e', '#f7d998'] as const,
+					skin: ['#925c40', '#bb8b62', '#e3bc89'] as const
 				}
 			}
 		]

@@ -2,34 +2,37 @@
 import type { Art } from '$lib/content/types';
 import * as I from './art/icons';
 import type { PaletteSet, Ramp } from './grid';
-import { REFERENCE_PALETTE, ACCENT_GOLD } from '$lib/content/palettes';
+import { REFERENCE_PALETTE } from '$lib/content/palettes';
 
-const RED: Ramp = ['#9c2939', '#d6455a', '#f2808d'];
-const GREEN: Ramp = ['#2d773d', '#4aa85a', '#8ad890'];
-const BLUE: Ramp = ['#274a98', '#3f72d0', '#86a8f0'];
-const PURPLE: Ramp = ['#582d88', '#8450c0', '#b88ae6'];
-const MEAT: Ramp = ['#9a5a30', '#d08a50', '#f2b884'];
-const CREAM: Ramp = ['#d8c8a8', '#fff1d6', '#ffffff'];
-const WOOD: Ramp = ['#5a3a24', '#8a5a36', '#b88454'];
+const RED: Ramp = ['#9d3f46', '#d9676c', '#f8b0a0'];
+const GREEN: Ramp = ['#426647', '#78915c', '#b2c98a'];
+const BLUE: Ramp = ['#526970', '#829f9c', '#bed3bb'];
+const PURPLE: Ramp = ['#70566f', '#a2809d', '#d4b1c4'];
+const MEAT: Ramp = ['#925038', '#c7834e', '#f1bc7e'];
+const CREAM: Ramp = ['#b2a77e', '#e5d9ae', '#fff2d3'];
+const WOOD: Ramp = ['#704b3b', '#a57650', '#d4ab77'];
 
-const pal = (over: Partial<PaletteSet>): PaletteSet => ({ ...REFERENCE_PALETTE, ...over });
+const GOLD: Ramp = ['#9b652d', '#d9a84e', '#f7d998'];
+const METAL: Ramp = ['#727b7b', '#a6b6b0', '#dde2cc'];
+
+const pal = (over: Partial<PaletteSet>): PaletteSet => ({ ...REFERENCE_PALETTE, secondary: METAL, hair: WOOD, ...over });
 
 export const UI_ICONS = {
-	gp: { art: { sprite: I.coin() }, palette: pal({ accent: ACCENT_GOLD }) },
-	xp: { art: { sprite: I.star() }, palette: pal({ accent: ACCENT_GOLD }) },
+	gp: { art: { sprite: I.coin() }, palette: pal({ accent: GOLD }) },
+	xp: { art: { sprite: I.star() }, palette: pal({ accent: GOLD }) },
 	joy: { art: { sprite: I.heart() }, palette: pal({ primary: RED }) },
-	food: { art: { sprite: I.drumstick() }, palette: pal({ skin: MEAT }) },
-	tidy: { art: { sprite: I.sparkle() }, palette: pal({ accent: ACCENT_GOLD }) },
+	food: { art: { sprite: I.drumstick() }, palette: pal({ skin: MEAT, secondary: CREAM }) },
+	tidy: { art: { sprite: I.sparkle() }, palette: pal({ accent: GOLD }) },
 	str: { art: { sprite: I.dumbbell() }, palette: pal({}) },
 	dex: { art: { sprite: I.feather() }, palette: pal({ primary: GREEN }) },
-	int: { art: { sprite: I.bulb() }, palette: pal({ accent: ACCENT_GOLD }) },
-	kno: { art: { sprite: I.book() }, palette: pal({ primary: PURPLE }) },
+	int: { art: { sprite: I.bulb() }, palette: pal({ accent: GOLD }) },
+	kno: { art: { sprite: I.book() }, palette: pal({ primary: PURPLE, secondary: CREAM }) },
 	egg: { art: { sprite: I.egg() }, palette: pal({ secondary: CREAM, primary: GREEN }) },
-	chest: { art: { sprite: I.chest() }, palette: pal({ primary: WOOD, accent: ACCENT_GOLD }) },
+	chest: { art: { sprite: I.chest() }, palette: pal({ primary: WOOD, accent: GOLD }) },
 	map: { art: { sprite: I.map() }, palette: pal({ secondary: CREAM, primary: RED }) },
-	shield: { art: { sprite: I.shield() }, palette: pal({ primary: BLUE, accent: ACCENT_GOLD }) },
-	flame: { art: { sprite: I.flame() }, palette: pal({ accent: ['#d0451f', '#f5a524', '#ffe27a'] }) },
-	hourglass: { art: { sprite: I.hourglass() }, palette: pal({ skin: WOOD, accent: ACCENT_GOLD }) },
+	shield: { art: { sprite: I.shield() }, palette: pal({ primary: BLUE, accent: GOLD }) },
+	flame: { art: { sprite: I.flame() }, palette: pal({ accent: ['#9b5140', '#d99a50', '#f7d998'] }) },
+	hourglass: { art: { sprite: I.hourglass() }, palette: pal({ skin: WOOD, accent: GOLD }) },
 	paw: { art: { sprite: I.paw() }, palette: pal({ primary: WOOD }) },
 	sword: { art: { sprite: I.sword() }, palette: pal({ accent: WOOD }) },
 	scroll: { art: { sprite: I.scroll() }, palette: pal({ secondary: CREAM, primary: RED }) },

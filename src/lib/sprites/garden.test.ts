@@ -1,6 +1,9 @@
 import { expect, it } from 'vitest';
 import { COSMETICS, DEFAULT_AVATAR, PET_ACCESSORIES } from '$lib/content/cosmetics';
 import { DYES, HAIR_COLORS, REFERENCE_PALETTE, SKIN_TONES } from '$lib/content/palettes';
+import { CONSUMABLES } from '$lib/content/items';
+import { UI_ICONS, uiIconFigure } from './ui-icons';
+import { bed, messFigures } from './room';
 import { SPECIES } from '$lib/content/pets';
 import { Z } from './frames';
 import { blank, recolor, renderSprite, type RgbaImage } from './compose';
@@ -202,5 +205,33 @@ it('renders Garden pet accessories identically from reference PNGs on every spec
 		const png = renderSprite(layer.art.sprite, REFERENCE_PALETTE);
 		const fromPng = paintFigure({ ...figure, layers: [figure.layers[0], { ...layer, art: { png: '/accessory.png', w: 12, h: 8 } }] }, new Map([['/accessory.png', png]]));
 		expect(fromPng, `${species.id}, ${stage}, ${accessory.id}`).toEqual(paintFigure(figure));
+	}
+});
+
+it('keeps Garden item, UI and room art identical through reference PNG recolouring', () => {
+	const figures = [
+		...Object.values(UI_ICONS).map(uiIconFigure),
+		...CONSUMABLES.map((c) => uiIconFigure({ art: c.icon, palette: { ...REFERENCE_PALETTE, primary: c.tint } })),
+		bed, ...messFigures.map((m) => m.figure)
+	];
+	for (const figure of figures) {
+		const pngs = new Map<string, RgbaImage>();
+		const layers = figure.layers.map((layer, i) => {
+			if (!('sprite' in layer.art)) throw Error('Expected a Garden grid');
+			const path = `/prop-${i}.png`;
+			pngs.set(path, renderSprite(layer.art.sprite, REFERENCE_PALETTE));
+			return { ...layer, art: { png: path, w: figure.w, h: figure.h } };
+		});
+		expect(paintFigure({ ...figure, layers }, pngs)).toEqual(paintFigure(figure));
+	}
+});
+
+it('uses each consumable tint on its main material, including the pocket plush', () => {
+	for (const item of CONSUMABLES) {
+		if (!('sprite' in item.icon)) throw Error('Expected an item grid');
+		// Star candy shares the gold accent channel with the XP star.
+		const chars = item.id === 'treat.star' ? 'aAb' : 'pPq';
+		const body = item.icon.sprite.rows.join('');
+		for (const char of chars) expect(body, item.id).toContain(char);
 	}
 });
