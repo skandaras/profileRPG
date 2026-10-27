@@ -18,7 +18,7 @@
 
 <svelte:head><title>Settings · LevelUp</title></svelte:head>
 
-<p><a href="/me" class="small">← Me</a></p>
+<a href="/me" class="back small">← Me</a>
 <h1>Settings</h1>
 
 <section class="box">
@@ -29,28 +29,28 @@
 	</p>
 	<form method="POST" action="?/rest" use:enhance={withNotices()}>
 		<input type="hidden" name="resting" value={data.resting ? 'off' : 'on'} />
-		<button class="btn" class:ghost={data.resting}>{data.resting ? '☀️ I’m back. Turn rest mode off' : '🛌 Turn rest mode on'}</button>
+		<p class="small soft">Rest mode is {data.resting ? 'on' : 'off'}.</p>
+		<button class="btn" aria-pressed={data.resting} class:ghost={data.resting}><span aria-hidden="true">{data.resting ? '☀️' : '🛌'}</span>{data.resting ? 'I’m back. Turn rest mode off' : 'Turn rest mode on'}</button>
 	</form>
 </section>
 
 <section class="box">
 	<h2>Theme</h2>
-	<form method="POST" action="?/theme" use:enhance={withNotices()} class="themes">
+	<form method="POST" action="?/theme" use:enhance={withNotices()} class="catalogue">
 		{#each data.themes as t (t.id)}
 			<button
-				class="theme"
+				class="theme tile" class:selection={data.themeId === t.id}
 				name="theme"
 				value={t.id}
 				disabled={!t.owned}
 				aria-pressed={data.themeId === t.id}
 				style:--tb={t.tokens.bg}
-				style:--tb2={t.tokens.bg2}
 				style:--ti={t.tokens.ink}
 				style:--ta={t.tokens.accent}
 			>
 				<span class="swatch" aria-hidden="true"><i></i><i></i><i></i></span>
 				<strong>{t.name}</strong>
-				<span class="small">{t.owned ? t.blurb : `🔒 ${t.hint}`}</span>
+				<span class="small soft">{t.owned ? t.blurb : `Locked: ${t.hint}`}</span>
 			</button>
 		{/each}
 	</form>
@@ -75,45 +75,21 @@
 		</div>
 		<div class="field">
 			<label for="dsh">A new day starts at</label>
-			<select id="dsh" name="dayStartHour" value={String(data.dayStartHour)}>
+			<select id="dsh" name="dayStartHour" value={String(data.dayStartHour)} aria-describedby="day-start-hint">
 				{#each [0, 1, 2, 3, 4, 5, 6] as h (h)}<option value={String(h)}>{h === 0 ? 'midnight' : `${h}am`}</option>{/each}
 			</select>
-			<p class="small soft">Anything you tick off before then counts for the day before, for the night owls.</p>
+			<p id="day-start-hint" class="small soft hint">Anything you tick off before then counts for the day before, for the night owls.</p>
 		</div>
 		<button class="btn">Save</button>
 	</form>
 </section>
 
 <style>
-	.themes {
-		display: grid;
-		grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
-		gap: 10px;
-	}
-
 	.theme {
-		display: flex;
-		flex-direction: column;
 		align-items: flex-start;
-		gap: 4px;
 		text-align: left;
-		font: inherit;
-		padding: 10px;
-		background: var(--tb2);
-		color: var(--ti);
-		border: 3px solid var(--line);
-		border-radius: 8px;
-		cursor: pointer;
-	}
-
-	.theme[aria-pressed='true'] {
-		outline: 3px solid var(--accent);
-		outline-offset: 2px;
-	}
-
-	.theme:disabled {
-		opacity: 0.6;
-		cursor: not-allowed;
+		padding: 12px;
+		gap: 8px;
 	}
 
 	.swatch {
@@ -124,8 +100,8 @@
 	.swatch i {
 		width: 18px;
 		height: 18px;
-		border: 2px solid var(--ti);
-		border-radius: 3px;
+		border: 1px solid var(--ti);
+		border-radius: 0;
 		background: var(--tb);
 	}
 

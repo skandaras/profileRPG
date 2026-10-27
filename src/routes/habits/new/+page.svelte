@@ -13,21 +13,22 @@
 
 <svelte:head><title>New habit · LevelUp</title></svelte:head>
 
+<a href="/habits" class="back small">← Habits</a>
 <h1>Add a habit</h1>
 
 <div class="tabs">
-	<button type="button" class="btn small" class:ghost={custom} onclick={() => (custom = false)}>Pick from the list</button>
-	<button type="button" class="btn small" class:ghost={!custom} onclick={() => (custom = true)}>Build your own</button>
+	<button type="button" class="btn small" class:ghost={custom} class:selection={!custom} aria-pressed={!custom} onclick={() => (custom = false)}>Templates</button>
+	<button type="button" class="btn small" class:ghost={!custom} class:selection={custom} aria-pressed={custom} onclick={() => (custom = true)}>Build your own</button>
 </div>
 
 {#if !custom}
 	<section class="box">
 		<p class="small soft">Tap one to add it. You can change any detail afterwards.</p>
 		{#each HABIT_TEMPLATES as t (t.id)}
-			<form method="POST" action="?/template" use:enhance={withNotices()} class="tpl">
+			<form method="POST" action="?/template" use:enhance={withNotices()} class="tpl list-row">
 				<input type="hidden" name="template" value={t.id} />
 				<span class="emoji" aria-hidden="true">{t.icon}</span>
-				<div class="body">
+				<div class="grow">
 					<strong>{t.title}</strong>
 					<div class="small soft">
 						{describeSchedule(t.schedule)}{t.quantity ? ` · ${t.quantity} ${t.unit}` : ''}
@@ -35,13 +36,13 @@
 					</div>
 					<div class="small">{t.blurb}</div>
 				</div>
-				<button class="btn small" disabled={data.have.includes(t.id)}>{data.have.includes(t.id) ? 'Added' : 'Add'}</button>
+				<button class="btn small" aria-label={data.have.includes(t.id) ? `${t.title}, already added` : `Add ${t.title}`} disabled={data.have.includes(t.id)}>{data.have.includes(t.id) ? 'Added' : 'Add'}</button>
 			</form>
 		{/each}
 	</section>
 {:else}
 	<section class="box">
-		{#if form?.error}<p class="bad">{form.error}</p>{/if}
+		{#if form?.error}<p class="bad" role="alert">{form.error}</p>{/if}
 		<form method="POST" action="?/create" use:enhance={withNotices()}>
 			<HabitForm
 				initial={{ kind: 'habit', title: '', icon: '⭐', notes: null, difficulty: 'medium', weights: {}, schedule: { type: 'daily', target: 1 }, quantity: null, unit: null, dueDay: null }}
@@ -52,28 +53,8 @@
 {/if}
 
 <style>
-	.tpl {
-		display: flex;
-		align-items: center;
-		gap: 10px;
-		padding: 10px 0;
-		border-bottom: 2px dashed var(--bg-3);
-	}
-
-	.tpl:last-child {
-		border-bottom: 0;
-	}
-
-	.emoji {
-		font-size: 1.6rem;
-	}
-
-	.body {
-		flex: 1;
-	}
-
 	.stat {
-		margin-left: 6px;
+		margin-left: 8px;
 		font-weight: 700;
 	}
 </style>

@@ -41,18 +41,19 @@
 	] as const;
 	const DAY_NAMES = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
 
+	const ICON_NAMES = ['Star', 'Running', 'Strength training', 'Walking', 'Yoga', 'Tennis', 'Cycling', 'Swimming', 'Reading', 'Computer', 'Puzzle', 'News', 'Art', 'Guitar', 'Speaking', 'Water', 'Sleep', 'Salad', 'Flower', 'Tidying', 'Plant', 'Writing', 'Phone', 'Medicine', 'Tooth care', 'Dog', 'Target', 'Brain'];
 	const toggleStat = (s: StatId) => (stats = stats.includes(s) ? stats.filter((x) => x !== s) : [...stats, s]);
 	const toggleDay = (d: number) => (days = days.includes(d) ? days.filter((x) => x !== d) : [...days, d]);
 </script>
 
 {#if allowKind}
-	<div class="field">
-		<span class="lbl">This is a…</span>
+	<fieldset class="field">
+		<legend>This is a…</legend>
 		<div class="row">
 			<label class="pick"><input type="radio" name="kind" value="habit" bind:group={kind} /> Habit (repeats)</label>
 			<label class="pick"><input type="radio" name="kind" value="task" bind:group={kind} /> One-off task</label>
 		</div>
-	</div>
+	</fieldset>
 {:else}
 	<input type="hidden" name="kind" value={kind} />
 {/if}
@@ -67,15 +68,15 @@
 	<div class="row">
 		<input id="icon" name="icon" bind:value={icon} maxlength="4" class="icon-input" />
 		<div class="icons" role="group" aria-label="Quick icons">
-			{#each HABIT_ICONS as e (e)}
-				<button type="button" class="ic" aria-pressed={icon === e} onclick={() => (icon = e)}>{e}</button>
+			{#each HABIT_ICONS as e, i (e)}
+				<button type="button" class="ic" aria-label={ICON_NAMES[i]} aria-pressed={icon === e} onclick={() => (icon = e)}><span aria-hidden="true">{e}</span>{#if icon === e}<span class="chosen" aria-hidden="true">✓</span>{/if}</button>
 			{/each}
 		</div>
 	</div>
 </div>
 
-<div class="field">
-	<span class="lbl">How hard is it?</span>
+<fieldset class="field">
+	<legend>How hard is it?</legend>
 	<div class="row seg">
 		{#each ['easy', 'medium', 'hard'] as const as d (d)}
 			<label class="pick">
@@ -84,10 +85,10 @@
 			</label>
 		{/each}
 	</div>
-</div>
+</fieldset>
 
-<div class="field">
-	<span class="lbl">What does it train?</span>
+<fieldset class="field">
+	<legend>What does it train?</legend>
 	<div class="statgrid">
 		{#each STAT_IDS as s (s)}
 			<label class="pick stat" style:--c={STATS[s].color}>
@@ -96,7 +97,7 @@
 			</label>
 		{/each}
 	</div>
-</div>
+</fieldset>
 
 {#if kind === 'habit'}
 	<fieldset class="field">
@@ -126,7 +127,7 @@
 			{/if}
 		</div>
 		{#if type === 'daily'}
-			<div class="week" role="group" aria-label="Only on these days (leave empty for every day)">
+			<div class="week" role="group" aria-label="Only on these days" aria-describedby="days-hint">
 				{#each WEEK as [d, l] (d)}
 					<label class="day" title={DAY_NAMES[d]}>
 						<input type="checkbox" name="days" value={d} checked={days.includes(d)} onchange={() => toggleDay(d)} />
@@ -134,7 +135,7 @@
 					</label>
 				{/each}
 			</div>
-			<p class="small soft">Leave the days empty for every day.</p>
+			<p id="days-hint" class="small soft">Leave the days empty for every day.</p>
 		{/if}
 	</fieldset>
 {:else}
@@ -144,14 +145,14 @@
 	</div>
 {/if}
 
-<div class="field">
-	<span class="lbl">Amount (optional)</span>
+<fieldset class="field">
+	<legend>Amount (optional)</legend>
 	<div class="row">
-		<input type="number" name="quantity" min="1" value={seed.quantity ?? ''} placeholder="20" aria-label="Amount" />
-		<input name="unit" maxlength="20" value={seed.unit ?? ''} placeholder="minutes" aria-label="Unit" />
+		<input type="number" name="quantity" min="1" value={seed.quantity ?? ''} placeholder="20" aria-label="Amount" aria-describedby="amount-hint" />
+		<input name="unit" maxlength="20" value={seed.unit ?? ''} placeholder="minutes" aria-label="Unit" aria-describedby="amount-hint" />
 	</div>
-	<p class="small soft">Logging more than this earns more, up to double.</p>
-</div>
+	<p id="amount-hint" class="small soft">Logging more than this earns more, up to double.</p>
+</fieldset>
 
 <div class="field">
 	<label for="notes">Notes (optional)</label>
@@ -161,41 +162,6 @@
 <button class="btn wide">{submitLabel}</button>
 
 <style>
-	.lbl {
-		display: block;
-		font-weight: 700;
-		margin-bottom: 4px;
-	}
-
-	fieldset {
-		border: 0;
-		padding: 0;
-		margin: 0 0 14px;
-	}
-
-	legend {
-		padding: 0;
-	}
-
-	.pick {
-		display: flex;
-		align-items: center;
-		gap: 6px;
-		font-weight: 400;
-		background: var(--bg-3);
-		border: 2px solid var(--line);
-		border-radius: 6px;
-		padding: 6px 10px;
-		min-height: 44px;
-		cursor: pointer;
-	}
-
-	.pick input {
-		width: auto;
-		min-height: 0;
-		accent-color: var(--accent);
-	}
-
 	.seg {
 		flex-wrap: wrap;
 	}
@@ -218,7 +184,7 @@
 	.icon-input {
 		width: 64px;
 		text-align: center;
-		font-size: 1.4rem;
+		font-size: 24px;
 		flex: none;
 	}
 
@@ -226,17 +192,19 @@
 		display: flex;
 		gap: 4px;
 		overflow-x: auto;
-		padding: 2px;
+		padding: 8px;
 	}
 
 	.ic {
+		position: relative;
+		color: var(--ink);
 		flex: none;
-		width: 40px;
-		height: 40px;
-		font-size: 1.2rem;
+		width: 44px;
+		height: 44px;
+		font-size: 24px;
 		background: var(--bg-3);
-		border: 2px solid transparent;
-		border-radius: 6px;
+		border: 1px solid var(--line);
+		border-radius: 0;
 		cursor: pointer;
 	}
 
@@ -247,7 +215,7 @@
 	.inline {
 		display: flex;
 		align-items: center;
-		gap: 6px;
+		gap: 8px;
 		font-weight: 400;
 		margin: 0;
 	}
@@ -261,9 +229,10 @@
 	}
 
 	.week {
-		display: flex;
-		gap: 6px;
-		margin-top: 10px;
+		display: grid;
+		grid-template-columns: repeat(7, minmax(24px, 1fr));
+		gap: 4px;
+		margin-top: 12px;
 	}
 
 	.day {
@@ -283,10 +252,10 @@
 	.day span[aria-hidden] {
 		display: grid;
 		place-items: center;
-		width: 40px;
-		height: 40px;
-		border: 2px solid var(--line);
-		border-radius: 6px;
+		width: 100%;
+		height: 44px;
+		border: 1px solid var(--line);
+		border-radius: 0;
 		background: var(--bg-3);
 	}
 
@@ -296,6 +265,21 @@
 	}
 
 	.day input:focus-visible + span {
-		outline: 3px solid var(--xp);
+		outline: 3px solid var(--focus);
+		outline-offset: 3px;
+	}
+
+	.chosen {
+		position: absolute;
+		right: 0;
+		bottom: 0;
+		background: var(--bg-2);
+		color: var(--ink);
+		font-size: 13px;
+		line-height: 16px;
+	}
+	.day input:checked + span::after {
+		content: '✓';
+		font-size: 12px;
 	}
 </style>

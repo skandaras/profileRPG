@@ -2,6 +2,7 @@
 	import '../app.css';
 	import { page } from '$app/state';
 	import { pushNotices } from '$lib/toasts.svelte';
+	import { THEMES } from '$lib/content/themes';
 	import Bar from '$lib/components/Bar.svelte';
 	import PixelIcon from '$lib/components/PixelIcon.svelte';
 	import Toasts from '$lib/components/Toasts.svelte';
@@ -25,11 +26,17 @@
 		{ href: '/me', label: 'Me' }
 	];
 
-	const isActive = (href: string) => (href === '/' ? page.url.pathname === '/' : page.url.pathname.startsWith(href));
+	const activeTheme = $derived(THEMES.find((t) => t.id === data.hero?.themeId) ?? THEMES[0]);
+	const isActive = (href: string) => {
+		const path = page.url.pathname;
+		if (href === '/me') return ['/me', '/wardrobe', '/shop', '/party', '/settings'].some((p) => path.startsWith(p));
+		return href === '/' ? path === '/' : path.startsWith(href);
+	};
 </script>
 
 <svelte:head>
 	<title>LevelUp</title>
+	<meta name="theme-color" content={activeTheme.tokens.bg} />
 </svelte:head>
 
 <a class="skip-link" href="#main">Skip to content</a>
@@ -40,7 +47,7 @@
 			<a class="who" href="/me">
 				<span class="name title">{data.hero.heroName}</span>
 				<span class="chip">Lv {data.hero.level}</span>
-				{#if data.hero.points > 0}<span class="chip pts" title="Points to spend">+{data.hero.points}</span>{/if}
+				{#if data.hero.points > 0}<span class="chip pts">+{data.hero.points}<span class="sr-only"> points to spend</span></span>{/if}
 			</a>
 			<div class="xp">
 				<Bar value={data.hero.xp} max={data.hero.xpNext} label="Experience to next level" />
@@ -52,7 +59,7 @@
 			</a>
 		</div>
 		{#if data.hero.resting}
-			<div class="resting small">🛌 Rest mode is on. Nothing is lost while you recover. <a href="/settings">Change</a></div>
+			<div class="resting small"><span aria-hidden="true">🛌</span> Rest mode is on. Nothing is lost while you recover. <a href="/settings">Change</a></div>
 		{/if}
 	</header>
 {/if}
@@ -97,7 +104,7 @@
 		gap: 8px;
 		text-decoration: none;
 		min-width: 0;
-		min-height: 32px;
+		min-height: 44px;
 	}
 
 	.name {
@@ -107,11 +114,6 @@
 		text-overflow: ellipsis;
 		white-space: nowrap;
 		max-width: 8em;
-	}
-
-	.pts {
-		background: var(--accent);
-		color: var(--accent-ink);
 	}
 
 	.xp {
@@ -129,7 +131,7 @@
 		display: flex;
 		align-items: center;
 		gap: 8px;
-		min-height: 32px;
+		min-height: 44px;
 		text-decoration: none;
 		font: 500 20px 'Pixelify Sans', system-ui, sans-serif;
 	}
@@ -177,6 +179,7 @@
 	.tabbar a[aria-current='page'] {
 		color: var(--accent);
 		background: var(--bg-3);
+		box-shadow: inset 0 -3px var(--accent);
 	}
 
 	.lbl {

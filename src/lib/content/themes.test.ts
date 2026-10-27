@@ -26,7 +26,7 @@ describe('themes', () => {
 	for (const t of THEMES) {
 		it(`${t.id} has visible focus, controls and progress`, () => {
 			for (const bg of SURFACES) {
-				for (const fg of ['focus', 'line', 'xp', 'gp'] as const) {
+				for (const fg of ['focus', 'line', 'accent', 'good', 'bad', 'xp', 'gp', 'statStr', 'statDex', 'statInt', 'statKno'] as const) {
 					expect(contrast(t.tokens[fg], t.tokens[bg]), `${t.id}: ${fg} on ${bg}`).toBeGreaterThanOrEqual(3);
 				}
 			}

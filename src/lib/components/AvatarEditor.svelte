@@ -77,18 +77,17 @@
 
 <div class="editor">
 	<div class="stage">
-		<Avatar {avatar} scale={5} label="Your hero" />
+		<Avatar {avatar} scale={4} label="Your hero" />
 	</div>
 
-	<div class="tabs" role="tablist" aria-label="Avatar parts">
+	<div class="tabs" role="group" aria-label="Avatar parts">
 		{#each SLOT_ORDER as s (s)}
 			<button
 				type="button"
-				role="tab"
 				class="btn small"
 				class:ghost={slot !== s}
-				aria-selected={slot === s}
-				onclick={() => (slot = s)}>{SLOT_NAMES[s]}</button
+				aria-pressed={slot === s}
+				onclick={() => (slot = s)}>{SLOT_NAMES[s]}{#if slot === s}<span aria-hidden="true">✓</span>{/if}</button
 			>
 		{/each}
 	</div>
@@ -97,7 +96,7 @@
 		{#if OPTIONAL_SLOTS.includes(slot)}
 			<button type="button" class="tile" aria-pressed={!avatar.parts[slot]} onclick={() => wear(null)}>
 				<Avatar avatar={preview(null)} scale={2} animate={false} label="" />
-				<span class="small">None</span>
+				<span class="small">None{#if !avatar.parts[slot]} <span aria-hidden="true">✓</span>{/if}</span>
 			</button>
 		{/if}
 		{#each options as o (o.id)}
@@ -112,15 +111,15 @@
 					onclick={() => wear(o.id)}
 				>
 					<Avatar avatar={preview(o.id)} scale={2} animate={false} label="" />
-					<span class="small">{o.name}</span>
-					{#if !ok}<span class="lock small soft">🔒 {unlockHint(o.unlock)}</span>{/if}
+					<span class="small">{o.name}{#if avatar.parts[slot] === o.id} <span aria-hidden="true">✓</span>{/if}</span>
+					{#if !ok}<span class="lock small soft"><span aria-hidden="true">🔒</span> {unlockHint(o.unlock)}</span>{/if}
 				</button>
 			{/if}
 		{/each}
 	</div>
 
 	{#if colorSlot}
-		<h3 class="sw-title">{COLOR_LABEL[colorSlot]}</h3>
+		<fieldset class="mt"><legend>{COLOR_LABEL[colorSlot]}</legend>
 		<div class="swatches" role="group" aria-label={COLOR_LABEL[colorSlot]}>
 			{#each swatches as s (s.id)}
 				<button
@@ -135,10 +134,12 @@
 					style:--c2={s.ramp[2]}
 					onclick={() => tint(s.id)}
 				>
-					{#if s.locked}<span aria-hidden="true">🔒</span>{/if}
+					{#if s.locked}<span class="swatch-mark" aria-hidden="true">🔒</span>{:else if avatar.colors[colorSlot] === s.id}<span class="swatch-mark" aria-hidden="true">✓</span>{/if}
 				</button>
 			{/each}
 		</div>
+		{#if swatches.some((s) => s.locked)}<p class="small soft hint">Locked dyes: {swatches.filter((s) => s.locked).map((s) => `${s.name}: ${s.hint}`).join('; ')}.</p>{/if}
+		</fieldset>
 	{/if}
 </div>
 
@@ -147,9 +148,7 @@
 		display: flex;
 		justify-content: center;
 		padding: 12px 0 16px;
-		background: linear-gradient(var(--sky) 0 72%, var(--floor) 72%);
-		border: 3px solid var(--line);
-		border-radius: 8px;
+		background: var(--bg-3);
 		margin-bottom: 12px;
 	}
 
@@ -157,16 +156,12 @@
 		grid-template-columns: repeat(auto-fill, minmax(84px, 1fr));
 		max-height: 340px;
 		overflow-y: auto;
-		padding: 4px;
+		padding: 8px;
 	}
 
 	.lock {
-		font-size: 0.7rem;
-		line-height: 1.2;
-	}
-
-	.sw-title {
-		margin-top: 14px;
+		font-size: 13px;
+		line-height: 20px;
 	}
 
 	.swatches {
@@ -178,13 +173,12 @@
 	.swatch {
 		width: 44px;
 		height: 44px;
-		border: 3px solid var(--line);
-		border-radius: 6px;
+		border: 1px solid var(--line);
 		background: linear-gradient(135deg, var(--c2) 0 30%, var(--c1) 30% 70%, var(--c0) 70%);
 		cursor: pointer;
 		display: grid;
 		place-items: center;
-		font-size: 0.9rem;
+		font-size: 14px;
 	}
 
 	.swatch[aria-pressed='true'] {
@@ -193,7 +187,16 @@
 	}
 
 	.swatch:disabled {
-		opacity: 0.45;
 		cursor: not-allowed;
+	}
+	.swatch-mark {
+		background: var(--bg-2);
+		color: var(--ink);
+		padding: 0 3px;
+		font-size: 16px;
+	}
+	.swatch[aria-pressed='true']:focus-visible {
+		outline: 3px solid var(--focus);
+		outline-offset: 3px;
 	}
 </style>

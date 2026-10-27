@@ -14,7 +14,7 @@
 	// Where the mess lands in the room, in percent, clear of the hero (left) and the
 	// pet's bed (right); enough spots for the maximum.
 	const focusWelcome = () => {
-		void tick().then(() => document.querySelector<HTMLButtonElement>('.mess, .welcome button')?.focus());
+		void tick().then(() => (document.querySelector<HTMLElement>('.mess, .welcome button') ?? document.querySelector<HTMLElement>('h1'))?.focus());
 	};
 	const SPOTS = [
 		[12, 29],
@@ -23,7 +23,6 @@
 		[52, 65],
 		[52, 88]
 	];
-
 
 	const due = $derived(data.habits.filter((h) => h.kind === 'habit' && h.due && !h.done));
 	const done = $derived(data.habits.filter((h) => h.kind === 'habit' && h.due && h.done));
@@ -35,7 +34,7 @@
 
 <svelte:head><title>Home · LevelUp</title></svelte:head>
 
-<div class="page-heading"><h1>Home</h1><span class="small soft">A little progress, every day.</span></div>
+<div class="page-heading"><h1 tabindex="-1">Home</h1><span class="small soft">A little progress, every day.</span></div>
 
 <section>
 	<Habitat avatar={data.avatar} heroName={data.heroName} pet={data.companion}>
@@ -63,7 +62,7 @@
 				</p>
 			{:else}
 				<p>All tidy! {petName} is looking at you expectantly…</p>
-				<form method="POST" action="?/greet" use:enhance={withNotices()}>
+				<form method="POST" action="?/greet" use:enhance={withNotices({ then: focusWelcome })}>
 					<button class="btn wide"><PixelIcon name="joy" scale={1} /> Give {petName} a pat</button>
 				</form>
 			{/if}
@@ -87,7 +86,7 @@
 			{/each}
 		</ul>
 		{#if data.awayNote.fined > 0}<p class="small">That cost {data.awayNote.fined} GP. No harm done, you've got this.</p>{/if}
-		{#if data.awayNote.shielded > 0}<p class="small good">🛡️ Your Streak Shield saved {data.awayNote.shielded}.</p>{/if}
+		{#if data.awayNote.shielded > 0}<p class="small good"><span aria-hidden="true">🛡️</span> Your Streak Shield saved {data.awayNote.shielded}.</p>{/if}
 		<form method="POST" action="?/dismiss" use:enhance={withNotices()}>
 			<button class="btn ghost small">Got it</button>
 		</form>
@@ -97,9 +96,9 @@
 {#if ready.length || data.eggsReady}
 	<section class="box alerts">
 		{#each ready as r (r.id)}
-			<a class="btn wide" href="/missions">{r.icon} Back from {r.name}! Claim rewards</a>
+			<a class="btn wide" href="/missions"><span aria-hidden="true">{r.icon}</span> Back from {r.name}! Claim rewards</a>
 		{/each}
-		{#if data.eggsReady}<a class="btn wide" href="/pet">🥚 An egg is ready to hatch!</a>{/if}
+		{#if data.eggsReady}<a class="btn wide" href="/pet"><span aria-hidden="true">🥚</span> An egg is ready to hatch!</a>{/if}
 	</section>
 {/if}
 
@@ -134,7 +133,7 @@
 {#if data.runs.length > ready.length}
 	<section class="box small">
 		{#each data.runs.filter((r) => !ready.includes(r)) as r (r.id)}
-			<p>{r.icon} Out on <a href="/missions">{r.name}</a></p>
+			<p><span aria-hidden="true">{r.icon}</span> Out on <a href="/missions">{r.name}</a></p>
 		{/each}
 	</section>
 {/if}
@@ -145,7 +144,7 @@
 		transform: translate(-50%, -50%);
 		background: none;
 		border: 0;
-		padding: 6px;
+		padding: 8px;
 		cursor: pointer;
 		animation: jiggle 1.4s steps(2) infinite;
 	}
@@ -187,7 +186,6 @@
 		min-height: 44px;
 		margin-top: 8px;
 	}
-
 
 	.away {
 		margin: 0 0 8px;

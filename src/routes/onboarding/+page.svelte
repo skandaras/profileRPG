@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { tick } from 'svelte';
 	import { enhance } from '$app/forms';
 	import { DEFAULT_AVATAR } from '$lib/content/cosmetics';
 	import { HABIT_TEMPLATES } from '$lib/content/habits';
@@ -6,6 +7,7 @@
 	import { STATS } from '$lib/content/stats';
 	import type { AvatarConfig } from '$lib/content/types';
 	import { describeSchedule } from '$lib/game/schedule';
+	import { withNotices } from '$lib/act';
 	import Avatar from '$lib/components/Avatar.svelte';
 	import AvatarEditor from '$lib/components/AvatarEditor.svelte';
 	import PetSprite from '$lib/components/PetSprite.svelte';
@@ -35,6 +37,12 @@
 		step === 0 ? heroName.trim().length > 0 : step === 2 ? !!starter : step === 3 ? picked.length > 0 : true
 	);
 
+	async function moveStep(next: number) {
+		step = next;
+		await tick();
+		document.querySelector<HTMLHeadingElement>('h1')?.focus();
+	}
+
 	function toggle(id: string) {
 		picked = picked.includes(id) ? picked.filter((p) => p !== id) : [...picked, id].slice(-8);
 	}
@@ -44,13 +52,13 @@
 
 <ol class="steps" aria-label="Progress">
 	{#each STEPS as s, i (s)}
-		<li class:done={i < step} class:now={i === step} aria-current={i === step ? 'step' : undefined}>{s}</li>
+		<li class:done={i < step} class:now={i === step} aria-current={i === step ? 'step' : undefined}><span aria-hidden="true">{i < step ? '✓' : i + 1}</span> {s}<span class="sr-only">{i < step ? ', complete' : i === step ? ', current' : ''}</span></li>
 	{/each}
 </ol>
 
 {#if step === 0}
 	<section class="box intro">
-		<h1>Welcome to LevelUp!</h1>
+		<h1 tabindex="-1">Welcome to LevelUp!</h1>
 		<p>
 			Every walk, every chapter, every glass of water makes your hero a little stronger. Log what you do, level up, raise a
 			partner, and send them off on adventures.
@@ -58,22 +66,22 @@
 		<p>Missed a day? That happens. You'll lose a streak and a few coins, never your progress.</p>
 		<div class="field">
 			<label for="name">What should we call your hero?</label>
-			<input id="name" bind:value={heroName} maxlength="24" autocomplete="nickname" placeholder="Hero name" />
+			<input id="name" bind:value={heroName} onkeydown={(event) => { if (event.key === 'Enter' && canNext) { event.preventDefault(); void moveStep(1); } }} maxlength="24" autocomplete="nickname" placeholder="Hero name" />
 		</div>
 	</section>
 {:else if step === 1}
 	<section class="box">
-		<h2>Create your look</h2>
+		<h1 tabindex="-1">Create your look</h1>
 		<p class="soft small">More outfits, hats and colours unlock as you level up and explore.</p>
 		<AvatarEditor bind:avatar starterOnly />
 	</section>
 {:else if step === 2}
 	<section class="box">
-		<h2>Choose your partner</h2>
+		<h1 tabindex="-1">Choose your partner</h1>
 		<p class="soft small">Your partner grows as you do. Feed it, play with it, and it'll come on missions with you.</p>
-		<div class="starters">
+		<fieldset><legend class="sr-only">Partner species</legend><div class="starters">
 			{#each STARTERS as s (s.id)}
-				<button type="button" class="tile starter" aria-pressed={starter === s.id} onclick={() => (starter = s.id)}>
+				<button type="button" class="tile starter" class:selection={starter === s.id} aria-pressed={starter === s.id} onclick={() => (starter = s.id)}>
 					<PetSprite speciesId={s.id} stage="baby" scale={3} label={s.name} />
 					<span class="title">{s.name}</span>
 					<span class="small soft">{s.blurb}</span>
@@ -81,8 +89,9 @@
 				</button>
 			{/each}
 		</div>
+		</fieldset>
 		{#if starterSpecies}
-			<div class="field" style="margin-top:14px">
+			<div class="field mt">
 				<label for="petname">Name your {starterSpecies.name}</label>
 				<input id="petname" bind:value={petName} maxlength="24" placeholder={starterSpecies.name} />
 			</div>
@@ -90,11 +99,11 @@
 	</section>
 {:else if step === 3}
 	<section class="box">
-		<h2>Pick a few habits to start</h2>
+		<h1 tabindex="-1">Pick a few habits to start</h1>
 		<p class="soft small">Start small: three is plenty. You can add, change or make your own any time.</p>
-		<div class="templates">
+		<fieldset><legend class="sr-only">Starting habits</legend><div class="templates">
 			{#each HABIT_TEMPLATES as t (t.id)}
-				<button type="button" class="tile tpl" aria-pressed={picked.includes(t.id)} onclick={() => toggle(t.id)}>
+				<button type="button" class="tile tpl" class:selection={picked.includes(t.id)} aria-pressed={picked.includes(t.id)} onclick={() => toggle(t.id)}>
 					<span class="emoji" aria-hidden="true">{t.icon}</span>
 					<span class="tpl-text">
 						<span class="title">{t.title}</span>
@@ -102,12 +111,12 @@
 					</span>
 				</button>
 			{/each}
-		</div>
+		</div></fieldset>
 	</section>
 {:else}
 	<section class="box ready">
-		<h2>Ready, {heroName}?</h2>
-		<div class="row" style="justify-content:center;gap:24px">
+		<h1 tabindex="-1">Ready, {heroName}?</h1>
+		<div class="row center gap-wide">
 			<Avatar {avatar} scale={4} label={heroName} />
 			{#if starter}<PetSprite speciesId={starter} stage="baby" scale={4} mood="happy" label={petName || starterSpecies?.name} />{/if}
 		</div>
@@ -115,15 +124,12 @@
 			You and {petName || starterSpecies?.name} are setting out with {picked.length} habit{picked.length === 1 ? '' : 's'} and
 			20 GP in your pocket.
 		</p>
-		{#if form?.error}<p class="bad">{form.error}</p>{/if}
+		{#if form?.error}<p class="bad" role="alert">{form.error}</p>{/if}
 		<form
 			method="POST"
-			use:enhance={() => {
+			use:enhance={(input) => {
 				busy = true;
-				return async ({ update }) => {
-					await update();
-					busy = false;
-				};
+				return withNotices({ then: () => { busy = false; } })(input);
 			}}
 		>
 			<input type="hidden" name="heroName" value={heroName} />
@@ -138,16 +144,18 @@
 {/if}
 
 <div class="nav">
-	{#if step > 0}<button type="button" class="btn ghost" onclick={() => step--}>Back</button>{:else}<span></span>{/if}
+	{#if step > 0}<button type="button" class="btn ghost" onclick={() => moveStep(step - 1)}>Back</button>{:else}<span></span>{/if}
 	{#if step < STEPS.length - 1}
-		<button type="button" class="btn" disabled={!canNext} onclick={() => step++}>Next</button>
+		<button type="button" class="btn" disabled={!canNext} aria-describedby={!canNext ? 'next-hint' : undefined} onclick={() => moveStep(step + 1)}>Next</button>
 	{/if}
 </div>
+
+{#if !canNext}<p id="next-hint" class="small soft hint">{step === 0 ? 'Enter a hero name to continue.' : step === 2 ? 'Choose a partner to continue.' : 'Choose at least one habit to continue.'}</p>{/if}
 
 <style>
 	.steps {
 		display: flex;
-		gap: 6px;
+		gap: 8px;
 		list-style: none;
 		padding: 0;
 		margin: 0 0 16px;
@@ -156,7 +164,8 @@
 	.steps li {
 		flex: 1;
 		text-align: center;
-		font-size: 0.75rem;
+		font-size: 13px;
+		line-height: 20px;
 		padding: 4px 0;
 		border-bottom: 4px solid var(--bg-3);
 		color: var(--ink-soft);
@@ -169,18 +178,18 @@
 	.steps li.now {
 		border-color: var(--accent);
 		color: var(--ink);
-		font-weight: 700;
+		font-weight: 600;
 	}
 
 	.starters {
 		display: grid;
-		gap: 10px;
-		grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+		gap: 16px;
+		grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
 	}
 
 	.starter {
 		padding: 12px;
-		gap: 6px;
+		gap: 8px;
 	}
 
 	.templates {
@@ -198,10 +207,6 @@
 	.tpl-text {
 		display: flex;
 		flex-direction: column;
-	}
-
-	.emoji {
-		font-size: 1.6rem;
 	}
 
 	.ready {

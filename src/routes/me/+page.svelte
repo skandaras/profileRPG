@@ -18,10 +18,10 @@
 		<p class="small">Level {data.hero.level} · {data.hero.totalXp} XP earned</p>
 		<Bar value={data.hero.xp} max={data.hero.xpNext} label="Experience" showValue />
 		<div class="links row wrap">
-			<a class="btn small" href="/wardrobe">👕 Wardrobe</a>
-			<a class="btn small ghost" href="/shop">🛍️ Shop</a>
-			<a class="btn small ghost" href="/party">🎉 Party</a>
-			<a class="btn small ghost" href="/settings">⚙️ Settings</a>
+			<a class="btn small" href="/wardrobe"><span aria-hidden="true">👕</span> Wardrobe</a>
+			<a class="btn small ghost" href="/shop"><span aria-hidden="true">🛍️</span> Shop</a>
+			<a class="btn small ghost" href="/party"><span aria-hidden="true">🎉</span> Party</a>
+			<a class="btn small ghost" href="/settings"><span aria-hidden="true">⚙️</span> Settings</a>
 		</div>
 	</div>
 </section>
@@ -34,7 +34,7 @@
 	<p class="small soft">Stats train as you log activities, and level-ups give you points to add wherever you like.</p>
 	{#each STAT_IDS as s (s)}
 		{@const t = data.training[s]}
-		<div class="stat">
+		<div class="stat list-row">
 			<PixelIcon name={s} scale={2} />
 			<div class="grow">
 				<div class="spread">
@@ -61,8 +61,9 @@
 		{#if data.hero.abilityPoints}<span class="chip pts">{data.hero.abilityPoints} to learn</span>{/if}
 	</div>
 	<p class="small soft">You earn an ability point every level. Abilities are permanent.</p>
+	{#if data.hero.abilityPoints < 1}<p class="small soft">Reach your next level to earn a point to learn an ability.</p>{/if}
 	{#each data.abilities as a (a.id)}
-		<div class="ability" class:learned={a.learned}>
+		<div class="ability list-row" class:learned={a.learned}>
 			<span class="big" aria-hidden="true">{a.icon}</span>
 			<div class="grow">
 				<strong>{a.name}</strong>
@@ -84,52 +85,24 @@
 <style>
 	.hero {
 		display: flex;
-		gap: 14px;
+		gap: 16px;
 		align-items: center;
-	}
-
-	.grow {
-		flex: 1;
-		min-width: 0;
 	}
 
 	.links {
-		margin-top: 10px;
-	}
-
-	.pts {
-		background: var(--accent);
-		color: var(--accent-ink);
-	}
-
-	.stat,
-	.ability {
-		display: flex;
-		align-items: center;
-		gap: 10px;
-		padding: 10px 0;
-		border-bottom: 2px dashed var(--bg-3);
-	}
-
-	.stat:last-child,
-	.ability:last-child {
-		border-bottom: 0;
+		margin-top: 12px;
 	}
 
 	.num {
-		font-size: 1.3rem;
+		font-size: 20px;
 		margin: 0;
-	}
-
-	.big {
-		font-size: 1.6rem;
 	}
 
 	.ability:not(.learned) .big {
 		filter: grayscale(0.4);
 	}
 
-	@media (max-width: 380px) {
+	@media (max-width: 480px) {
 		.hero {
 			flex-direction: column;
 			text-align: center;

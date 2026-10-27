@@ -30,7 +30,6 @@
 	src: url('/fonts/dm-sans-600.ttf') format('truetype');
 }
 
-
 /* Garden paper, open groups and clear controls. Colours come from the theme. */
 *,
 *::before,
@@ -40,9 +39,15 @@
 
 html {
 	-webkit-text-size-adjust: 100%;
+	scroll-padding-block: 24px 100px;
+}
+
+.app-root {
+	display: contents;
 }
 
 body {
+	min-height: 100dvh;
 	margin: 0;
 	background: var(--bg);
 	color: var(--ink);
@@ -64,6 +69,8 @@ h3,
 h1 {
 	font-size: 28px;
 	line-height: 32px;
+	margin-bottom: 16px;
+	overflow-wrap: anywhere;
 }
 
 h2 {
@@ -82,6 +89,7 @@ p {
 
 a {
 	color: inherit;
+	text-underline-offset: 3px;
 }
 
 .pixel {
@@ -111,7 +119,6 @@ a {
 .box {
 	isolation: isolate;
 }
-
 
 .box > h2:first-child,
 .box > h3:first-child {
@@ -148,7 +155,9 @@ a {
 }
 
 .btn:disabled {
-	opacity: 0.55;
+	background: var(--bg-3);
+	border-color: var(--line);
+	color: var(--ink-soft);
 	cursor: not-allowed;
 }
 
@@ -160,7 +169,7 @@ a {
 
 .btn.small {
 	min-height: 44px;
-	padding: 4px 10px;
+	padding: 4px 12px;
 	font-size: 18px;
 }
 
@@ -187,7 +196,7 @@ textarea {
 	background: var(--bg-3);
 	border: 1px solid var(--line);
 	border-radius: 0;
-	padding: 8px 10px;
+	padding: 8px 12px;
 	min-height: 44px;
 	width: 100%;
 }
@@ -199,13 +208,13 @@ label {
 }
 
 .field {
-	margin-bottom: 14px;
+	margin-bottom: 16px;
 }
 
 .row {
 	display: flex;
 	align-items: center;
-	gap: 10px;
+	gap: 12px;
 }
 
 .row.wrap {
@@ -216,16 +225,16 @@ label {
 	display: flex;
 	align-items: center;
 	justify-content: space-between;
-	gap: 10px;
+	gap: 12px;
 }
 
 .stack > * + * {
-	margin-top: 10px;
+	margin-top: 12px;
 }
 
 .grid {
 	display: grid;
-	gap: 10px;
+	gap: 12px;
 	grid-template-columns: repeat(auto-fill, minmax(96px, 1fr));
 }
 
@@ -291,8 +300,8 @@ label {
 	display: flex;
 	gap: 8px;
 	overflow-x: auto;
-	padding-bottom: 6px;
-	margin-bottom: 10px;
+	padding: 8px;
+	margin-bottom: 16px;
 	scrollbar-width: none;
 }
 
@@ -305,7 +314,7 @@ label {
 	flex-direction: column;
 	align-items: center;
 	gap: 4px;
-	padding: 8px 6px;
+	padding: 8px 8px;
 	background: var(--bg-3);
 	border: 1px solid var(--line);
 	border-radius: 0;
@@ -316,15 +325,13 @@ label {
 	min-height: 44px;
 }
 
-.tile[aria-pressed='true'],
-.tile.selected {
+.tile[aria-pressed='true'] {
 	background: var(--bg-2);
 	outline: 3px solid var(--accent);
 	outline-offset: -1px;
 }
 
 .tile:disabled {
-	opacity: 0.5;
 	cursor: not-allowed;
 }
 
@@ -359,8 +366,9 @@ button {
 
 summary {
 	min-height: 44px;
+	cursor: pointer;
+	padding: 8px 0;
 }
-
 
 .skip-link {
 	position: fixed;
@@ -392,4 +400,154 @@ summary {
 
 strong {
 	font-weight: 600;
+}
+
+/* Repeated page patterns share the same spacing and quiet paper edge. */
+.grow {
+	flex: 1;
+	min-width: 0;
+}
+
+.big,
+.emoji {
+	font-size: 24px;
+	line-height: 32px;
+}
+
+.pts {
+	background: var(--accent);
+	color: var(--accent-ink);
+}
+
+.mt {
+	margin-top: 16px;
+}
+
+.center {
+	justify-content: center;
+	text-align: center;
+}
+
+.gap-wide {
+	gap: 24px;
+}
+
+.back {
+	display: inline-flex;
+	align-items: center;
+	min-height: 44px;
+	margin-bottom: 8px;
+}
+
+.list-row {
+	display: flex;
+	align-items: center;
+	gap: 12px;
+	padding: 16px 0;
+	border-bottom: 1px solid var(--trim);
+}
+
+.list-row:last-child {
+	border-bottom: 0;
+}
+
+.catalogue {
+	display: grid;
+	grid-template-columns: repeat(auto-fit, minmax(136px, 1fr));
+	gap: 16px;
+}
+
+.paper-item {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	gap: 8px;
+	padding: 16px 8px;
+	background: var(--bg-3);
+	text-align: center;
+}
+
+.selection::after {
+	content: '✓';
+	font-family: 'DM Sans', sans-serif;
+	font-size: 16px;
+	line-height: 20px;
+}
+
+.btn.danger {
+	background: var(--bg-3);
+	color: var(--bad);
+	border-color: var(--bad);
+}
+
+fieldset {
+	border: 0;
+	padding: 0;
+	margin: 0 0 16px;
+	min-width: 0;
+}
+
+legend,
+.lbl {
+	font-weight: 500;
+	padding: 0;
+	margin-bottom: 8px;
+}
+
+.pick {
+	display: flex;
+	align-items: center;
+	gap: 8px;
+	min-height: 44px;
+	padding: 8px;
+	font-weight: 400;
+	cursor: pointer;
+}
+
+.pick input {
+	width: 24px;
+	height: 24px;
+	min-height: 24px;
+	flex: none;
+	margin: 0;
+	accent-color: var(--accent);
+}
+
+.hint {
+	margin-top: 8px;
+}
+
+button:disabled {
+	cursor: not-allowed;
+}
+
+p a,
+.small a {
+	display: inline-block;
+	min-height: 24px;
+}
+
+h1:focus,
+#main:focus {
+	outline: none;
+}
+
+.tile[aria-pressed='true']:focus-visible,
+.swatch[aria-pressed='true']:focus-visible,
+.theme[aria-pressed='true']:focus-visible {
+	outline: 3px solid var(--focus);
+	outline-offset: 3px;
+}
+@media (max-width: 420px) {
+	.list-row {
+		flex-wrap: wrap;
+	}
+	.list-row > .grow {
+		flex-basis: 55%;
+	}
+}
+
+.title {
+	font-size: 18px;
+	line-height: 24px;
 }

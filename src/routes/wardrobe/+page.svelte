@@ -12,19 +12,13 @@
 
 <svelte:head><title>Wardrobe · LevelUp</title></svelte:head>
 
-<p><a href="/me" class="small">← Me</a></p>
+<a href="/me" class="back small">← Me</a>
 <h1>Wardrobe</h1>
 
 <section class="box">
 	<AvatarEditor bind:avatar level={data.level} owned={data.owned} />
-	<form method="POST" action="?/save" use:enhance={withNotices()} class="save">
+	<form method="POST" action="?/save" use:enhance={withNotices()} class="mt">
 		<input type="hidden" name="avatar" value={JSON.stringify(avatar)} />
 		<button class="btn wide" disabled={!changed}>{changed ? 'Save this look' : 'Saved'}</button>
 	</form>
 </section>
-
-<style>
-	.save {
-		margin-top: 16px;
-	}
-</style>

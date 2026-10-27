@@ -17,11 +17,11 @@
 
 <svelte:head><title>Party · LevelUp</title></svelte:head>
 
-<p><a href="/me" class="small">← Me</a></p>
+<a href="/me" class="back small">← Me</a>
 <h1>The party</h1>
 
 {#each data.cards as c (c.userId)}
-	<section class="box card" class:me={c.userId === data.me}>
+	<section class="box card">
 		<div class="figures">
 			<Avatar avatar={c.avatar} scale={3} label={c.heroName} />
 			{#if c.pet}<PetSprite speciesId={c.pet.speciesId} stage={c.pet.stage} accessoryId={c.pet.accessoryId} mood={c.pet.mood} scale={2} label={c.pet.name} />{/if}
@@ -29,12 +29,12 @@
 		<div class="grow">
 			<h2>{c.heroName}{#if c.userId === data.me}<span class="small soft"> (you)</span>{/if}</h2>
 			<p class="small">
-				Level {c.level}{#if c.pet} · with {c.pet.name} the {c.pet.speciesName}{/if}{#if c.resting} · resting 🛌{/if}
+				Level {c.level}{#if c.pet} · with {c.pet.name} the {c.pet.speciesName}{/if}{#if c.resting} · resting <span aria-hidden="true">🛌</span>{/if}
 			</p>
 			<div class="row wrap">
-				{#each STAT_IDS as s (s)}<span class="chip" style:border-color={STATS[s].color}>{STATS[s].short} {c.stats[s]}</span>{/each}
-				{#if c.bestStreak > 1}<span class="chip">🔥 {c.bestStreak}</span>{/if}
-				{#if c.returnStreak > 1}<span class="chip">🔁 {c.returnStreak} days</span>{/if}
+				{#each STAT_IDS as s (s)}<span class="chip" style:color={STATS[s].color}>{STATS[s].short} {c.stats[s]}</span>{/each}
+				{#if c.bestStreak > 1}<span class="chip"><span aria-hidden="true">🔥</span> Streak {c.bestStreak}</span>{/if}
+				{#if c.returnStreak > 1}<span class="chip"><span aria-hidden="true">🔁</span> Back {c.returnStreak} days in a row</span>{/if}
 			</div>
 		</div>
 	</section>
@@ -43,7 +43,7 @@
 <section class="box">
 	<h2>Party news</h2>
 	{#each data.feed as e (e.id)}
-		<p class="news"><span aria-hidden="true">{e.icon}</span> {e.text} <span class="small soft">{ago(e.at)}</span></p>
+		<p class="news list-row"><span aria-hidden="true">{e.icon}</span> {e.text} <span class="small soft">{ago(e.at)}</span></p>
 	{:else}
 		<p class="soft">Nothing yet. Go make some news!</p>
 	{/each}
@@ -56,10 +56,6 @@
 		align-items: center;
 	}
 
-	.card.me {
-		border-color: var(--accent);
-	}
-
 	.figures {
 		display: flex;
 		align-items: flex-end;
@@ -67,18 +63,9 @@
 		flex: none;
 	}
 
-	.grow {
-		flex: 1;
-		min-width: 0;
-	}
-
 	.news {
 		margin: 0;
-		padding: 6px 0;
-		border-bottom: 2px dashed var(--bg-3);
+		display: block;
 	}
-
-	.news:last-child {
-		border-bottom: 0;
-	}
+@media (max-width: 420px) { .card { flex-direction: column; align-items: flex-start; } }
 </style>

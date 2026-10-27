@@ -11,6 +11,7 @@
 		$props();
 
 	let showAmount = $state(false);
+	let tickButton: HTMLButtonElement | undefined = $state();
 	let amountInput: HTMLInputElement | undefined = $state();
 	async function toggleAmount() {
 		showAmount = !showAmount;
@@ -23,9 +24,11 @@
 	const enhanceTick: SubmitFunction = (input) => {
 		busy = true;
 		return withNotices({
-			then: () => {
+			then: async () => {
 				busy = false;
 				showAmount = false;
+				await tick();
+				tickButton?.focus();
 			}
 		})(input);
 	};
@@ -53,7 +56,7 @@
 
 	<form method="POST" action={canUndo ? undoAction : action} use:enhance={enhanceTick} class="tick-form">
 		<input type="hidden" name="id" value={habit.id} />
-		<button class="tick" disabled={busy || (habit.kind === 'task' && habit.done && !canUndo)}
+		<button bind:this={tickButton} class="tick" disabled={busy || (habit.kind === 'task' && habit.done && !canUndo)}
 			aria-label={canUndo ? `Undo the last tick of ${habit.title}` : habit.done ? `${habit.title}, done. Log again` : `Tick off ${habit.title}`}>
 			{#if habit.done}<svg viewBox="0 0 16 16" width="24" height="24" aria-hidden="true"><path fill="currentColor" d="M2 8h3v3h3V8h3V5h3V2h-3v3H8v3H5V5H2z" /></svg>
 			{:else}<span aria-hidden="true">+</span>{/if}

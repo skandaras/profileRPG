@@ -87,7 +87,7 @@
 			{/if}
 		{/if}
 		{#if data.canForage}
-			<form method="POST" action="?/forage" use:enhance={withNotices()} style="margin-top:10px">
+			<form method="POST" action="?/forage" use:enhance={withNotices()} class="mt">
 				<button class="btn ghost wide">Forage for berries (free, once a day)</button>
 			</form>
 		{/if}
@@ -98,9 +98,9 @@
 			<h2>Dress up {companion.name}</h2>
 			<form method="POST" action="?/accessory" use:enhance={withNotices()} class="row wrap">
 				<input type="hidden" name="pet" value={companion.id} />
-				<button class="btn small" class:ghost={!!companion.accessoryId} name="accessory" value="">Nothing</button>
+				<button class="btn small" class:ghost={!!companion.accessoryId} aria-pressed={!companion.accessoryId} class:selection={!companion.accessoryId} name="accessory" value="">Nothing</button>
 				{#each data.accessories as a (a.id)}
-					<button class="btn small" class:ghost={companion.accessoryId !== a.id} name="accessory" value={a.id}>{a.name}</button>
+					<button class="btn small" class:ghost={companion.accessoryId !== a.id} aria-pressed={companion.accessoryId === a.id} class:selection={companion.accessoryId === a.id} name="accessory" value={a.id}>{a.name}</button>
 				{/each}
 			</form>
 		</section>
@@ -114,7 +114,7 @@
 		{#each eggs as e (e.id)}
 			{@const ready = e.warmth >= e.warmthNeeded}
 			<div class="egg">
-				<PetSprite speciesId={e.speciesId} stage="egg" scale={2} {ready} label="An egg" />
+				<PetSprite speciesId={e.speciesId} stage="egg" scale={2} {ready} label={`${e.speciesName} egg, ${ready ? 'ready to hatch' : 'warming'}`} />
 				<div class="grow">
 					<Bar value={e.warmth} max={e.warmthNeeded} color="var(--gp)" label="Warmth" showValue />
 				</div>
@@ -247,21 +247,17 @@
 	}
 
 	.feed-label {
-		padding: 10px 12px;
+		padding: 12px 12px;
 		background: var(--accent);
 		color: var(--accent-ink);
 		font-size: 18px;
 	}
 
-
 	.egg {
 		display: flex;
 		align-items: center;
-		gap: 10px;
-		padding: 6px 0;
+		gap: 12px;
+		padding: 8px 0;
 	}
 
-	.grow {
-		flex: 1;
-	}
 </style>
