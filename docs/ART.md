@@ -156,6 +156,16 @@ A new species needs egg, baby, teen and adult art, a name, blurb, stat affinity 
 Mission species also need an `{ egg: '<id>' }` drop in at least one mission's loot table.
 Content tests check references and drop access. Never remove or repurpose a shipped id.
 
+`pet-cleanup.test.ts` extends the avatar guards to all 24 pet stages, six accessories,
+five mess props and the bed. Finished eggs, accessories and bed mirror exactly,
+including material boundaries and lighting. Egg emblems stay inside the shared shell;
+pets keep their side-on shapes and the anchors above. All drawings reject stray pixels,
+one-pixel colour patches, extra shades on tiny materials, split shadows and shaded
+materials with less than half base fill. Only pupil/nose ink and eye glints may form
+one-pixel colour patches. The shared `cleanup-guards.ts` counts diagonal joins for both
+avatar and pet tests. Accessory fit and eye clearance in both idle poses remain covered
+by `garden.test.ts`.
+
 ## Files and PNG registration
 
 | Art | Source or registry | PNG replacement path |

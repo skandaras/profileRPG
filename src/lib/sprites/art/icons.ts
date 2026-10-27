@@ -48,23 +48,22 @@ function mess(rows: string[], x: number, y: number): Sprite {
 }
 
 export const MESS_SPRITES: Sprite[] = [
-	// Connected tufts leave room for a face without speckling the dust.
-	mess(['..CC.CC..', '.CddCCCC.', 'CCddCCCCc', 'CCCkCCkCc', '.CCCCCCc.', '..ccccc..'], 1, 4),
-	mess(['.SS......', '.ttS..SS.', '..ss..ts.', '....SS...', 'SS..ts...', 'ts.......'], 1, 4),
-	mess(['.....HH..', '...HjjH..', '..HjjHH..', '.HjjHHh..', '.HjHHh...', '..Hhh....', '.h.......'], 2, 2),
-	mess(['..SS...SS.', '.SttSSSSSs', 'SSSSSSSSss', '.ssssssss.'], 1, 6),
-	mess(['...CCCC.', '...Pqqp.', '...PPpp.', '...PPpp.', '.PPPPpp.', 'PqqPPpp.', 'PPPPpp..', '.pppp...'], 2, 2)
+	mess(['..CCCC..', '.CCCCCC.', 'CCCCCCCC', 'CCkCCkCC', '.CCCCCC.', '..CCCC..'], 2, 4),
+	new Pix(MESS.w, MESS.h).rect(1, 2, 3, 2, 'S').rect(8, 3, 2, 2, 'S').rect(4, 8, 3, 2, 'S').outline().toSprite(),
+	mess(['.....HH.', '...HHHH.', '..HjjHH.', '.HHjjH..', '.HHHH...', '..HH....', '..H.....'], 2, 2),
+	mess(['...SSSS...', '.SSSSSSSS.', 'SSSSSSSSSS', '.ssssssss.'], 1, 6),
+	mess(['....CC', '....CC', '....PP', '....PP', '..PPPP', '.PPPPP', 'PPPPPP', '.PPPP.'], 2, 2)
 ];
 
 export function petBed(): Sprite {
 	return new Pix(28, 10).stamp(1, 1, [
 		'......PPPPPPPPPPPPPP......',
-		'...PPPqqqqqqqqqqPPPPPPP...',
-		'.PPqqqCCCCCCCCCCCCCCPPppp.',
-		'PqqqCCddddddCCCCCCCCCCPPpp',
-		'PqqqCCddddCCCCCCCCCCCcPPpp',
-		'PPqqPPCCCCCCCCCCCCCCPPpppp',
-		'.PPPPPPPPPPPPPPPPPPppppp.',
-		'...ppppppppppppppppppp...'
+		'...PPPPPPPPPPPPPPPPPPPP...',
+		'.PPPPPCCCCCCCCCCCCCCPPPPP.',
+		'PPPPCCCCddddddddddCCCCPPPP',
+		'PPPPCCCCCddddddddCCCCCPPPP',
+		'PPPPPPCCCCCCCCCCCCCCPPPPPP',
+		'.PPPPPPPPPPPPPPPPPPPPPPPP.',
+		'...pppppppppppppppppppp...'
 	]).outline().toSprite();
 }
