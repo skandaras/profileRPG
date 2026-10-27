@@ -8,7 +8,7 @@ import { mkdirSync, writeFileSync } from 'node:fs';
 import { COSMETICS, DEFAULT_AVATAR, PET_ACCESSORIES } from '$lib/content/cosmetics';
 import { CONSUMABLES } from '$lib/content/items';
 import { SPECIES } from '$lib/content/pets';
-import { REFERENCE_PALETTE } from '$lib/content/palettes';
+import { ICON_PALETTE } from '$lib/sprites/svg';
 import { UI_ICONS, uiIconFigure } from './ui-icons';
 import { bed, messFigures } from './room';
 import { paintPreview } from './preview-png';
@@ -47,7 +47,7 @@ it.skipIf(!process.env.SPRITE_PREVIEW)('renders contact sheets', () => {
 
 	const icons = [
 		...Object.values(UI_ICONS).map((icon) => paintPreview(uiIconFigure(icon))[0]),
-		...CONSUMABLES.map((c) => paintPreview(uiIconFigure({ art: c.icon, palette: { ...REFERENCE_PALETTE, primary: c.tint } }))[0]),
+		...CONSUMABLES.map((c) => paintPreview(uiIconFigure({ art: c.icon, palette: { ...ICON_PALETTE, primary: c.tint } }))[0]),
 		...messFigures.map((m) => paintPreview(m.figure)[0])
 	];
 	writeFileSync('test-results/sprites/icons.png', encodePng(sheet(icons, 10, 18, 18), 4));

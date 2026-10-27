@@ -1,15 +1,16 @@
 # Art contract
 
-LevelUp uses Garden Storybook pixel art. Catalogue ids are permanent: saved pets,
+LevelUp uses Garden Storybook SVG icons and pixel characters. Catalogue ids are permanent: saved pets,
 outfits and inventory entries point at them. A new drawing or display name keeps its id.
 
-The source drawings are palette-indexed grids in `src/lib/sprites/art/`. PNG replacements
+Character and room source drawings are palette-indexed grids in `src/lib/sprites/art/`.
+UI, item, food and toy icons are SVG fragments in that directory. PNG replacements
 use the same frames and composition. Run
 `SPRITE_PREVIEW=1 npx vitest run src/lib/sprites/preview` to write the six contact sheets
 in `test-results/sprites/`: avatar-parts, keeper, pets, brambleback, icons and bed.
 Inspect art at native size and an integer enlargement, against light and dark surfaces.
 
-## Garden style
+## Garden pixel characters and props
 
 - Outline silhouettes with one dark pixel, `#2b1f33`. Pupils use `#1a1322`.
 - Round shapes with broad, even stair steps, usually runs of 2–3 pixels. Keep related
@@ -44,10 +45,10 @@ buttons, navigation and numbers; DM Sans carries body text, labels and form valu
 | Avatar part | 32 × 40 | Full frame at the origin |
 | Pet stage, including eggs | 32 × 32 | Feet end on row 30; outline may use row 31 |
 | Pet accessory | 12 × 8 | Head pieces meet their anchor at bottom centre |
-| Item, food, toy or UI icon | 16 × 16 | Static, integer scales |
+| Item, food, toy or UI icon | SVG viewBox 0 0 32 32 | Static; 16, 24 or 32 CSS px |
 | Room mess | 12 × 12 | Five welcome-back props |
 | Pet bed | 28 × 10 | Static room prop |
-| App icon | 16 × 16 grid | SVG and 180/192/512px PNGs share one grid |
+| App icon | SVG viewBox 0 0 32 32 | Dedicated 16-unit small drawing; 180/192/512px PNG exports |
 
 Coordinates start at zero. Frame sizes and avatar depths live in `sprites/frames.ts`;
 `PET_ACC` lives in `sprites/art/pets.ts`.
@@ -152,11 +153,11 @@ Content tests check references and drop access. Never remove or repurpose a ship
 | Pets and pet accessories | `sprites/art/pets.ts`, `content/pets.ts`, `content/cosmetics.ts` | `static/sprites/pets/<species>/<stage>.png`, `static/sprites/pet-accessories/<id>.png` |
 | Food, toys, items, room props | `sprites/art/icons.ts`, `content/items.ts`, `sprites/room.ts` | `static/sprites/icons/<id>.png` |
 | UI symbols | `sprites/art/ui.ts`, shared `art/icons.ts`, `sprites/ui-icons.ts` | `static/sprites/icons/<id>.png` |
-| App icons | `scripts/generate-icons.mjs` | `static/icon.svg`, `static/icon-{180,192,512}.png` |
+| App icons | `sprites/art/app.svg`, `app-small.svg`, `scripts/generate-icons.mjs` | `static/icon.svg`, `static/icon-{180,192,512}.png` |
 | README image | Real app captures | `docs/screens.png` |
 
 Source paths in the table are under `src/lib/` unless given in full. PNG paths describe
-the replacement convention; current catalogue art is drawn as grids.
+the replacement convention; characters and room props use grids; icons use SVG fragments.
 
 An avatar layer in `content/cosmetics.ts` can point to a PNG:
 
@@ -175,12 +176,38 @@ That PNG is a 64 × 32 strip in final pet colours. A pet accessory uses ordinary
 with `w: 12, h: 8` and its existing `place` and tint. A consumable sets
 `icon: { png: '/sprites/icons/kibble.png', w: 16, h: 16 }`.
 
-Named UI icons in `sprites/ui-icons.ts` accept `art: { sprite }` or
-`art: { png: '/sprites/icons/house.png', w: 16, h: 16 }`, a palette and optional
-`fixedColors: true`. Default PNGs recolour reference channels; fixed-colour PNGs bypass
-that swap. `PixelIcon.svelte` uses the registry and clamps display scale to positive
-integers. Give standalone meaningful art a label; keep adjacent icons decorative and
-name icon-only controls in words.
+## SVG icon contract
+
+`sprites/art/icons.ts` holds shared symbols and consumables; `sprites/art/ui.ts` holds
+UI symbols. `sprites/ui-icons.ts` keeps every shipped name and its palette. SVG is an
+`Art` kind beside `{ sprite }` and `{ png, w, h }`: `{ svg, symmetric? }`. The `svg` value
+is a source-owned fragment, never saved text, user markup or a URL. No scripts, external
+images, ids, filters or gradients. `sprites/svg.ts` supplies the outer SVG and resolves
+palette tokens. Use viewBox `0 0 32 32`, a two-unit `#2b1f33` outline, rounded joins and
+caps. Line-only subjects use a two-unit material core inside a four-unit ink stroke
+so arrows, spokes and limbs remain visible on Night. Leave room for the outline inside the viewBox. Keep one idea and at most one
+interior detail; judge 16px first. Smooth antialiasing is intentional for icons only.
+
+Palette fills use `{primary.1}`, `{secondary.1}`, `{accent.1}`, `{hair.1}` or `{skin.1}`;
+`{outline}` is fixed ink. Prefer base colours and broad shapes over shading. Garden
+cream, moss, clay, muted red, river and gold live with the art, never in component CSS.
+`ICON_PALETTE` supplies consumable defaults. A consumable's `tint` replaces `primary`,
+including star candy; the XP star supplies Garden gold in that same channel. Keep the
+shared berry/bowl/ball drawings and muted colours consistent across UI and inventory.
+
+Front-facing symbols use centred coordinates around x=16. Repeated side details use
+`mirror()` to reflect one half; circles, centred rectangles and matched contours share
+that axis. Mark a finished symbol `symmetric: true` only when its colours and structure
+mirror. `svg.test.ts` checks each marked icon at 16, 24 and 32px, with supersampling to
+allow for curve rasterization noise. Directional drawings, diagonal seams and side-on
+heads remain unmarked. Keep collar, root gap, door, hub and keyhole on the centre line.
+
+`PixelIcon` keeps its name/art/tint/scale/label API. SVG displays directly, so scale 1,
+1.5 and 2 yield crisp 16, 24 and 32px icons. Grid/PNG fallback keeps integer scaling.
+`svgDocument()` is also used by the browser Figure fallback and the Node preview decoder;
+`@resvg/resvg-js` rasterizes review art and exported app icons without a browser. The
+compositor preserves SVG edge alpha. Keep adjacent icons decorative and give icon-only
+controls names in words. A meaningful standalone `PixelIcon` receives a `label`.
 
 The PNG decoder in `sprites/render.ts` serves the browser; `sprites/preview-png.ts`
 loads the same assets for contact sheets. Regression tests compare reference PNGs with
@@ -189,7 +216,7 @@ grids, fixed pet colours, frame strips, hat clipping and accessory fits.
 ## Emoji display
 
 `src/lib/display-icon.ts` maps known emoji and check/star variants to shared UI symbols.
-`DisplayIcon.svelte` renders them as pixels and leaves unknown or custom text as text.
+`DisplayIcon.svelte` renders them as SVG icons and leaves unknown or custom text as text.
 Catalogue values, saved habit icons, notices and party feed producers keep their original
 strings. Do not migrate them to icon names. Add known aliases in this mapping, test them
 in `display-icon.test.ts`, and reuse the same symbol wherever the idea appears.
@@ -198,10 +225,10 @@ The habit picker saves the original emoji value. Icons beside text are decorativ
 ## App icons and README captures
 
 Run `node scripts/generate-icons.mjs` from the repo root to rebuild all app icons. The
-Brambleback portrait uses a 16 × 16 grid, the Garden pet ramps and Meadow paper. The SVG
-keeps a projecting snout, narrow swept horns and an angular folded wing legible at 16px.
-It uses integer rectangles and `shape-rendering="crispEdges"`. PNGs use 11×, 12× and 32×
-pixels; the 180px icon has a 2px paper inset so no sprite pixel needs fractional scaling.
+Brambleback portrait source is `sprites/art/app.svg`: a compact side-on clay head,
+cream horn, one snout and one eye, with no wing. `app-small.svg` is the dedicated 16px
+drawing with a larger eye and no cheek patch. The exported `static/icon.svg` selects it
+at viewports up to 16px. PNGs rasterize the larger SVG directly at their output sizes.
 Manifest background/theme colours and the default browser theme colour use Meadow's
 `bg`, currently `#f1eadc`. The browser colour follows the player's theme on server render
 and after settings changes; keep a single `meta theme-color`.

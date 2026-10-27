@@ -1,196 +1,63 @@
-/** Garden symbols share the prop palette and leave an outline inside the 16px frame. */
-import { Pix, type Sprite } from '../grid';
+/** Rounded Garden symbols. Geometry stays in a 32-unit square. */
+import type { SvgArt } from '../svg';
 
-const icon = (rows: string[]): Sprite => {
-	const w = Math.max(...rows.map((r) => r.length));
-	return new Pix(16, 16).stamp(Math.floor((16 - w) / 2), Math.floor((16 - rows.length) / 2), rows).outline().toSprite();
-};
+const path = (d: string, fill = 'none') => `<path d="${d}" fill="${fill}"/>`;
+const line = (d: string, color = C) => `<path d="${d}" fill="none" stroke-width="4"/><path d="${d}" fill="none" stroke="${color}"/>`;
+const circle = (x: number, y: number, r: number, fill = 'none') => `<circle cx="${x}" cy="${y}" r="${r}" fill="${fill}"/>`;
+const rect = (x: number, y: number, w: number, h: number, fill: string, r = 2) => `<rect x="${x}" y="${y}" width="${w}" height="${h}" rx="${r}" fill="${fill}"/>`;
+// Shared halves guarantee structural symmetry without separate hand-drawn coordinates.
+const mirror = (half: string) => half + `<g transform="translate(32 0) scale(-1 1)">${half}</g>`;
+const icon = (svg: string, symmetric = false): SvgArt => ({ svg, symmetric });
+const P = '{primary.1}';
+const C = '{secondary.1}';
+const A = '{accent.1}';
+const H = '{hair.1}';
+const S = '{skin.1}';
 
-export const house = () => icon([
-	'.....PP.....', '....PqqP....', '...PqqPPP...', '..PqqPPPPP..', '.PqqPPPPPPP.',
-	'PPPPPPPPPPpp', '.CCCCCCCCcc.', '.CdCCCHHHcc.', '.CdCCCHjHcc.', '.CCCCCHjHcc.', '.ccccchhhcc.'
-]);
-export const clipboard = () => icon([
-	'...HHHH...', '.CCHjjHCC.', 'CddHHHHCCc', 'CdCCCCCCCc', 'CdPPPPPCCc',
-	'CdCCCCCCCc', 'CdPPPPPCCc', 'CdCCCCCCCc', 'CdPPPCCCCc', 'CCCCCCCCCc', '.cccccccc.'
-]);
-export const shirt = () => icon([
-	'..PP...PP..', '.PqqCCCqPP.', 'PqqPPCCPPPp', 'PqqPPPPPPPp', 'PPPqPPPPPPP',
-	'..PqPPPPp..', '..PqPPPPp..', '..PPPPPPp..', '..PPPPPPp..', '..ppppppp..'
-]);
-export const bag = () => icon([
-	'...HHHH...', '..Hj..Hh..', '..Hj..Hh..', 'PPHHPPHhPP', 'PqqPPPPPPp',
-	'PqqPPPPPPp', 'PqqPPPPPPp', 'PqPPPPPPPp', 'PPPPPPPPPp', '.pppppppp.'
-]);
-export const confetti = () => icon([
-	'.PP...AA..CC', '.qq...bb..dd', '............', '...PP...AA..',
-	'..PqqP..bb..', '..PqqPP.....', '.PqqPPA.....', '.PqPPAAb....', 'PqPPAAbbA...', 'PPPPAAAAAa..', 'ppppaaaaaa..'
-]);
-export const gear = () => icon([
-	'....CCC....', '.CC.CdC.CC.', '.CdCCdCCdC.', '..CdCCCCc..', 'CCCCCkCCCCC',
-	'CdCCkkkCCdc', 'CCCCk.kCCCc', '..CCkkkCc..', '.CdCCCCCdC.', '.CC.CcC.CC.', '....ccc....'
-]);
-export const flower = () => icon([
-	'....PPP....', '...PqqPP...', '.PPPPPPPPP.', 'PqqPPAPPPpp', 'PqqPAbbPPpp',
-	'.PPPPAPPPP.', '...PPPPp...', '..HH.HH....', '..HjjHh....', '...HHHh....', '.....hh....'
-]);
-export const dojo = () => icon([
-	'..CC...CC..', '.CddC.CdCC.', 'CddCC.CCCCc', 'CdCCC.CCCCc', 'CCCCCdCCCCc',
-	'..CCCdCCc..', '..CCCcCCc..', '..HHHHHHh..', '..CCCHCCc..', '..CCChCCc..', '..ccccccc..'
-]);
-export const pine = () => icon([
-	'.....H.....', '....HjH....', '...HjjHH...', '..HjjHHHh..', '...HjHHh...',
-	'..HjjHHHh..', '.HjjHHHHHh.', '..HjHHHHh..', '.HjjHHHHHh.', 'HjjHHHHHHHh', '....SSs....', '....sss....'
-]);
-export const gem = () => icon([
-	'..PPPPPP..', '.PqqCCPPP.', 'PqqCCCCPPP', 'PqPCCPPPPp', 'PPPCCPPPPp',
-	'.PPCCPPPp.', '..PCCPPp..', '...CPPp...', '....pp....'
-]);
-export const shell = () => icon([
-	'....CCC....', '..CCddCCC..', '.CddCdCCCC.', 'CddCCdCCCCC', 'CdCCCdCCCCc',
-	'CCCCCdCCCCc', '.CCCCdCCCc.', '..CCCcCCc..', '...CCcCc...', '...ccccc...'
-]);
-export const tower = () => icon([
-	'....PP....', '...PqqP...', '..PPPPPP..', '..CCdCCc..', '..CCkCCc..',
-	'..CCCCCc..', '..CCdCCc..', '..CCkCCc..', '.CCCdCCCc.', '.CCCHHCCc.', 'CCCCHjHCCc', 'cccchhhccc'
-]);
-export const dragon = () => icon([
-	'....AA......', '....AbA.....', '...PPPPP....', '.PPqqPPkP...', 'PqqPPPPPP...',
-	'PPPPCCPPP.P.', '.ppppPPPPAAP', '...PqPCPAAPp', '...PqCCPAapp', '...PPCCPPpp.', '..PPp..PPPp.'
-]);
-export const key = () => icon([
-	'..AAAA......', '.AbbAAA.....', 'Abb..AAa....', 'AbA..AAa....', '.AAAAAAA....',
-	'..aaaaAAA...', '.......AAA..', '........AAA.', '.......AA.AA', '........A.Aa'
-]);
-export const compass = () => icon([
-	'....HH....', '..AAAAAA..', '.AbbAAAAa.', 'AbCCCCCAAa', 'AbCCPCCAAa',
-	'ACCPPCcAAa', 'ACCPCccAAa', 'ACCCCccAAa', '.AAAAAAaa.', '..aaaaaa..'
-]);
-export const runner = () => icon([
-	'......SS....', '.....SttS...', '......SS....', '....PPP.....', '..PPqqPPSS..',
-	'.SS.PPP.....', '....PPP.....', '...CC.CC....', '..CC...CC...', '.CC.....CCHH', 'HH..........'
-]);
-export const walker = () => icon([
-	'.....SS....', '....SttS...', '.....SS....', '....PPP....', '...PqqPP...',
-	'..SPqPPPS..', '..SPPPPP.S.', '....CCC....', '...CC.CC...', '..CC...CC..', '.HH....HH..'
-]);
-export const stretch = () => icon([
-	'.....SS.....', '....SttS....', '.....SS.....', '....PPP.....', '..SSPqPPSS..',
-	'.SS.PPPP.SS.', '....CCCC....', '..CCCCCCCC..', '.CddCCCCCcc.', '..cccccccc..'
-]);
-export const laptop = () => icon([
-	'.CCCCCCCCCC.', '.CdPPPPPPPc.', '.CdPqqPPPPc.', '.CdPqqPPPPc.', '.CdPPPPPPPc.',
-	'.CdPPPPPPPc.', '.CCCCCCCCcc.', 'CCCCCCCCCCCc', 'CdCCccccCCCc', '.cccccccccc.'
-]);
-export const puzzle = () => icon([
-	'....PPP....', '....PqP....', 'PPPPPPP....', 'PqqPPPP....', 'PqPPPPP.PP.',
-	'PPPPPPPPPqP', 'PPPPPPPPPPP', 'PPPPPPPPPPp', 'PPP..PPPPPp', 'PPP..pppppp'
-]);
-export const newspaper = () => icon([
-	'.CCCCCCCCCC', '.CdCCCCCCCc', '.CdPPPPPPcc', '.CdCCCCCCCc', '.CdPPPCCPcc',
-	'.CdPqPCcCcc', 'CCdPPPCcPcc', 'CCdCCCCCCCc', 'CCdPPPPPPcc', 'CCCCCCCCccc', '.ccccccccc.'
-]);
-export const palette = () => icon([
-	'...SSSSSS...', '.SSttSSSSS..', 'SttPPSSCCSS.', 'SttPPSSCCSSs', 'StSSSSSSSSSs',
-	'SSSHHSSS..Ss', 'SSSHHSSS..Ss', '.SSSSPPSSSs.', '..SSSPPSSs..', '...ssssss...'
-]);
-export const speech = () => icon([
-	'..CCCCCCCC..', '.CddCCCCCCc.', 'CddCCCCCCCCc', 'CdCCCCCCCCCc', 'CCkCCkCCkCCc',
-	'CCCCCCCCCCCc', '.CCCCCCCCcc.', '..cccCCccc..', '....CCc.....', '...ccc......'
-]);
-export const bicycle = () => icon([
-	'........HH..', '...HH...H...', '....H..H....', '...APPA.....', '.CCP..P.CC..',
-	'CdCP..PCddC.', 'C.PCCCP.P.Cc', 'CCP...PCC.Cc', '.CC.....CCc.'
-]);
-export const swimmer = () => icon([
-	'......SS....', '.....SttS...', '......SS....', '..SS.PPP....', '.SSSPqqPP...',
-	'....PPPPPS..', '............', 'CC..CCC..CCC', 'CdCCdddCCddc', '..cc...cc...', 'CCC..CCC..CC'
-]);
-export const guitar = () => icon([
-	'........HH.', '.......HjH.', '......HjH..', '.....HjH...', '..PP.HjH...', '.PqqPHH....',
-	'.PqPPH.....', 'PPPPPkP....', 'PqqPkkPP...', 'PqPPPAPPp..', '.PPPPPPp...', '..ppppp....'
-]);
-export const plant = () => icon([
-	'.....H.....', '..HH.HjH...', '.HjjHHjH...', '..HHHHh....', '.....H.HHH.',
-	'.....HHjjH.', '.....HHHH..', '.SSSSSSSSS.', '..SttSSSs..', '..SttSSSs..', '...sssss...'
-]);
-export const writing = () => icon([
-	'CCCCCCCC....', 'CdCCCCCC...A', 'CdCCCCCc..Ab', 'CdPPPCCc.AbA', 'CdCCCCc.AbA.',
-	'CdPPPc.AbA..', 'CdCCCcAbA...', 'CdCCCHHA....', 'CdCCCHHc....', 'CCCCCCCC....', '.ccccccc....'
-]);
-export const phone = () => icon([
-	'.CCCCCC.', 'CdCCCCcc', 'CdHHHHcc', 'CdHjjHcc', 'CdHjjHcc', 'CdHHHHcc',
-	'CdHHHHcc', 'CdHHHHcc', 'CCCCCCcc', 'CCCAACcc', '.cccccc.'
-]);
-export const pill = () => icon([
-	'......CCCC..', '.....CddCCC.', '....CddCCCCc', '...CddCCCCcc', '..PPCCCCCcc.',
-	'.PqqPCCCcc..', 'PqqPPPccc...', 'PqPPPPpp....', '.PPPPpp.....', '..pppp......'
-]);
-export const tooth = () => icon([
-	'..CCC.CCC..', '.CdddCdCCC.', 'CdddCCCCCCc', 'CddCCCCCCCc', 'CdCCCCCCCCc',
-	'.CCCCCCCCc.', '.CCCCCCCCc.', '.CCCccCCCc.', '.CCc..CCCc.', '..Cc...Cc..'
-]);
-export const dog = () => icon([
-	'HHHH...HHHH', 'HjjHPPPHjjH', 'HjHPqqPPHjH', '.HPPqqPPPH.', '.PPPkPPkPP.',
-	'.PPCCCCCPP.', '..PCdkCCP..', '..PCCkCCp..', '...PPPPp...', '...ppppp...'
-]);
-export const target = () => icon([
-	'...PPPPPP...', '..PqqCCPPP..', '.PqCCPPCCPp.', 'PqCCPCCPCCPp', 'PCCPCPPCPCCp',
-	'PCCPCPPCPCCp', 'PPCCPCCPCCPp', '.PPCCPPCCPp.', '..PPCCCCPp..', '...pppppp...'
-]);
-export const brain = () => icon([
-	'..PPP.PPP..', '.PqqPPqqPP.', 'PqqPqPqPPPP', 'PqPPqPqPPPP', 'PqPPPPPPPpp',
-	'PPqPPoPPqPP', '.PPPPoPPPPp', '.PqPPoPPPPp', '..PPP.PPpp.', '...pp.pp...'
-]);
-export const repeat = () => icon([
-	'.........PP.', '..PPPPPPPPPP', '.PqqqqqqqqP.', '.PP......P..', '.PP.........',
-	'.........PP.', '..P......PP.', '.PPqqqqqqqP.', 'PPPPPPPPPP..', '.PP.........'
-]);
-export const trophy = () => icon([
-	'..AAAAAA..', 'AAAbbAAAAA', 'AbAbbAAAaA', 'A.AbbAAa.A', '.AAAbAaAA.',
-	'...AAAa...', '....Aa....', '....Aa....', '..AAAAAA..', '..aaaaaa..'
-]);
-export const rest = () => icon([
-	'H...........', 'H.CCCC......', 'H.CddC......', 'H.CCCC.PPPPP', 'HHHHHHHqqPPP',
-	'HCCCCCCqPPPP', 'HCCCCCCPPPPp', 'HHHHHHHHHHHH', 'Hh........Hh', 'hh........hh'
-]);
-export const broom = () => icon([
-	'........HH..', '.......HjH..', '......HjH...', '.....HjH....', '....HjH.....',
-	'...PPH......', '..PqqP......', '..AAAAA.....', '.AbbAAAA....', 'AbbAbAAAa...', 'AAAaAaaa....'
-]);
-export const check = () => icon([
-	'.........PP', '........PqP', '.......PqP.', '......PqP..', 'PP...PqP...',
-	'PqP.PqP....', '.PqPqP.....', '..PqP......', '...p.......'
-]);
-export const bandage = () => icon([
-	'.......CCC..', '......CddCC.', '.....CddCCCc', '....CCCCCcc.', '...CCPPCCc..',
-	'..CCPkkCc...', '.CCCPkPC....', 'CddCCPC.....', 'CdCCCc......', '.CCCc.......', '..cc........'
-]);
-export const lock = () => icon([
-	'...CCCC...', '..CdCCcc..', '..Cc..Cc..', '..Cc..Cc..', '.AAAAAAAa.',
-	'AbbAAAAAAa', 'AbAAkkAAAa', 'AAAAkkAAAa', 'AAAAkAAAAa', 'AAAAAAAAAa', '.aaaaaaaa.'
-]);
-export const sun = () => icon([
-	'.....AA.....', '.A...bb...A.', '..b......b..', '....AAAA....', '...AbbAAA...',
-	'AA.AbAAAAaAA', 'bb.AAAAAAabb', '...AAAAAAa..', '....aaaa....', '..A......A..', '.b...AA...b.', '.....bb.....'
-]);
-export const warning = () => icon([
-	'.....AA.....', '....AbbA....', '....AbbA....', '...AAkkAA...', '...AAkkAA...',
-	'..AAAkkAAA..', '..AAAkkAAA..', '.AAAAkkAAAA.', '.AAAAAAAAAA.', 'AAAAAkkAAAAa', 'Aaaaaaaaaaaa'
-]);
-export const undo = () => icon([
-	'...PP.......', '..PqP.......', '.PqqPPPPPP..', 'PqqqqqqqqPP.', '.PqqPPPPPPp.',
-	'..PqP....PPp', '...PP....PPp', '.........PPp', '.......PPPp.', '.......ppp..'
-]);
-export const gift = () => icon([
-	'..AA..AA..', '.AbbAAbbA.', '..AAAAAA..', 'PPPPAAPPPP', 'PqqPAAPPpp',
-	'PPPPAAPPPP', '.PqPAAPPp.', '.PqPAAPPp.', '.PPPAAPPp.', '.pppaappp.'
-]);
-export const backpack = () => icon([
-	'...HHHH...', '..Hj..Hh..', '..PPPPPP..', '.PqqPPPPP.', 'PqqPPPPPPp',
-	'PqPPPPPPPp', 'PqPCCCCPPp', 'PqPCddCPPp', 'PPPCccCPPp', 'PPPPPPPPPp', '.pppppppp.'
-]);
-export const hatch = () => icon([
-	'.....AA.....', '....PPPP....', '...PqqPkP...', '..PqqPPPP...', '..PPPCCPP...',
-	'.C.PPPPP.C..', '.CC.CCC.CC..', '.CdCCCCCPCc.', '..CCPPCCCc..', '...CCCCcc...', '....cccc....'
-]);
+export const house = () => icon(path('M7 15V28H25V15', C) + path('M3 15L16 3L29 15Z', P) + path('M13 28V21H19V28', A), true);
+export const clipboard = () => icon(rect(6, 6, 20, 23, C) + rect(12, 3, 8, 6, H, 1) + path('M11 15H21M11 21H18'));
+export const shirt = () => icon(path('M11 4Q16 10 21 4L29 9L26 17L23 16V29H9V16L6 17L3 9Z', P), true);
+export const bag = () => icon(path('M10 10V7Q16 -1 22 7V10') + rect(4, 10, 24, 19, P), true);
+export const confetti = () => icon(path('M4 28L9 12L22 24Z', P) + path('M13 4L16 8M24 5L22 10M27 15L24 16', A));
+export const gear = () => icon(path('M12 6V2H20V6L24 8L27 6L31 12L27 14V18L31 20L27 26L24 24L20 26V30H12V26L8 24L5 26L1 20L5 18V14L1 12L5 6L8 8Z', C) + circle(16, 16, 5), true);
+export const flower = () => icon(mirror(path('M16 6C9 -1 3 8 8 12C0 16 6 25 12 21L16 24', P)) + path('M16 24V30M16 29L9 26M16 29L23 26', H) + circle(16, 14, 4, A), true);
+export const dojo = () => icon(path('M11 3L16 7L21 3L29 10L25 18L22 16V29H10V16L7 18L3 10Z', C) + path('M11 3L18 20M21 3L14 14M10 21H22'));
+export const pine = () => icon(path('M16 2L26 15H22L29 25H19V30H13V25H3L10 15H6Z', P), true);
+export const gem = () => icon(path('M9 5H23L29 13L16 29L3 13Z', P) + path('M3 13H29M9 5L16 29L23 5'), true);
+export const shell = () => icon(path('M12 28L4 17C-3 3 13 0 16 7C19 0 35 3 28 17L20 28Z', C) + mirror(path('M10 10L14 24')), true);
+export const tower = () => icon(path('M10 10L8 29H25L22 10Z', C) + path('M8 10L16 2L25 10Z', P) + path('M16 14V18M14 29V23H19V29'));
+export const dragon = () => icon(path('M18 10L27 3Q26 9 22 13Z', C) + path('M10 9Q16 6 22 11L25 15L28 18L25 19Q29 27 21 28H12L9 24H5Q2 24 2 21V18Q2 16 5 16H9Z', P) + circle(16, 13, 1.7, '{outline}'));
+export const key = () => icon(circle(10, 10, 7, A) + line('M15 15L28 28M22 22L25 19M26 26L29 23', A));
+export const compass = () => icon(circle(16, 16, 13, C) + path('M21 7L19 19L11 25L13 13Z', P));
+export const runner = () => icon(circle(19, 5, 3, S) + line('M7 12L13 9L20 15L27 13M17 12L12 20L4 27M12 20L20 22L24 28', P));
+export const walker = () => icon(circle(17, 5, 3, S) + line('M7 18L14 11L20 17L26 18M16 11L14 21L8 29M14 21L21 29', P));
+export const stretch = () => icon(circle(16, 5, 3, S) + line('M16 11V20M16 13L8 19H3M16 13L24 19H29M16 20L6 27H26Z', P), true);
+export const laptop = () => icon(rect(5, 5, 22, 18, P) + path('M5 23L2 28H30L27 23Z', C), true);
+export const puzzle = () => icon(path('M4 4H12C8 -2 24 -2 20 4H28V12C20 8 20 24 28 20V28H4V20C12 24 12 8 4 12Z', P));
+export const newspaper = () => icon(rect(5, 3, 23, 26, C) + rect(10, 9, 6, 7, P, 0) + path('M20 10H24M20 15H24M10 21H23M10 25H23M5 11H2V26Q2 29 5 29'));
+export const palette = () => icon(path('M28 13C29 2 12 -2 5 8C-2 18 7 30 17 29C25 28 16 21 23 19Q29 18 28 13Z', S) + circle(22, 11, 3) + circle(11, 10, 2, P) + circle(8, 18, 2, A));
+export const speech = () => icon(path('M8 4H24Q29 4 29 9V20Q29 24 24 24H16L8 30V24Q3 24 3 20V9Q3 4 8 4Z', C) + path('M10 13H22'));
+export const bicycle = () => icon(`<g stroke="${C}">${circle(7, 22, 6) + circle(25, 22, 6)}</g>` + line('M7 22L13 11L20 22H7L15 16M25 22L21 6H26M10 10H16', P));
+export const swimmer = () => icon(circle(23, 10, 3, S) + line('M5 15L13 6L20 15M3 22Q8 18 13 22Q18 26 23 22Q27 19 30 22M3 28Q8 24 13 28Q18 32 23 28Q27 25 30 28'));
+export const guitar = () => icon(path('M22 3L27 6L17 19Q23 24 17 28Q8 33 4 25Q0 18 8 16Q8 10 15 13Z', P) + circle(12, 22, 3) + path('M14 20L24 6'));
+export const plant = () => icon(path('M16 22V7M16 15Q2 16 4 5Q16 4 16 15M16 22Q28 22 28 12Q17 11 16 22', P) + path('M7 23H25L22 30H10Z', S));
+export const writing = () => icon(rect(3, 3, 20, 26, C) + path('M8 10H15M8 16H12M14 24L16 17L26 7L30 11L20 21Z', A));
+export const phone = () => icon(rect(8, 2, 16, 28, C) + rect(11, 6, 10, 16, P, 1) + path('M15 26H17'), true);
+export const pill = () => icon(path('M7 25Q0 18 7 11L15 3Q22 -2 28 5Q33 11 27 17L19 25Q13 31 7 25Z', C) + path('M7 11Q0 18 7 25Q13 31 19 25L23 21L11 7Z', P));
+export const tooth = () => icon(path('M16 6C4 -3 1 9 5 16Q7 19 8 28Q12 33 14 24Q16 19 18 24Q20 33 24 28Q25 19 27 16C31 9 28 -3 16 6Z', C), true);
+export const dog = () => icon(mirror(path('M16 7L9 5Q0 1 3 17L8 15V23Q8 29 16 29', P)) + mirror(circle(11, 15, 1, '{outline}')) + path('M13 21L16 24L19 21Z', '{outline}'), true);
+export const target = () => icon(circle(16, 16, 13, P) + circle(16, 16, 8, C) + circle(16, 16, 3, P), true);
+export const brain = () => icon(mirror(path('M16 6C11 1 6 4 6 9C0 10 1 20 6 21C4 28 12 32 16 27Z', P) + path('M6 12Q12 11 11 17M7 23Q11 24 12 20')), true);
+export const repeat = () => icon(line('M5 13V9Q5 5 10 5H27M22 1L27 5L22 9M27 19V23Q27 27 22 27H5M10 23L5 27L10 31', P));
+export const trophy = () => icon(path('M8 6H3V11Q3 18 11 18M24 6H29V11Q29 18 21 18') + path('M8 3H24V13Q24 21 16 21Q8 21 8 13Z', A) + line('M16 21V27M10 29H22', A), true);
+export const rest = () => icon(line('M3 6V29M29 18V29M3 25H29', H) + rect(6, 9, 8, 8, C) + path('M3 18H29V25H3Z', P));
+export const broom = () => icon(line('M25 3L14 18', H) + path('M12 16L20 22L14 30L2 23Z', A));
+export const check = () => icon(line('M5 16L12 24L28 7', P));
+export const bandage = () => icon(path('M4 21L21 4Q26 0 30 5Q33 9 28 13L11 30Q6 33 2 28Q0 25 4 21Z', C) + path('M10 17L17 10L23 16L16 23Z', P));
+export const lock = () => icon(path('M9 13V9C9 0 23 0 23 9V13') + rect(5, 13, 22, 17, A) + circle(16, 20, 2, '{outline}') + path('M16 22V25'), true);
+export const sun = () => icon(Array.from({ length: 8 }, (_, n) => `<g transform="rotate(${n * 45} 16 16)">${line('M16 2V4', A)}</g>`).join('') + circle(16, 16, 7.5, A), true);
+export const warning = () => icon(path('M13 4Q16 -1 19 4L30 25Q32 29 27 29H5Q0 29 2 25Z', A) + path('M16 10V19') + circle(16, 24, 1, '{outline}'), true);
+export const undo = () => icon(line('M12 5L3 13L12 21M4 13H21Q29 13 29 21Q29 28 21 28H17', P));
+export const gift = () => icon(rect(4, 13, 24, 16, P) + rect(2, 9, 28, 6, P, 1) + path('M16 29V9C5 11 5 -2 12 3L16 9C27 11 27 -2 20 3L16 9', A), true);
+export const backpack = () => icon(path('M11 7V4H21V7') + rect(5, 7, 22, 23, P, 5) + rect(10, 19, 12, 7, C, 1) + path('M10 13H22'), true);
+export const hatch = () => icon(path('M8 20V13C8 2 24 2 24 13V20Z', S) + mirror(circle(12, 13, 1, '{outline}')) + path('M3 18L8 21L13 18L18 22L24 18L29 20Q29 30 16 30Q3 30 3 18Z', C));

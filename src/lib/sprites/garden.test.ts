@@ -1,8 +1,6 @@
 import { expect, it } from 'vitest';
 import { COSMETICS, DEFAULT_AVATAR, PET_ACCESSORIES } from '$lib/content/cosmetics';
 import { DYES, HAIR_COLORS, REFERENCE_PALETTE, SKIN_TONES } from '$lib/content/palettes';
-import { CONSUMABLES } from '$lib/content/items';
-import { UI_ICONS, uiIconFigure } from './ui-icons';
 import { bed, messFigures } from './room';
 import { SPECIES } from '$lib/content/pets';
 import { Z } from './frames';
@@ -208,11 +206,9 @@ it('renders Garden pet accessories identically from reference PNGs on every spec
 	}
 });
 
-it('keeps Garden item, UI and room art identical through reference PNG recolouring', () => {
+it('keeps Garden room art identical through reference PNG recolouring', () => {
 	const figures = [
-		...Object.values(UI_ICONS).map(uiIconFigure),
-		...CONSUMABLES.map((c) => uiIconFigure({ art: c.icon, palette: { ...REFERENCE_PALETTE, primary: c.tint } })),
-		bed, ...messFigures.map((m) => m.figure)
+				bed, ...messFigures.map((m) => m.figure)
 	];
 	for (const figure of figures) {
 		const pngs = new Map<string, RgbaImage>();
@@ -223,15 +219,5 @@ it('keeps Garden item, UI and room art identical through reference PNG recolouri
 			return { ...layer, art: { png: path, w: figure.w, h: figure.h } };
 		});
 		expect(paintFigure({ ...figure, layers }, pngs)).toEqual(paintFigure(figure));
-	}
-});
-
-it('uses each consumable tint on its main material, including the pocket plush', () => {
-	for (const item of CONSUMABLES) {
-		if (!('sprite' in item.icon)) throw Error('Expected an item grid');
-		// Star candy shares the gold accent channel with the XP star.
-		const chars = item.id === 'treat.star' ? 'aAb' : 'pPq';
-		const body = item.icon.sprite.rows.join('');
-		for (const char of chars) expect(body, item.id).toContain(char);
 	}
 });

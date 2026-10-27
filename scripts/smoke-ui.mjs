@@ -78,9 +78,11 @@ try {
 			}
 			return found;
 		});
-		assert.deepEqual(rawEmoji, [], `${name}: built-in emoji use pixel art`);
-		const iconSizes = await page.locator('.display-icon .figure, .tabbar .figure').evaluateAll((nodes) => nodes.map((node) => node.getBoundingClientRect()).filter((r) => r.width % 16 || r.height % 16));
-		assert.deepEqual(iconSizes, [], `${name}: integer icon scales`);
+		assert.deepEqual(rawEmoji, [], `${name}: built-in emoji use SVG icons`);
+		const invalidIconNames = await page.locator('.svg-icon').evaluateAll((nodes) => nodes.filter((node) => !node.closest('[aria-hidden=true]') && !(node.getAttribute('role') === 'img' && node.getAttribute('aria-label'))).map((node) => node.outerHTML));
+		assert.deepEqual(invalidIconNames, [], `${name}: SVG icons are decorative or labelled`);
+		const iconSizes = await page.locator('.display-icon .svg-icon, .tabbar .svg-icon').evaluateAll((nodes) => nodes.map((node) => node.getBoundingClientRect()).filter((r) => ![16, 24, 32].includes(r.width) || ![16, 24, 32].includes(r.height)));
+		assert.deepEqual(iconSizes, [], `${name}: standard SVG icon sizes`);
 		assert.equal(await page.locator('h1').count(), 1, `${name}: one h1`);
 		assert.equal(await page.evaluate(() => document.documentElement.scrollWidth > innerWidth), false, `${name}: horizontal overflow`);
 		const headings = await page.locator('main h1, main h2, main h3').evaluateAll((nodes) => nodes.map((n) => Number(n.tagName.slice(1))));

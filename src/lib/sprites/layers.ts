@@ -11,6 +11,7 @@ import type { Art, AvatarConfig, ColorSlot } from '$lib/content/types';
 import type { PetStage } from './art/pets';
 import { PET_ACC } from './art/pets';
 import { AVATAR, PET } from './frames';
+import { svgDocument } from './svg';
 import type { PaletteSet } from './grid';
 import { blank, bob, drawOver, recolor, renderSprite, type RgbaImage } from './compose';
 
@@ -88,7 +89,7 @@ export function petFigure(speciesId: string, stage: PetStage, accessoryId?: stri
 export type DecodedPngs = Map<string, RgbaImage>;
 
 export function layerFrames(l: LayerSpec): number {
-	return 'sprite' in l.art ? l.art.sprite.frames : (l.art.frames ?? 1);
+	return 'sprite' in l.art ? l.art.sprite.frames : 'png' in l.art ? (l.art.frames ?? 1) : 1;
 }
 
 /**
@@ -102,6 +103,7 @@ export function paintFigure(fig: Figure, pngs: DecodedPngs = new Map()): RgbaIma
 		for (const l of fig.layers) {
 			let src: RgbaImage | undefined;
 			if ('sprite' in l.art) src = renderSprite(l.art.sprite, l.palette, frame);
+			else if ('svg' in l.art) src = pngs.get(svgDocument(l.art, l.palette));
 			else {
 				const png = pngs.get(l.art.png);
 				if (png) {
