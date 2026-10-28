@@ -314,34 +314,48 @@ are never rewritten.
 | Ankles | 176,477 / 235,477 |
 | Soles | 176,495 / 235,495 |
 
-`template.json` retains these landmarks. `fit.ts` states each garment's allowance and
-seam regions. `painted.test.ts` checks every painted garment on all four body ids: solid
-paint must remain within 16 master pixels of the body for the shirt, 12 for shorts and
-14 for shoes. These cover cloth ease, cuffs and soles; 16 master pixels are 4.5 CSS px in
-the Home keeper. Collar, cuffs, torso, waistband, thigh hems and ankle joins must cover
-the underlay in their named seam regions. A separate join check covers both waistband
-sides. Negative controls add a stray paint mark and cut a seam hole; both must fail.
-Retained hats are checked at their existing head landmark over all eight retained hair
-styles, alongside the existing eye-clearance/clipping tests. New painted hats must use
-the new head contact and declare fit regions before registration; this slice has no hat.
+`template.json` retains these landmarks. `fit.ts` states each garment's allowance,
+full body coverage polygons and neckline/cuff/waist/hem/ankle seams. The body layer is
+clipped under the selected garments' coverage and seams in the actual compositor.
+The paintings themselves must cover meaningful body alpha (32/255) with solid cloth
+(240/255) throughout each band; every row checks both edges of every connected leg or
+sleeve and its interior. Raw paint outside the body stays within 16 master pixels for
+the shirt, 12 for shorts and 14 for shoes. Masking cannot make missing cloth pass.
+`painted.test.ts` checks all three garments on four body ids and six curated skin tones,
+compares actual body-plus-garment composites to garment-only pixels in the coverage,
+and cuts holes at neckline, cuffs, waistband, hips, hems and shoe tops as negative
+controls. Retained hats are checked at their existing head landmark over all eight
+retained hair styles. New painted hats must declare fit before registration.
 
 ### Painted Brambleback
 
-The pet canvas is **512 × 384**. All four paintings keep their ground line at y=350;
-baby, teen and adult have increasing visible size. Egg accessories remain hidden.
-Accessories use a **100 × 80** canvas. The bow's contact is (50,70), the bandana's
-contact is (50,28). Placement subtracts that contact from the stage anchor, without
-changing scale or guessing an offset in the component.
+The pet canvas is **512 × 384**. The ground line stays at y=350 in every stage. Egg,
+baby, teen and adult have different silhouettes and developing proportions/features:
+speckled shell with a horn nub and moss ridge, seated wingless hatchling with an enormous
+head and short round tail, round-headed standing teen with a short neck and small raised membrane
+wings, plump young-looking adult with open strut wings, two curved horns and a long spade-tipped tail.
+Clay orange, cream, moss, rounded snout and warm brown eyes tie the stages together.
+Every future species follows this evolution rule; resized drawings do not qualify.
+Lossless WebP delivery lives in `static/painted`, aligned PNG masters in
+`art/painted/masters`. Nine built-in generation calls (four stages, two initial fixes, two young-looking
+repaints and one adult correction)
+are recorded in `brambleback-prompts.json`; raw generations stay in `handoff/p3b/raw`,
+outside this repository.
 
 | Stage | Head | Neck |
 |---|---|---|
 | Egg (unused) | 256,150 | 256,250 |
-| Baby | 170,153 | 196,242 |
-| Teen | 157,115 | 185,224 |
-| Adult | 145,80 | 178,211 |
+| Baby | 201,145 | 220,264 |
+| Teen | 126,73 | 163,208 |
+| Adult | 120,78 | 146,191 |
 
-Only the bow and bandana have painted delivery in this batch. Other accessories retain
-the complete phase-2 pet composite until their paintings are ready.
+`PET_ACCESSORIES_ENABLED` beside the catalogue is currently false. `petFigure` and the
+painted renderer ignore saved accessory ids; pet care, shop, mission-find text and
+accessory drop notices hide them. Inventories and stored pet ids stay intact. The bow
+and bandana WebP/PNG files stay because the flag's enabled rendering path references
+them; no UI requests them while disabled. Their 100 × 80 canvases and head (50,70) /
+neck (50,28) contact points remain for re-enabling. Unpainted accessories still use the
+complete pixel pet when the feature is enabled.
 
 ### Curated colour and chrome
 

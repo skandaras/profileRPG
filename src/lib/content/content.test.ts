@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest';
 import { ABILITIES } from './abilities';
 import { COSMETICS, DEFAULT_AVATAR, PET_ACCESSORIES } from './cosmetics';
 import { HABIT_TEMPLATES } from './habits';
-import { allItems, getAbility, getCosmetic, getItem, getSpecies } from './index';
+import { allItems, getAbility, getCosmetic, getItem, getPetAccessory, getSpecies } from './index';
 import { MISSIONS } from './missions';
 import { SPECIES, STARTERS } from './pets';
 import { RETURN_MILESTONES } from '$lib/game/welcome';
@@ -79,6 +79,13 @@ describe('catalogues', () => {
 			}
 		}
 		expect(PET_ACCESSORIES.length).toBeGreaterThan(0);
+	});
+
+	it('keeps every pet accessory id resolvable while its UI is disabled', () => {
+		for (const accessory of PET_ACCESSORIES) {
+			expect(getPetAccessory(accessory.id)).toBe(accessory);
+			expect(getItem(accessory.id)?.kind).toBe('petacc');
+		}
 	});
 
 	it('gives every template sensible weights', () => {

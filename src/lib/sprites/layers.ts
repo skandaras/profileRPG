@@ -6,13 +6,14 @@
 import { getCosmetic, getPetAccessory, getSpecies } from '$lib/content';
 import { ACCENT_GOLD, dyeRamp, eyeRamp, faceInkRamp, hairRamp, REFERENCE_PALETTE, skinRamp, WHITE_RAMP } from '$lib/content/palettes';
 import { speciesPalette } from '$lib/content/pets';
-import { SLOT_ORDER } from '$lib/content/cosmetics';
+import { PET_ACCESSORIES_ENABLED, SLOT_ORDER } from '$lib/content/cosmetics';
 import type { Art, AvatarConfig, ColorSlot } from '$lib/content/types';
 import type { PetStage } from './art/pets';
 import { PET_ACC } from './art/pets';
 import { AVATAR, PET } from './frames';
 import { svgDocument } from './svg';
 import { paintSwatch } from '$lib/content/painted-palettes';
+import { clipCoverage, type Point } from './fit';
 import { tintPaint } from './painted';
 import { paintedAvatar, paintedPet } from './painted-figures';
 import type { PaletteSet } from './grid';
@@ -25,6 +26,8 @@ export interface LayerSpec {
 	/** Pet PNGs carry final colours; avatar and accessory PNGs use reference channels. */
 	fixedColors?: boolean;
 	paintColor?: string;
+	body?: boolean;
+	occludesBody?: readonly (readonly Point[])[];
 	/** Keep a closed hat from being pierced by the hair beneath it. */
 	clipTop?: number;
 	dx?: number;
@@ -98,6 +101,7 @@ export function avatarFigure(avatar: AvatarConfig): Figure {
 }
 
 export function petFigure(speciesId: string, stage: PetStage, accessoryId?: string | null): Figure {
+	if (!PET_ACCESSORIES_ENABLED) accessoryId = null;
 	return paintedPet(speciesId, stage, accessoryId) ?? pixelPetFigure(speciesId, stage, accessoryId);
 }
 
@@ -114,6 +118,7 @@ export function layerFrames(l: LayerSpec): number {
  */
 export function paintFigure(fig: Figure, pngs: DecodedPngs = new Map()): RgbaImage[] {
 	const frames = Math.max(1, ...fig.layers.map(layerFrames));
+	const coverage = fig.layers.flatMap((l) => l.occludesBody ?? []);
 	const paint = (frame: number) => {
 		const img = blank(fig.w, fig.h);
 		for (const l of fig.layers) {
@@ -132,6 +137,7 @@ export function paintFigure(fig: Figure, pngs: DecodedPngs = new Map()): RgbaIma
 				}
 			}
 			if (src) {
+				if (l.body && coverage.length) src = clipCoverage(src, coverage);
 				if (l.clipTop) {
 					src = { ...src, data: src.data.slice() };
 					src.data.fill(0, 0, Math.min(src.h, l.clipTop) * src.w * 4);

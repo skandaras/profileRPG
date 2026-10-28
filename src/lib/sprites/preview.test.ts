@@ -5,7 +5,7 @@
  */
 import { it } from 'vitest';
 import { mkdirSync, writeFileSync } from 'node:fs';
-import { COSMETICS, DEFAULT_AVATAR, PET_ACCESSORIES } from '$lib/content/cosmetics';
+import { COSMETICS, DEFAULT_AVATAR, PET_ACCESSORIES, PET_ACCESSORIES_ENABLED } from '$lib/content/cosmetics';
 import { CONSUMABLES } from '$lib/content/items';
 import { SPECIES } from '$lib/content/pets';
 import { ICON_PALETTE } from '$lib/sprites/svg';
@@ -34,11 +34,12 @@ it.skipIf(!process.env.SPRITE_PREVIEW)('renders contact sheets', () => {
 	const pets = SPECIES.flatMap((s) =>
 		(['egg', 'baby', 'teen', 'adult'] as const).map((st) => paintPreview(petFigure(s.id, st))[0])
 	);
-	const dressed = SPECIES.flatMap((s) => PET_ACCESSORIES.flatMap((a) =>
+	const accessories = PET_ACCESSORIES_ENABLED ? PET_ACCESSORIES : [];
+	const dressed = SPECIES.flatMap((s) => accessories.flatMap((a) =>
 		(['egg', 'baby', 'teen', 'adult'] as const).map((stage) => paintPreview(petFigure(s.id, stage, a.id))[0])
 	));
 	writeFileSync('test-results/sprites/pets.png', encodePng(sheet([...pets, ...dressed], 4, 34, 34), 3));
-	const bramblebacks = [undefined, ...PET_ACCESSORIES.map((a) => a.id)].flatMap((accessory) =>
+	const bramblebacks = [undefined, ...accessories.map((a) => a.id)].flatMap((accessory) =>
 		(['egg', 'baby', 'teen', 'adult'] as const).map((stage) => paintPreview(petFigure('emberkit', stage, accessory))[0])
 	);
 	writeFileSync('test-results/sprites/brambleback.png', encodePng(sheet(bramblebacks, 4, 34, 34), 4));
@@ -54,6 +55,6 @@ it.skipIf(!process.env.SPRITE_PREVIEW)('renders contact sheets', () => {
 	writeFileSync('test-results/sprites/bed.png', encodePng(paintPreview(bed)[0], 4));
 	const paintedKeepers = ['body.human', 'body.elf', 'body.cat', 'body.bunny'].map((body) => paintPreview(paintedAvatarFigure({ ...DEFAULT_AVATAR, parts: { ...DEFAULT_AVATAR.parts, body } }))[0]);
 	writeFileSync('test-results/sprites/painted-keeper.png', encodePng(sheet(paintedKeepers, 4, 402, 514)));
-	const paintedPets = [undefined, 'petacc.bandana', 'petacc.bow'].flatMap((acc) => (['egg', 'baby', 'teen', 'adult'] as const).map((stage) => paintPreview(paintedPetFigure('emberkit', stage, acc))[0]));
+	const paintedPets = [undefined, ...accessories.map((a) => a.id)].flatMap((acc) => (['egg', 'baby', 'teen', 'adult'] as const).map((stage) => paintPreview(paintedPetFigure('emberkit', stage, acc))[0]));
 	writeFileSync('test-results/sprites/painted-brambleback.png', encodePng(sheet(paintedPets, 4, 514, 386)));
 });

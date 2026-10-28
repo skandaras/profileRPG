@@ -1,13 +1,13 @@
 import { describe, expect, it } from 'vitest';
 import { readFileSync } from 'node:fs';
 import { PNG } from 'pngjs';
-import { DEFAULT_AVATAR, COSMETICS } from '$lib/content/cosmetics';
+import { DEFAULT_AVATAR, COSMETICS, PET_ACCESSORIES } from '$lib/content/cosmetics';
 import { DYES, EYE_COLORS, HAIR_COLORS, SKIN_TONES } from '$lib/content/palettes';
 import { paintSwatch, paintSwatches } from '$lib/content/painted-palettes';
 import { blank, drawOver, type RgbaImage } from './compose';
-import { fitFailures, GARMENT_FIT } from './fit';
+import { covers, fitFailures, GARMENT_FIT, garmentCoverage } from './fit';
 import { avatarFigure, paintFigure, petFigure, pixelAvatarFigure } from './layers';
-import { PAINT_PARTS, BRAMBLE_ANCHORS } from './painted-figures';
+import { PAINT_PARTS } from './painted-figures';
 import { tintPaint } from './painted';
 import { paintPreview } from './preview-png';
 import { uiIconFigure } from './ui-icons';
@@ -20,9 +20,24 @@ const master = (name: string): RgbaImage => {
 describe('painted template fit', () => {
 	const body = master('body');
 	for (const id of ['body.human', 'body.elf', 'body.cat', 'body.bunny']) {
-		it(`shares the fixed torso and fits every painted garment on ${id}`, () => {
+		for (const [name, contract] of Object.entries(GARMENT_FIT)) it(`covers the full ${name} band on ${id} in every curated skin`, () => {
 			expect(PAINT_PARTS[id].find(([z]) => z === 10)?.[1]).toBe('body');
-			for (const [name, contract] of Object.entries(GARMENT_FIT)) expect(fitFailures(body, master(name), contract), `${id}: ${name}`).toEqual([]);
+			expect(fitFailures(body, master(name), contract), `${id}: ${name}`).toEqual([]);
+			for (const skin of paintSwatches('skin')) {
+				const figure = avatarFigure({ ...DEFAULT_AVATAR, parts: { ...DEFAULT_AVATAR.parts, body: id }, colors: { ...DEFAULT_AVATAR.colors, skin: skin.id } });
+				const z = { top: 30, bottom: 20, shoes: 25 }[name as 'top' | 'bottom' | 'shoes'];
+				const dressed = { ...figure, layers: figure.layers.filter((l) => l.z === 10 || l.z === z) };
+				const composite = paintPreview(dressed)[0];
+				const cloth = paintPreview({ ...figure, layers: figure.layers.filter((l) => l.z === z) })[0];
+				const regions = garmentCoverage(contract);
+				let residual: string | undefined;
+				for (let y = 0; y < body.h && !residual; y++) for (let x = 0; x < body.w; x++) {
+					if (!covers(regions, x, y)) continue;
+					const i = (y * body.w + x) * 4;
+					if (composite.data.slice(i, i + 4).some((v, c) => v !== cloth.data[i + c])) { residual = `body showing at ${x},${y} (${skin.id})`; break; }
+				}
+				expect(residual, `${id}: ${name}`).toBeUndefined();
+			}
 		});
 	}
 	it('keeps each garment joined, with exactly two separate shoes', () => {
@@ -51,6 +66,13 @@ describe('painted template fit', () => {
 		expect(fitFailures(body, shoes, GARMENT_FIT.shoes).some((s) => s.startsWith('outside'))).toBe(true);
 		shoes.data[(400 * 467 + 177) * 4 + 3] = 0;
 		expect(fitFailures(body, shoes, GARMENT_FIT.shoes).some((s) => s.startsWith('seam'))).toBe(true);
+	});
+	it('rejects skin gaps at the neckline, cuffs, waist, hips, hems and shoe tops', () => {
+		for (const [name, x, y] of [['top', 182, 248], ['top', 147, 282], ['bottom', 175, 312], ['bottom', 153, 342], ['bottom', 181, 370], ['shoes', 177, 467]] as const) {
+			const cloth = master(name);
+			cloth.data[(y * cloth.w + x) * 4 + 3] = 0;
+			expect(fitFailures(body, cloth, GARMENT_FIT[name]).length, `${name} at ${x},${y}`).toBeGreaterThan(0);
+		}
 	});
 	it('keeps retained hats at their head landmark over every retained hair style', () => {
 		for (const hat of COSMETICS.filter((c) => c.slot === 'headwear')) for (const hair of COSMETICS.filter((c) => c.slot === 'hair')) {
@@ -96,16 +118,17 @@ describe('paint engine', () => {
 		expect(paintPreview(figure)).toHaveLength(1);
 		expect(avatarFigure({ ...DEFAULT_AVATAR, parts: { ...DEFAULT_AVATAR.parts, top: 'top.hoodie' } }).w).toBe(32);
 	});
-	it('uses all four Brambleback paintings and puts accessories at their named anchors', () => {
-		for (const stage of ['egg', 'baby', 'teen', 'adult'] as const) for (const acc of [undefined, 'petacc.bandana', 'petacc.bow']) {
-			const figure = petFigure('emberkit', stage, acc);
+	it('ignores every stored accessory on every species and stage while disabled', () => {
+		for (const species of ['emberkit', 'mossling', 'puddlefin', 'pebblet', 'fluffle', 'glimmerwing']) {
+			for (const stage of ['egg', 'baby', 'teen', 'adult'] as const) {
+				const plain = petFigure(species, stage);
+				for (const acc of PET_ACCESSORIES) expect(petFigure(species, stage, acc.id)).toEqual(plain);
+			}
+		}
+		for (const stage of ['egg', 'baby', 'teen', 'adult'] as const) {
+			const figure = petFigure('emberkit', stage, 'petacc.bow');
 			expect(figure.painted).toBe(true);
-			const image = paintPreview(figure)[0];
-			expect(image.data.some((v, i) => i % 4 === 3 && v > 0)).toBe(true);
-			if (acc && stage !== 'egg') {
-				const bow = acc.endsWith('bow'); const layer = figure.layers[1];
-				expect([layer.dx! + 50, layer.dy! + (bow ? 70 : 28)]).toEqual(BRAMBLE_ANCHORS[stage][bow ? 'head' : 'neck']);
-			} else expect(figure.layers).toHaveLength(1);
+			expect(Buffer.from(paintPreview(figure)[0].data).equals(Buffer.from(paintPreview(petFigure('emberkit', stage))[0].data))).toBe(true);
 		}
 	});
 });

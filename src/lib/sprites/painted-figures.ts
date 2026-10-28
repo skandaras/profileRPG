@@ -1,4 +1,6 @@
 import type { Art, AvatarConfig, ColorSlot } from '$lib/content/types';
+import { PET_ACCESSORIES_ENABLED } from '$lib/content/cosmetics';
+import { GARMENT_FIT, garmentCoverage } from './fit';
 import { paintSwatch } from '$lib/content/painted-palettes';
 import { REFERENCE_PALETTE } from '$lib/content/palettes';
 import type { Figure, LayerSpec } from './layers';
@@ -22,6 +24,8 @@ export function paintedAvatar(avatar: AvatarConfig): Figure | null {
 	const ids = Object.values(avatar.parts).filter((id): id is string => !!id);
 	if (!ids.length || ids.some((id) => !PAINT_PARTS[id])) return null;
 	const layers: LayerSpec[] = ids.flatMap((id) => PAINT_PARTS[id].map(([z, file, channel]) => ({
+		body: file === 'body',
+		occludesBody: file in GARMENT_FIT ? garmentCoverage(GARMENT_FIT[file as keyof typeof GARMENT_FIT]) : undefined,
 		z, art: { painted: `/painted/${file}.webp`, ...PAINT_AVATAR, channel } as Art,
 		palette: REFERENCE_PALETTE,
 		paintColor: channel ? paintSwatch(channel, avatar.colors[channel]).ramp[1] : undefined
@@ -33,12 +37,13 @@ export function paintedAvatar(avatar: AvatarConfig): Figure | null {
 /** Anchors belong to each painting, in its delivered 512 × 384 canvas. */
 export const BRAMBLE_ANCHORS: Record<PetStage, { head: [number, number]; neck: [number, number] }> = {
 	egg: { head: [256, 150], neck: [256, 250] },
-	baby: { head: [170, 153], neck: [196, 242] },
-	teen: { head: [157, 115], neck: [185, 224] },
-	adult: { head: [145, 80], neck: [178, 211] }
+	baby: { head: [201, 145], neck: [220, 264] },
+	teen: { head: [126, 73], neck: [163, 208] },
+	adult: { head: [120, 78], neck: [146, 191] }
 };
 
 export function paintedPet(species: string, stage: PetStage, accessory?: string | null): Figure | null {
+	if (!PET_ACCESSORIES_ENABLED) accessory = null;
 	if (species !== 'emberkit' || (accessory && stage !== 'egg' && !['petacc.bow', 'petacc.bandana'].includes(accessory))) return null;
 	const layers: LayerSpec[] = [{ z: 0, art: { painted: `/painted/brambleback-${stage}.webp`, ...PAINT_PET }, palette: REFERENCE_PALETTE }];
 	if (accessory && stage !== 'egg') {

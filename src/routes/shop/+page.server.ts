@@ -1,4 +1,5 @@
 import { act, num, read, str } from '$lib/server/api';
+import { PET_ACCESSORIES_ENABLED } from '$lib/content/cosmetics';
 import { allItems } from '$lib/content';
 import { buy, inventoryOf, owns } from '$lib/server/modules/inventory';
 import { companionRow } from '$lib/server/modules/pets';
@@ -9,7 +10,7 @@ export const load = ({ locals }) =>
 		const p = playerRow(ctx.tx, ctx.userId);
 		const bag = inventoryOf(ctx.tx, ctx.userId);
 		const stock = allItems()
-			.filter((i) => i.unlock.kind === 'shop')
+			.filter((i) => i.unlock.kind === 'shop' && (PET_ACCESSORIES_ENABLED || i.kind !== 'petacc'))
 			.map((i) => ({
 				id: i.id,
 				name: i.name,

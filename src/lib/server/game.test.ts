@@ -1,5 +1,7 @@
 import { beforeAll, beforeEach, describe, expect, it } from 'vitest';
 import { eq } from 'drizzle-orm';
+import { load as petPage } from '../../routes/pet/+page.server';
+import { load as shopPage } from '../../routes/shop/+page.server';
 import { DEFAULT_AVATAR } from '$lib/content/cosmetics';
 import { advanceClock, setClock } from './clock';
 import { db, runMigrations } from './db';
@@ -182,6 +184,22 @@ describe('missions', () => {
 });
 
 describe('eggs and the shop', () => {
+	it('keeps saved accessories and ownership while pet care and shop offer none', () => {
+		const id = newHero();
+		const pet = listPets(db, id, START)[0];
+		db.update(pets).set({ accessoryId: 'petacc.bow' }).where(eq(pets.id, pet.id)).run();
+		db.insert(inventory).values({ userId: id, itemId: 'petacc.bow', qty: 1, acquiredAt: START }).run();
+		const event = { locals: { user: { id, username: 'test', email: null, displayName: null, groups: [] } } };
+		const care = petPage(event as unknown as Parameters<typeof petPage>[0]);
+		expect(care.accessories).toEqual([]);
+		expect(care.pets.find((p) => p.id === pet.id)?.accessoryId).toBe('petacc.bow');
+		expect(shopPage(event as unknown as Parameters<typeof shopPage>[0]).stock.some((i) => i.kind === 'petacc')).toBe(false);
+		expect(inventoryOf(db, id).get('petacc.bow')).toBe(1);
+		db.update(players).set({ gp: 500 }).where(eq(players.userId, id)).run();
+		expect(() => play(id, (ctx) => buy(ctx, 'petacc.bandana'))).toThrow('That is not in the shop');
+		expect(inventoryOf(db, id).get('petacc.bandana')).toBeUndefined();
+	});
+
 	it('warms an egg with activity until it hatches', () => {
 		const id = newHero(['read']);
 		play(id, (ctx) => addEgg(ctx, 'pebblet', 'test'));

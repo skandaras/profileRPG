@@ -227,6 +227,8 @@ const PET_CLAY: Ramp = ['#9b5140', '#cd815b', '#efbc83'];
 const PET_MOSS: Ramp = ['#426647', '#78915c', '#b2c98a'];
 const PET_SLATE: Ramp = ['#414953', '#687584', '#a6b6ba'];
 
+export const PET_ACCESSORIES_ENABLED: boolean = false;
+
 export const PET_ACCESSORIES: PetAccessory[] = [
 	{ id: 'petacc.bow', name: 'Ribbon bow', unlock: shop(25), place: 'head', art: { sprite: P.petBow() }, tint: PET_ROSE, accent: PET_GOLD },
 	{ id: 'petacc.bandana', name: 'Bandana', unlock: shop(30), place: 'neck', art: { sprite: P.petBandana() }, tint: PET_CLAY },
