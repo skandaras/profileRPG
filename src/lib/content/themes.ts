@@ -5,7 +5,7 @@
  */
 import type { Unlock } from './types';
 
-export type ThemeTokens = {
+type BaseTokens = {
 	bg: string;
 	bg2: string;
 	bg3: string;
@@ -28,6 +28,8 @@ export type ThemeTokens = {
 	statKno: string;
 };
 
+export type ThemeTokens = BaseTokens & { wash: string; wash2: string; paper: string; window: string; plant: string; shadow: string };
+
 export interface Theme {
 	id: string;
 	name: string;
@@ -40,7 +42,7 @@ export interface Theme {
 const STATS_LIGHT = { statStr: '#a52e43', statDex: '#376b3e', statInt: '#315d9e', statKno: '#76429b' };
 const STATS_DARK = { statStr: '#ff94a0', statDex: '#72d88a', statInt: '#8ab5ff', statKno: '#c99aff' };
 
-export const THEMES: Theme[] = [
+const BASE_THEMES: (Omit<Theme, 'tokens'> & { tokens: BaseTokens })[] = [
 	{
 		id: 'meadow',
 		name: 'Meadow',
@@ -199,7 +201,34 @@ export const THEMES: Theme[] = [
 	}
 ];
 
+export const THEMES: Theme[] = BASE_THEMES.map((theme) => {
+	const t = theme.tokens;
+	const painted = theme.id === 'meadow' ? {
+		bg: '#f6f1e7', bg2: '#fffbf3', bg3: '#dfe8d3', ink: '#343e37', inkSoft: '#535e52',
+		accent: '#49634d', accentInk: '#fffdf5', good: '#49634d', bad: '#953f3d', xp: '#49634d', gp: '#835a27',
+		line: '#74816b', sky: '#e1e7cf', floor: '#dedac2', trim: '#c5c9b7'
+	} : theme.id === 'night' ? {
+		bg: '#242f31', bg2: '#303d3e', bg3: '#435448', ink: '#f8f0df', inkSoft: '#d3dfd3',
+		accent: '#c9e1b0', accentInk: '#24302c', good: '#c9e1b0', bad: '#f3bcb4', xp: '#c9e1b0', gp: '#efd08e',
+		statStr: '#ffc0c5', statDex: '#a6dba9', statInt: '#b2cafa', statKno: '#d5bce8',
+		line: '#a4b6a5', sky: '#3c534d', floor: '#4a5249', trim: '#708475'
+	} : {};
+	const tokens = { ...t, ...painted };
+	return { ...theme, tokens: {
+		...tokens, wash: theme.id === 'meadow' ? '#e1e7cf' : theme.id === 'night' ? '#3c534d' : tokens.bg3,
+		wash2: theme.id === 'meadow' ? '#f1dbc9' : theme.id === 'night' ? '#56483f' : tokens.bg,
+		paper: tokens.bg2, window: theme.id === 'meadow' ? '#edf3dc' : theme.id === 'night' ? '#45616a' : tokens.sky,
+		plant: tokens.accent, shadow: theme.dark ? '#152527' : '#b9bdab'
+	} };
+});
+
 const CSS_NAMES: Record<keyof ThemeTokens, string> = {
+	wash: '--wash',
+	wash2: '--wash-2',
+	paper: '--paper',
+	window: '--window',
+	plant: '--plant',
+	shadow: '--shadow',
 	bg: '--bg',
 	bg2: '--bg-2',
 	bg3: '--bg-3',

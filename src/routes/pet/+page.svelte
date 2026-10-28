@@ -31,14 +31,16 @@
 
 {#if companion}
 	<section class="companion">
-		<div class="box pet-summary">
+		<div class="care-room">
+			<div class="care-window" aria-hidden="true"></div>
+			<PetSprite speciesId={companion.speciesId} stage={companion.stage} accessoryId={companion.accessoryId} mood={companion.mood} scale={4.5} label={companion.name} />
+		</div>
+		<div class="pet-summary">
 			<div class="pet-info">
-				<h2>{companion.name}</h2>
-				<p class="small soft">{companion.speciesName} · <span class="numeral">Lv {companion.level}</span><br />{companion.stage} · loves {companion.affinity.map((a) => STATS[a].name).join(' & ')}</p>
-				<p class="pet-mood small soft">{companion.away ? `${companion.name} is away on a mission.` : `${companion.name} ${MOOD_TEXT[companion.mood]}.`}</p>
-				<button bind:this={renameButton} class="rename small soft" type="button" onclick={() => (renaming = !renaming)} aria-expanded={renaming}>Rename</button>
+				<div class="spread"><h2>{companion.name}</h2><button bind:this={renameButton} class="rename small soft" type="button" onclick={() => (renaming = !renaming)} aria-expanded={renaming}>Rename</button></div>
+				<p class="small soft">{companion.speciesName} · <span class="numeral">Lv {companion.level}</span> · {companion.stage}</p>
+				<p class="pet-mood small soft">{companion.away ? `${companion.name} is away on a mission.` : `${companion.name} ${MOOD_TEXT[companion.mood]}.`} Loves {companion.affinity.map((a) => STATS[a].name).join(' & ')}.</p>
 			</div>
-			<PetSprite speciesId={companion.speciesId} stage={companion.stage} accessoryId={companion.accessoryId} mood={companion.mood} scale={4} label={companion.name} />
 		</div>
 		{#if renaming}
 			<form method="POST" action="?/rename" class="row" use:enhance={withNotices({ then: (ok) => { if (ok) { renaming = false; renameButton?.focus(); } } })}>
@@ -149,18 +151,22 @@
 {/if}
 
 <style>
+	.care-room { height: 174px; background: radial-gradient(ellipse at 25% 20%, var(--window), transparent 65%), var(--wash); box-shadow: inset 0 -25px 24px var(--floor); border-radius: 40px 40px 20px 20px; position: relative; display: flex; align-items: end; justify-content: center; padding-bottom: 7px; }
+	.care-window { position: absolute; left: 35px; top: 32px; width: 60px; height: 80px; border: 5px solid var(--paper); border-radius: 40px 40px 4px 4px; background: var(--window); }
+	.care-window::before { content: ''; position: absolute; height: 100%; width: 4px; left: 24px; background: var(--paper); }
+
 	.companion {
 		margin-bottom: 24px;
 	}
 
 	.pet-summary {
 		display: grid;
-		grid-template-columns: minmax(0, 1fr) 128px;
+		grid-template-columns: 1fr;
 		align-items: center;
 		gap: 8px;
-		min-height: 152px;
-		margin-bottom: 20px;
-		padding: 12px 16px;
+		min-height: 0;
+		margin-bottom: 14px;
+		padding: 12px 0 0;
 	}
 
 	.pet-info h2 {
@@ -254,6 +260,7 @@
 
 	.feed-label {
 		padding: 12px 12px;
+		border-radius: 12px;
 		background: var(--accent);
 		color: var(--accent-ink);
 		font-size: 18px;

@@ -16,7 +16,7 @@ export function contrast(a: string, b: string): number {
 }
 
 // Every pair the UI actually puts text on.
-const SURFACES = ['bg', 'bg2', 'bg3'] as const;
+const SURFACES = ['bg', 'bg2', 'bg3', 'wash', 'wash2', 'paper'] as const;
 const TEXT_PAIRS: [keyof ThemeTokens, keyof ThemeTokens][] = [
 	['accentInk', 'accent'],
 	...SURFACES.flatMap((bg) => (['ink', 'inkSoft', 'accent', 'good', 'bad', 'statStr', 'statDex', 'statInt', 'statKno'] as const).map((fg): [keyof ThemeTokens, keyof ThemeTokens] => [fg, bg]))

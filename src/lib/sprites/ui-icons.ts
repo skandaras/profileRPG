@@ -99,5 +99,5 @@ export interface UiIcon {
 }
 
 export function uiIconFigure(icon: UiIcon) {
-	return { w: 16, h: 16, pivot: 0, layers: [{ z: 0, ...icon }] };
+	return { w: 'painted' in icon.art ? icon.art.w : 16, h: 'painted' in icon.art ? icon.art.h : 16, painted: 'painted' in icon.art, displayHeight: 16, pivot: 0, layers: [{ z: 0, ...icon }] };
 }

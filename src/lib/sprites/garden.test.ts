@@ -5,7 +5,7 @@ import { bed, messFigures } from './room';
 import { SPECIES } from '$lib/content/pets';
 import { Z } from './frames';
 import { blank, recolor, renderSprite, type RgbaImage } from './compose';
-import { avatarFigure, paintFigure, petFigure } from './layers';
+import { pixelAvatarFigure as avatarFigure, paintFigure, pixelPetFigure as petFigure } from './layers';
 
 const pixel = (img: RgbaImage, x: number, y: number) =>
 	Array.from(img.data.subarray((y * img.w + x) * 4, (y * img.w + x) * 4 + 4));

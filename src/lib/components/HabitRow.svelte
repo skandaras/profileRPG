@@ -60,7 +60,7 @@
 		<input type="hidden" name="id" value={habit.id} />
 		<button bind:this={tickButton} class="tick" disabled={busy || (habit.kind === 'task' && habit.done && !canUndo)}
 			aria-label={canUndo ? `Undo the last tick of ${habit.title}` : habit.done ? `${habit.title}, done. Log again` : `Tick off ${habit.title}`}>
-			{#if habit.done}<PixelIcon name={canUndo ? 'undo' : 'check'} scale={1} />
+			{#if habit.done}<PixelIcon name="check" scale={1.5} />
 			{:else}<span aria-hidden="true">+</span>{/if}
 			{#if canUndo}<span class="undo-label small">Undo</span>{/if}
 		</button>
@@ -87,9 +87,12 @@
 		grid-template-columns: 1fr auto;
 		align-items: center;
 		column-gap: 16px;
-		padding: 20px 16px;
-		min-height: 84px;
-		border-bottom: 1px solid var(--trim);
+		padding: 15px;
+		min-height: 82px;
+		background: var(--paper);
+		border-radius: 18px;
+		margin-bottom: 10px;
+		box-shadow: 0 3px 12px color-mix(in srgb, var(--shadow) 12%, transparent);
 	}
 
 	.habit:last-child {
@@ -106,8 +109,9 @@
 		align-items: center;
 		min-height: 24px;
 		font-size: 15px;
+		font-family: 'Nunito', system-ui, sans-serif;
 		line-height: 24px;
-		font-weight: 600;
+		font-weight: 800;
 		text-decoration: none;
 		margin: 0 0 2px;
 		overflow-wrap: anywhere;
@@ -143,18 +147,23 @@
 		height: 44px;
 		padding: 0;
 		flex: none;
-		font: 500 28px 'Pixelify Sans', system-ui, sans-serif;
-		border: 1px solid var(--line);
+		font: 500 28px 'Nunito', system-ui, sans-serif;
+		border: 1px solid var(--accent);
+		border-radius: 15px;
 		background: var(--bg-2);
 		color: var(--ink);
 		cursor: pointer;
 	}
+
+	.done .name { text-decoration: line-through; }
 
 	.done .tick {
 		background: var(--accent);
 		border-color: var(--accent);
 		color: var(--accent-ink);
 	}
+
+	.done .tick :global(path) { stroke: var(--accent-ink); }
 
 	.tick:disabled {
 		cursor: wait;

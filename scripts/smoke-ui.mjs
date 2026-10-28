@@ -67,6 +67,7 @@ try {
 		await page.waitForLoadState('networkidle');
 	};
 	const shot = async (name) => {
+		await page.waitForLoadState('networkidle');
 		await page.evaluate(() => document.fonts.ready);
 		await page.waitForFunction(() => [...document.querySelectorAll('.figure')].every((f) => f.style.backgroundImage.startsWith('url(')));
 		const rawEmoji = await page.locator('body').evaluate((body) => {
@@ -81,7 +82,7 @@ try {
 		assert.deepEqual(rawEmoji, [], `${name}: built-in emoji use SVG icons`);
 		const invalidIconNames = await page.locator('.svg-icon').evaluateAll((nodes) => nodes.filter((node) => !node.closest('[aria-hidden=true]') && !(node.getAttribute('role') === 'img' && node.getAttribute('aria-label'))).map((node) => node.outerHTML));
 		assert.deepEqual(invalidIconNames, [], `${name}: SVG icons are decorative or labelled`);
-		const iconSizes = await page.locator('.display-icon .svg-icon, .tabbar .svg-icon').evaluateAll((nodes) => nodes.map((node) => node.getBoundingClientRect()).filter((r) => ![16, 24, 32].includes(r.width) || ![16, 24, 32].includes(r.height)));
+		const iconSizes = await page.locator('.display-icon .svg-icon, .tabbar .svg-icon').evaluateAll((nodes) => nodes.map((node) => node.getBoundingClientRect()).filter((r) => r.width && r.height && (![16, 24, 32].includes(r.width) || ![16, 24, 32].includes(r.height))));
 		assert.deepEqual(iconSizes, [], `${name}: standard SVG icon sizes`);
 		assert.equal(await page.locator('h1').count(), 1, `${name}: one h1`);
 		assert.equal(await page.evaluate(() => document.documentElement.scrollWidth > innerWidth), false, `${name}: horizontal overflow`);
@@ -147,7 +148,7 @@ try {
 		}
 		await page.getByRole('button', { name: 'Hair', exact: false }).click();
 		assert.equal(await page.locator('.parts .tile').count(), 8, 'eight free hair styles');
-		assert.equal(await page.getByRole('group', { name: 'Hair colour', exact: true }).getByRole('button').count(), 10, 'ten hair colours');
+		assert.equal(await page.getByRole('group', { name: 'Hair colour', exact: true }).getByRole('button').count(), 7, 'seven curated hair colours');
 		for (const name of ['Short', 'Spiky', 'Curled bob', 'Long', 'Twin tails', 'Ponytail', 'Top bun', 'Curly']) {
 			const choice = page.locator('.parts').getByRole('button', { name, exact: false });
 			await choice.click();

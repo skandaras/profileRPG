@@ -10,7 +10,7 @@ import { DEFAULT_AVATAR } from '$lib/content/cosmetics';
 import { REFERENCE_PALETTE, SKIN_TONES } from '$lib/content/palettes';
 import { blank, bob, drawOver, recolor, renderSprite } from './compose';
 import { FIXED_COLORS, Pix } from './grid';
-import { avatarFigure, paintFigure, petFigure } from './layers';
+import { pixelAvatarFigure as avatarFigure, paintFigure, pixelPetFigure as petFigure } from './layers';
 
 const px = (img: { w: number; data: Uint8ClampedArray }, x: number, y: number) =>
 	Array.from(img.data.subarray((y * img.w + x) * 4, (y * img.w + x) * 4 + 4));

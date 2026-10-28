@@ -1,0 +1,18 @@
+{
+  "canvas": [400, 512],
+  "bodyMaster": "masters/body.png",
+  "torsoSharedBy": ["human", "elf", "beast"],
+  "landmarks": {
+    "head": [200, 82],
+    "neckline": [200, 245],
+    "shoulders": [[169, 246], [232, 246]],
+    "armholes": [[159, 277], [243, 277]],
+    "wrists": [[113, 333], [293, 333]],
+    "waist": [[163, 326], [242, 326]],
+    "hips": [[159, 354], [246, 354]],
+    "knees": [[176, 410], [232, 410]],
+    "ankles": [[176, 477], [235, 477]],
+    "soles": [[176, 495], [235, 495]]
+  },
+  "note": "This source body fixes the pose before outfit authoring. All full-canvas layers share this origin. Ear and tail layers never change the torso mask."
+}

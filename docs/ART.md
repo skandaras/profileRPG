@@ -1,7 +1,9 @@
 # Art contract
 
-LevelUp uses Garden Storybook SVG icons and pixel characters. Catalogue ids are permanent: saved pets,
-outfits and inventory entries point at them. A new drawing or display name keeps its id.
+LevelUp uses painted watercolour characters for the default keeper and Brambleback,
+phase-2 SVG icons, and pixel fallback art for the remaining catalogue. The painted
+contract is below; the pixel contracts remain for unfinished batches. Catalogue ids are
+permanent: saved pets, outfits and inventory entries point at them.
 
 Character and room source drawings are palette-indexed grids in `src/lib/sprites/art/`.
 UI, item, food and toy icons are SVG fragments in that directory. PNG replacements
@@ -36,8 +38,8 @@ Species and materials can use their own ramps. Preserve player skin, hair and dy
 
 Interface colours come from theme tokens in `content/themes.ts`; artwork palettes live
 with the art or its catalogue. The room remains a CSS scene using theme tokens. Paper
-cards have stepped corners and a quiet lower edge. Pixelify Sans 500 carries headings,
-buttons, navigation and numbers; DM Sans carries body text, labels and form values.
+cards have rounded corners and soft shadows. Nunito carries headings, buttons, navigation
+and numbers; DM Sans carries body text, labels and form values.
 
 ## Frames and animation
 
@@ -259,3 +261,99 @@ and after settings changes; keep a single `meta theme-color`.
 welcome-back visit, pet care, missions and party, all in Meadow. Use an isolated dev
 database, wait for fonts and sprite images, dismiss notices, and keep the exported strip
 under 400 KB. One-off capture scripts belong outside the repo.
+
+## Painted slice (phase 3, batch A)
+
+The default outfit and Brambleback now use painted watercolour art. Other outfits,
+hairstyles, faces, species and accessories retain their phase-2 drawings until their
+painted batch. `painted-figures.ts` registers finished layers by their permanent ids.
+A selection containing an unfinished part uses the whole pixel outfit; it stays
+selectable and never combines a pixel limb with a painted body. The two grid regression
+suites explicitly use `pixelAvatarFigure` / `pixelPetFigure` to keep guarding that art.
+The ordinary figure functions select the painted slice. SVG icons keep their phase-2 art.
+
+`Art` also accepts `{ painted: '/painted/top.webp', w: 400, h: 512, channel: 'top' }`.
+It works for avatar parts, pets, accessories and props. `Figure.displayHeight` preserves
+the old scale API while its canvas uses the painting's native pixels. Icon/prop figures
+can use `uiIconFigure()` with painted art; its display height is 16 units.
+The browser decodes WebP, composes with straight-alpha source-over, and caches the finished
+figure. `tintPaint()` caches each source image/curated-colour pair with a WeakMap. Value
+0–0.25 retains pencil ink, 0.25–0.78 moves from ink to pigment, and 0.78–1 lifts the pigment
+toward paper. Alpha never changes during tinting. Fixed face marks and iris values are
+separate layers, so tinting eyes leaves pupils, whites, brows and mouth intact.
+
+Delivery files are lossless WebP under `static/painted/`; their aligned PNG masters and
+generation sources are outside `static/`, in `art/painted/`. `prompts.json` records the
+built-in image-generation prompts. The existing study supplies the body, face, front/back
+hair and bandana; the outfit was generated with the body as its underlay. Sources have
+invisible RGB cleared and faint fringe removed before resampling. Lossless WebP preserves
+all remaining edge alpha; smooth browser scaling is intentional. Painted figures have
+one raster pose and a CSS idle bob; reduced-motion disables it. Pixel figures keep their
+old frame animation. The Node preview decoder uses the corresponding PNG master.
+
+### Shared painted body and fit
+
+Every avatar layer is **400 × 512**, at origin (0,0). The pose and torso silhouette in
+`art/painted/masters/body.png` are fixed. Human, elf and beast use that exact layer;
+`body.cat` and `body.bunny` are both saved beast choices. Ears/tail are separate paintings
+and do not alter the torso. The default parts keep their shipped ids: `face.bright`,
+`hair.bob`, `top.tee` (Garden shirt), `bottom.shorts`, `shoes.sneakers`. The new default
+colour ids are Peach, Chestnut, Leaf, Clover, Acorn and Charcoal. Existing saved colours
+are never rewritten.
+
+| Landmark | Coordinates on the master |
+|---|---|
+| Head / hat contact | 200,82 |
+| Neckline | 200,245 |
+| Shoulders | 169,246 / 232,246 |
+| Armholes | 159,277 / 243,277 |
+| Wrists | 113,333 / 293,333 |
+| Waist | 163,326 / 242,326 |
+| Hips | 159,354 / 246,354 |
+| Knees | 176,410 / 232,410 |
+| Ankles | 176,477 / 235,477 |
+| Soles | 176,495 / 235,495 |
+
+`template.json` retains these landmarks. `fit.ts` states each garment's allowance and
+seam regions. `painted.test.ts` checks every painted garment on all four body ids: solid
+paint must remain within 16 master pixels of the body for the shirt, 12 for shorts and
+14 for shoes. These cover cloth ease, cuffs and soles; 16 master pixels are 4.5 CSS px in
+the Home keeper. Collar, cuffs, torso, waistband, thigh hems and ankle joins must cover
+the underlay in their named seam regions. A separate join check covers both waistband
+sides. Negative controls add a stray paint mark and cut a seam hole; both must fail.
+Retained hats are checked at their existing head landmark over all eight retained hair
+styles, alongside the existing eye-clearance/clipping tests. New painted hats must use
+the new head contact and declare fit regions before registration; this slice has no hat.
+
+### Painted Brambleback
+
+The pet canvas is **512 × 384**. All four paintings keep their ground line at y=350;
+baby, teen and adult have increasing visible size. Egg accessories remain hidden.
+Accessories use a **100 × 80** canvas. The bow's contact is (50,70), the bandana's
+contact is (50,28). Placement subtracts that contact from the stage anchor, without
+changing scale or guessing an offset in the component.
+
+| Stage | Head | Neck |
+|---|---|---|
+| Egg (unused) | 256,150 | 256,250 |
+| Baby | 170,153 | 196,242 |
+| Teen | 157,115 | 185,224 |
+| Adult | 145,80 | 178,211 |
+
+Only the bow and bandana have painted delivery in this batch. Other accessories retain
+the complete phase-2 pet composite until their paintings are ready.
+
+### Curated colour and chrome
+
+`content/painted-palettes.ts` supplies six skin, seven hair, four eye and thirteen dye
+swatches. Every old palette id remains in its catalogue and passes validation. Retired
+ids resolve to the nearest curated swatch by luminance-weighted RGB distance and show
+that selection in the editor. Nothing migrates in the database. The same alias applies
+when an unfinished outfit uses the pixel fallback.
+
+Nunito and DM Sans variable Latin WOFF2 files are self-hosted with their OFL licences
+in `static/fonts/`. Theme tokens supply paper, two wash endpoints, window, plant and
+shadow alongside the existing UI colours. Contrast tests cover text, focus, borders and
+progress on both wash endpoints and paper in every theme. Meadow and Night use the
+study's paper palette; the other four keep their own colours. Room decorations remain
+CSS. Phase-2 icons and the app icon are unchanged.

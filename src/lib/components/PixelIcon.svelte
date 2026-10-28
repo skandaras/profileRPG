@@ -1,8 +1,7 @@
 <script lang="ts">
 	import type { PaletteSet, Ramp } from '$lib/sprites/grid';
 	import { ICON_PALETTE } from '$lib/sprites/svg';
-	import { ICON } from '$lib/sprites/frames';
-	import { UI_ICONS, type UiIcon, type UiIconName } from '$lib/sprites/ui-icons';
+	import { UI_ICONS, uiIconFigure, type UiIcon, type UiIconName } from '$lib/sprites/ui-icons';
 	import type { Art } from '$lib/content/types';
 	import { svgDocument } from '$lib/sprites/svg';
 	import Figure from './Figure.svelte';
@@ -23,10 +22,10 @@
 		return {
 			art: art!,
 			palette: { ...ICON_PALETTE, ...(tint ? { primary: tint } : {}) },
-			key: `icon:${'svg' in art! ? art!.svg : 'png' in art! ? art!.png : art!.sprite.rows.join('')}:${tint?.join() ?? ''}`
+			key: `icon:${'svg' in art! ? art!.svg : 'png' in art! ? art!.png : 'painted' in art! ? art!.painted : art!.sprite.rows.join('')}:${tint?.join() ?? ''}`
 		};
 	});
-	const figure = $derived({ w: ICON.w, h: ICON.h, pivot: 0, layers: [{ z: 0, art: spec.art, palette: spec.palette, fixedColors: spec.fixedColors }] });
+	const figure = $derived(uiIconFigure(spec));
 </script>
 
 {#if 'svg' in spec.art}

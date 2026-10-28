@@ -45,10 +45,11 @@
 	<header class="top">
 		<div class="inner">
 			<a class="who" href="/me">
-				<span class="name title">{data.hero.heroName}</span>
+				<PixelIcon name="paw" scale={1.5} /><span class="name title">{data.hero.heroName}</span>
 				<span class="chip">Lv {data.hero.level}</span>
 				{#if data.hero.points > 0}<span class="chip pts">+{data.hero.points}<span class="sr-only"> points to spend</span></span>{/if}
 			</a>
+			<p class="tagline small soft">A little progress, every day.</p>
 			<div class="xp">
 				<Bar value={data.hero.xp} max={data.hero.xpNext} label="Experience to next level" />
 				<span class="numeral">{data.hero.xp} / {data.hero.xpNext} XP</span>
@@ -84,18 +85,19 @@
 <style>
 	.top {
 		background: var(--bg-2);
-		border-bottom: 1px solid var(--line);
+		border-radius: 0 0 25px 25px;
+		box-shadow: 0 3px 14px color-mix(in srgb, var(--shadow) 10%, transparent);
 		padding-top: env(safe-area-inset-top);
 	}
 
 	.inner {
 		max-width: 560px;
 		margin: auto;
-		padding: 16px 20px 20px;
+		padding: 18px 22px 12px;
 		display: grid;
 		grid-template-columns: 1fr auto;
-		gap: 12px;
-		min-height: 100px;
+		gap: 2px 12px;
+		min-height: 114px;
 		align-items: center;
 	}
 
@@ -108,9 +110,11 @@
 		min-height: 44px;
 	}
 
+	.tagline { grid-row: 2; grid-column: 1 / -1; margin: -8px 0 7px 33px; font-size: 11px; }
+
 	.name {
 		margin: 0;
-		font-size: 24px;
+		font-size: 20px;
 		overflow: hidden;
 		text-overflow: ellipsis;
 		white-space: nowrap;
@@ -118,7 +122,7 @@
 	}
 
 	.xp {
-		grid-row: 2;
+		grid-row: 3;
 		grid-column: 1 / -1;
 		display: grid;
 		grid-template-columns: 1fr auto;
@@ -134,7 +138,7 @@
 		gap: 8px;
 		min-height: 44px;
 		text-decoration: none;
-		font: 500 20px 'Pixelify Sans', system-ui, sans-serif;
+		font: 800 20px 'Nunito', system-ui, sans-serif;
 	}
 
 	.resting {
@@ -146,7 +150,7 @@
 	main {
 		max-width: 560px;
 		margin: auto;
-		padding: 24px 20px calc(96px + env(safe-area-inset-bottom));
+		padding: 22px 22px calc(96px + env(safe-area-inset-bottom));
 	}
 
 	main.onboarding {
@@ -162,7 +166,8 @@
 		display: flex;
 		justify-content: center;
 		background: var(--bg-2);
-		border-top: 1px solid var(--trim);
+		border-radius: 24px 24px 0 0;
+		box-shadow: 0 -4px 18px color-mix(in srgb, var(--shadow) 15%, transparent);
 		padding: 8px 12px calc(8px + env(safe-area-inset-bottom));
 	}
 
@@ -176,19 +181,20 @@
 		justify-content: center;
 		text-decoration: none;
 		color: var(--ink);
-		min-height: 55px;
+		min-height: 60px;
+		border-radius: 15px;
 	}
 
 	.tabbar a[aria-current='page'] {
 		color: var(--accent);
 		background: var(--bg-3);
-		box-shadow: inset 0 -3px var(--accent);
+		color: var(--ink);
 	}
 
 	.lbl {
-		font-family: 'Pixelify Sans', system-ui, sans-serif;
+		font-family: 'Nunito', system-ui, sans-serif;
 		font-size: 16px;
-		font-weight: 500;
+		font-weight: 800;
 	}
 
 </style>

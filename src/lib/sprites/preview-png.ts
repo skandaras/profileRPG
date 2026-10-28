@@ -14,6 +14,10 @@ export function paintPreview(figure: Figure, root = 'static') {
 			const rendered = new Resvg(svg, { fitTo: { mode: 'width', value: figure.w } }).render();
 			pngs.set(svg, { w: rendered.width, h: rendered.height, data: new Uint8ClampedArray(rendered.pixels) });
 		}
+		if ('painted' in layer.art) {
+			const png = PNG.sync.read(readFileSync(join('art/painted/masters', layer.art.painted.split('/').pop()!.replace('.webp', '.png'))));
+			pngs.set(layer.art.painted, { w: png.width, h: png.height, data: new Uint8ClampedArray(png.data) });
+		}
 		if ('png' in layer.art && !pngs.has(layer.art.png)) {
 			const png = PNG.sync.read(readFileSync(join(root, layer.art.png)));
 			pngs.set(layer.art.png, { w: png.width, h: png.height, data: new Uint8ClampedArray(png.data) });

@@ -35,7 +35,8 @@
 
 <svelte:head><title>Home · LevelUp</title></svelte:head>
 
-<div class="page-heading"><h1 tabindex="-1">Home</h1><span class="small soft">A little progress, every day.</span></div>
+<p class="eyebrow">Make a little room</p>
+<div class="page-heading"><h1 tabindex="-1">Home</h1><span class="small soft home-date">{new Intl.DateTimeFormat('en', { weekday: 'long', day: 'numeric', month: 'short', timeZone: 'UTC' }).format(data.today * 86_400_000)}</span></div>
 
 <section>
 	<Habitat avatar={data.avatar} heroName={data.heroName} pet={data.companion}>
@@ -123,6 +124,7 @@
 	{/if}
 	<a class="add-habit soft small" href="/habits/new">+ Add a habit</a>
 </section>
+<p class="small soft gentle-note">Small steps count. You’re doing enough.</p>
 
 {#if tasks.length}
 	<section class="box">
@@ -140,6 +142,7 @@
 {/if}
 
 <style>
+	.home-date { font-size: 11px; }
 	.mess {
 		position: absolute;
 		transform: translate(-50%, -50%);
@@ -168,6 +171,8 @@
 		min-height: 32px;
 		margin-bottom: 24px;
 	}
+
+	.gentle-note { text-align: center; margin: 18px 0 0; font-size: 11px; }
 
 	.today {
 		margin-top: 24px;

@@ -12,6 +12,9 @@ import type { PetStage } from './art/pets';
 import { PET_ACC } from './art/pets';
 import { AVATAR, PET } from './frames';
 import { svgDocument } from './svg';
+import { paintSwatch } from '$lib/content/painted-palettes';
+import { tintPaint } from './painted';
+import { paintedAvatar, paintedPet } from './painted-figures';
 import type { PaletteSet } from './grid';
 import { blank, bob, drawOver, recolor, renderSprite, type RgbaImage } from './compose';
 
@@ -21,6 +24,7 @@ export interface LayerSpec {
 	palette: PaletteSet;
 	/** Pet PNGs carry final colours; avatar and accessory PNGs use reference channels. */
 	fixedColors?: boolean;
+	paintColor?: string;
 	/** Keep a closed hat from being pierced by the hair beneath it. */
 	clipTop?: number;
 	dx?: number;
@@ -31,12 +35,15 @@ export interface Figure {
 	w: number;
 	h: number;
 	pivot: number;
+	painted?: boolean;
+	/** Height in the original scale API; native painted pixels stay separate. */
+	displayHeight?: number;
 	layers: LayerSpec[];
 }
 
 const TINTED_SLOTS: ColorSlot[] = ['top', 'bottom', 'shoes', 'headwear', 'accessory'];
 
-export function avatarFigure(avatar: AvatarConfig): Figure {
+export function pixelAvatarFigure(avatar: AvatarConfig): Figure {
 	const c = avatar.colors;
 	const layers: LayerSpec[] = [];
 	const headwear = avatar.parts.headwear ? getCosmetic(avatar.parts.headwear) : undefined;
@@ -63,7 +70,7 @@ export function avatarFigure(avatar: AvatarConfig): Figure {
 	return { w: AVATAR.w, h: AVATAR.h, pivot: AVATAR.pivot, layers };
 }
 
-export function petFigure(speciesId: string, stage: PetStage, accessoryId?: string | null): Figure {
+export function pixelPetFigure(speciesId: string, stage: PetStage, accessoryId?: string | null): Figure {
 	const species = getSpecies(speciesId);
 	if (!species) return { w: PET.w, h: PET.h, pivot: PET.pivot, layers: [] };
 	const art = species.art[stage];
@@ -85,6 +92,15 @@ export function petFigure(speciesId: string, stage: PetStage, accessoryId?: stri
 	return { w: PET.w, h: PET.h, pivot: PET.pivot, layers };
 }
 
+/** A whole legacy outfit stays together until its painted parts are authored. */
+export function avatarFigure(avatar: AvatarConfig): Figure {
+	return paintedAvatar(avatar) ?? pixelAvatarFigure({ ...avatar, colors: Object.fromEntries(Object.entries(avatar.colors).map(([slot, id]) => [slot, paintSwatch(slot as ColorSlot, id).id])) });
+}
+
+export function petFigure(speciesId: string, stage: PetStage, accessoryId?: string | null): Figure {
+	return paintedPet(speciesId, stage, accessoryId) ?? pixelPetFigure(speciesId, stage, accessoryId);
+}
+
 /** PNG layers arrive already decoded (the browser does that); sprites are painted here. */
 export type DecodedPngs = Map<string, RgbaImage>;
 
@@ -104,6 +120,10 @@ export function paintFigure(fig: Figure, pngs: DecodedPngs = new Map()): RgbaIma
 			let src: RgbaImage | undefined;
 			if ('sprite' in l.art) src = renderSprite(l.art.sprite, l.palette, frame);
 			else if ('svg' in l.art) src = pngs.get(svgDocument(l.art, l.palette));
+			else if ('painted' in l.art) {
+				src = pngs.get(l.art.painted);
+				if (src && l.paintColor) src = tintPaint(src, l.paintColor);
+			}
 			else {
 				const png = pngs.get(l.art.png);
 				if (png) {
@@ -123,7 +143,7 @@ export function paintFigure(fig: Figure, pngs: DecodedPngs = new Map()): RgbaIma
 	};
 	if (frames > 1) return Array.from({ length: frames }, (_, f) => paint(f));
 	const pose = paint(0);
-	return [pose, bob(pose, fig.pivot)];
+	return fig.painted ? [pose] : [pose, bob(pose, fig.pivot)];
 }
 
 function pngFrame(sheet: RgbaImage, w: number, frame: number): RgbaImage {

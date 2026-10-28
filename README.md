@@ -1,14 +1,16 @@
 # LevelUp
 
-A habit tracker played as a pixel-art pet RPG. Log the things you do (a walk, a chapter, a
+A habit tracker played as a storybook pet RPG. Log the things you do (a walk, a chapter, a
 glass of water) and your hero earns XP and coins, trains their stats, levels up, unlocks
 abilities and clothes, raises a pet, and goes on missions that bring back eggs, outfits and
 new colour themes. Built for Starbase Home at **levelup.starbasehome.net**, behind Authelia.
 
 ![Home, welcome-back, pet care, missions and party in Meadow](docs/screens.png)
 
-Garden Storybook pixel art pairs warm paper, moss and clay with stepped edges.
-Headings use Pixelify Sans; body text uses DM Sans. Both fonts are self-hosted.
+Painted watercolour art pairs warm paper, moss and clay with soft cards. The default
+keeper and Brambleback use paintings; the remaining wardrobe and pets keep their pixel
+art while the painted catalogue grows. Headings use Nunito; body text uses DM Sans.
+Both fonts are self-hosted with OFL licences.
 
 ## What's in it
 

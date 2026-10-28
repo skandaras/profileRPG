@@ -6,6 +6,7 @@
  * with no migration. An id, once shipped, is forever: a player's inventory row
  * points at it.
  */
+import type { PaintedArt } from '$lib/sprites/painted';
 import type { SvgArt } from '$lib/sprites/svg';
 import type { Sprite } from '$lib/sprites/grid';
 
@@ -30,7 +31,7 @@ export type Unlock =
  * A PNG is drawn with the reference palettes in content/palettes.ts and is
  * recoloured by swapping those exact colours. See docs/ART.md.
  */
-export type Art = SvgArt | { sprite: Sprite } | { png: string; w: number; h: number; frames?: number };
+export type Art = PaintedArt | SvgArt | { sprite: Sprite } | { png: string; w: number; h: number; frames?: number };
 
 export type ModifierKey =
 	| 'xp.str'

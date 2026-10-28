@@ -1,7 +1,8 @@
 <script lang="ts">
 	import PixelIcon from '$lib/components/PixelIcon.svelte';
 	import { COSMETICS, OPTIONAL_SLOTS, SLOT_NAMES, SLOT_ORDER } from '$lib/content/cosmetics';
-	import { DYES, EYE_COLORS, HAIR_COLORS, SKIN_TONES, type Swatch } from '$lib/content/palettes';
+	import { type Swatch } from '$lib/content/palettes';
+	import { PAINT_DYES as DYES, PAINT_EYES as EYE_COLORS, PAINT_HAIR as HAIR_COLORS, PAINT_SKIN as SKIN_TONES, paintSwatch } from '$lib/content/painted-palettes';
 	import { dyeItemId } from '$lib/content';
 	import type { AvatarConfig, AvatarSlot, ColorSlot } from '$lib/content/types';
 	import { isUnlocked } from '$lib/game/ownership';
@@ -126,7 +127,7 @@
 				<button
 					type="button"
 					class="swatch"
-					aria-pressed={avatar.colors[colorSlot] === s.id}
+					aria-pressed={paintSwatch(colorSlot, avatar.colors[colorSlot]).id === s.id}
 					aria-label={s.locked ? `${s.name} (locked: ${s.hint})` : s.name}
 					title={s.locked ? `${s.name}: ${s.hint}` : s.name}
 					disabled={s.locked}
@@ -135,7 +136,7 @@
 					style:--c2={s.ramp[2]}
 					onclick={() => tint(s.id)}
 				>
-					{#if s.locked}<span class="swatch-mark"><PixelIcon name="lock" scale={1} /></span>{:else if avatar.colors[colorSlot] === s.id}<span class="swatch-mark"><PixelIcon name="check" scale={1} /></span>{/if}
+					{#if s.locked}<span class="swatch-mark"><PixelIcon name="lock" scale={1} /></span>{:else if paintSwatch(colorSlot, avatar.colors[colorSlot]).id === s.id}<span class="swatch-mark"><PixelIcon name="check" scale={1} /></span>{/if}
 				</button>
 			{/each}
 		</div>

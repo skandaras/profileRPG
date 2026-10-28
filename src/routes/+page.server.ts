@@ -19,7 +19,8 @@ export const load = ({ locals }) =>
 			companion: pets.find((x) => x.active) ?? null,
 			eggsReady: pets.filter((x) => x.stage === 'egg' && x.warmth >= x.warmthNeeded).length,
 			runs: board.runs,
-			now: ctx.now
+			now: ctx.now,
+			today: ctx.today
 		};
 	});
 
