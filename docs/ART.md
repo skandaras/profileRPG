@@ -264,7 +264,7 @@ welcome-back visit, pet care, missions and party, all in Meadow. Use an isolated
 database, wait for fonts and sprite images, dismiss notices, and keep the exported strip
 under 400 KB. One-off capture scripts belong outside the repo.
 
-## Painted slice (phase 3, batch A)
+## Painted engine
 
 The default outfit and Brambleback now use painted watercolour art. Other outfits,
 hairstyles, faces, species and accessories retain their phase-2 drawings until their
@@ -274,47 +274,61 @@ selectable and never combines a pixel limb with a painted body. The two grid reg
 suites explicitly use `pixelAvatarFigure` / `pixelPetFigure` to keep guarding that art.
 The ordinary figure functions select the painted slice. SVG icons keep their phase-2 art.
 
-`Art` also accepts `{ painted: '/painted/top.webp', w: 400, h: 512, channel: 'top' }`.
+`Art` also accepts `{ painted: '/painted/top.webp', w: 400, h: 704, channel: 'top' }`.
 It works for avatar parts, pets, accessories and props. `Figure.displayHeight` preserves
 the old scale API while its canvas uses the painting's native pixels. Icon/prop figures
 can use `uiIconFigure()` with painted art; its display height is 16 units.
 The browser decodes WebP, composes with straight-alpha source-over, and caches the finished
 figure. `tintPaint()` caches each source image/curated-colour pair with a WeakMap. Value
-0–0.25 retains pencil ink, 0.25–0.78 moves from ink to pigment, and 0.78–1 lifts the pigment
+0–0.25 retains pencil ink (darkened with dark pigment), 0.25–0.78 moves from ink to pigment, and 0.78–1 lifts the pigment
 toward paper. Alpha never changes during tinting. Fixed face marks and iris values are
 separate layers, so tinting eyes leaves pupils, whites, brows and mouth intact.
 
-Delivery files are lossless WebP under `static/painted/`; their aligned PNG masters and
-generation sources are outside `static/`, in `art/painted/`. `prompts.json` records the
-built-in image-generation prompts. The existing study supplies the body, face, front/back
-hair and bandana; the outfit was generated with the body as its underlay. Sources have
-invisible RGB cleared and faint fringe removed before resampling. Lossless WebP preserves
-all remaining edge alpha; smooth browser scaling is intentional. Painted figures have
+Delivery files are lossless WebP under `static/painted/`; aligned PNG masters live in
+`art/painted/`. `prompts.json` records the generation prompt set. The Midnight tarot
+keeper was generated with one fixed body underlay; raw generations stay in
+`handoff/d2/raw`, outside the repository. The handoff preparation scripts register
+source alpha bounds to named template fit bounds, carry source pigment through seam and
+edge gaps, and split fixed navy/gold materials into greyscale layers. There are no part
+offsets in the renderer. Sources have invisible RGB and faint fringe cleared before
+resampling. Lossless WebP preserves all remaining edge alpha; smooth browser scaling is intentional. Painted figures have
 one raster pose and a CSS idle bob; reduced-motion disables it. Pixel figures keep their
 old frame animation. The Node preview decoder uses the corresponding PNG master.
 
 ### Shared painted body and fit
 
-Every avatar layer is **400 × 512**, at origin (0,0). The pose and torso silhouette in
-`art/painted/masters/body.png` are fixed. Human, elf and beast use that exact layer;
-`body.cat` and `body.bunny` are both saved beast choices. Ears/tail are separate paintings
-and do not alter the torso. The default parts keep their shipped ids: `face.bright`,
-`hair.bob`, `top.tee` (Garden shirt), `bottom.shorts`, `shoes.sneakers`. The new default
-colour ids are Peach, Chestnut, Leaf, Clover, Acorn and Charcoal. Existing saved colours
-are never rewritten.
+Every avatar layer is **400 × 704**, at origin (0,0), with pivot row 600 and display
+height 44 units. The keeper has a friendly young-adult silhouette, 5.11 heads from skull to soles,
+soft shoulders, relaxed hands and one gently bent knee in a fixed front-facing pose. Human, elf, catfolk and bunnyfolk use the same body
+painting; separate ears and tail supply their differences. The registered parts keep
+`body.human/elf/cat/bunny`, `face.bright`, `hair.bob`, `top.tee` (collared blouse),
+`bottom.shorts` and `shoes.sneakers`. New players use Peach, Chestnut, Hazel, Ivory,
+Midnight and Ivory. Saved colours remain valid. Midnight dye is now a starter choice.
+Collar/cuffs and gold piping/buttons are separate value paintings tinted through the
+same ramp using fixed navy/gold material swatches. Dyeing a garment keeps these details. Detail paint stays inside the named
+`detailBands` in `template.json`: neckline/cuffs, button placket, waistband/hems, and
+shoe panels/laces/soles. Extraction flecks smaller than six connected pixels are removed.
+Blouse cleanup must preserve enclosed cloth; transparent pinholes show the room through.
+Tests reject both misplaced detail paint and enclosed blouse holes.
+The mouth and brow/nose marks have separate warm ink layers that adapt on Umber and Deep;
+pupils and eye whites stay separate from recolourable irises. Facial feature contrast is
+checked against all six skins in the compositor. Dark hair keeps pigment-coloured shadows;
+shoe highlights stay below paper white so navy and black dyes do not pick up grey flecks. All keeper masters are greyscale with cleared hidden RGB.
+The body value range limits paper highlights so dark skin keeps its warmth.
 
-| Landmark | Coordinates on the master |
+| Landmark | Master pixels |
 |---|---|
-| Head / hat contact | 200,82 |
-| Neckline | 200,245 |
-| Shoulders | 169,246 / 232,246 |
-| Armholes | 159,277 / 243,277 |
-| Wrists | 113,333 / 293,333 |
-| Waist | 163,326 / 242,326 |
-| Hips | 159,354 / 246,354 |
-| Knees | 176,410 / 232,410 |
-| Ankles | 176,477 / 235,477 |
-| Soles | 176,495 / 235,495 |
+| Head | 200,65 |
+| Hat crown / brim | 200,51 / 149,97–251,97 |
+| Neckline | 200,201 |
+| Shoulders | 142,211 / 257,211 |
+| Armholes | 155,271 / 247,271 |
+| Wrists | 102,392 / 300,392 |
+| Waist | 168,315 / 243,315 |
+| Hips | 137,365 / 266,365 |
+| Knees | 199,500 / 226,500 |
+| Ankles | 160,637 / 224,637 |
+| Shoe soles | 160,680 / 231,680 |
 
 `template.json` retains these landmarks. `fit.ts` states each garment's allowance,
 full body coverage polygons and neckline/cuff/waist/hem/ankle seams. The body layer is
@@ -326,7 +340,7 @@ the shirt, 12 for shorts and 14 for shoes. Masking cannot make missing cloth pas
 `painted.test.ts` checks all three garments on four body ids and six curated skin tones,
 compares actual body-plus-garment composites to garment-only pixels in the coverage,
 and cuts holes at neckline, cuffs, waistband, hips, hems and shoe tops as negative
-controls. Retained hats are checked at their existing head landmark over all eight
+controls. A deliberately narrowed pair of shorts must also fail raw side coverage. Retained hats are checked at their existing head landmark over all eight
 retained hair styles. New painted hats must declare fit before registration.
 
 ### Painted Brambleback
@@ -378,5 +392,5 @@ six themes. New players start on `night` (Midnight tarot); saved choices stay in
 `meadow` is the light ivory dawn variant; `sakura`, `ocean`, `ember` and `crystal` are
 rose-plum, deep sea, oxblood and amethyst. Both Night and Meadow are freely selectable.
 The room architecture is a shared token-coloured SVG inside a full-width arch card;
-pet care uses the same architecture for its nook. The current fitted keeper and its
-coverage checks stay in place for D2. The phase-2 app icon is unchanged.
+pet care uses the same architecture for its nook. The taller Midnight tarot keeper shares a ground line with Brambleback. The phase-2 app
+icon is unchanged.

@@ -42,8 +42,8 @@
 
 	.hero {
 		position: absolute;
-		left: 22px;
-		bottom: 21px;
+		left: 20%;
+		bottom: 24px;
 		line-height: 0;
 	}
 
@@ -68,8 +68,8 @@
 			height: 310px;
 		}
 		.hero {
-			left: 16%;
-			transform: scale(1.35);
+			bottom: 26px;
+			transform: scale(1.25);
 			transform-origin: 50% 100%;
 		}
 		.pet {
@@ -80,9 +80,6 @@
 	}
 
 	@media (max-width: 359px) {
-		.hero {
-			left: 10px;
-		}
 		.pet {
 			right: 4px;
 		}

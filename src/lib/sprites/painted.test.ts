@@ -7,7 +7,7 @@ import { paintSwatch, paintSwatches } from '$lib/content/painted-palettes';
 import { blank, drawOver, type RgbaImage } from './compose';
 import { covers, fitFailures, GARMENT_FIT, garmentCoverage } from './fit';
 import { avatarFigure, paintFigure, petFigure, pixelAvatarFigure } from './layers';
-import { BRAMBLE_ANCHORS, PAINT_PARTS } from './painted-figures';
+import { BRAMBLE_ANCHORS, PAINT_AVATAR, PAINT_PARTS } from './painted-figures';
 import { tintPaint } from './painted';
 import { paintPreview } from './preview-png';
 import { uiIconFigure } from './ui-icons';
@@ -23,18 +23,24 @@ describe('painted template fit', () => {
 		for (const [name, contract] of Object.entries(GARMENT_FIT)) it(`covers the full ${name} band on ${id} in every curated skin`, () => {
 			expect(PAINT_PARTS[id].find(([z]) => z === 10)?.[1]).toBe('body');
 			expect(fitFailures(body, master(name), contract), `${id}: ${name}`).toEqual([]);
+			// Coverage is geometric, so reuse its full pixel set across colourways.
+			const regions = garmentCoverage(contract);
+			const pixels: number[] = [];
+			for (let y = 0; y < body.h; y++) for (let x = 0; x < body.w; x++) {
+				if (covers(regions, x, y)) pixels.push((y * body.w + x) * 4);
+			}
 			for (const skin of paintSwatches('skin')) {
 				const figure = avatarFigure({ ...DEFAULT_AVATAR, parts: { ...DEFAULT_AVATAR.parts, body: id }, colors: { ...DEFAULT_AVATAR.colors, skin: skin.id } });
 				const z = { top: 30, bottom: 20, shoes: 25 }[name as 'top' | 'bottom' | 'shoes'];
 				const dressed = { ...figure, layers: figure.layers.filter((l) => l.z === 10 || l.z === z) };
 				const composite = paintPreview(dressed)[0];
 				const cloth = paintPreview({ ...figure, layers: figure.layers.filter((l) => l.z === z) })[0];
-				const regions = garmentCoverage(contract);
 				let residual: string | undefined;
-				for (let y = 0; y < body.h && !residual; y++) for (let x = 0; x < body.w; x++) {
-					if (!covers(regions, x, y)) continue;
-					const i = (y * body.w + x) * 4;
-					if (composite.data.slice(i, i + 4).some((v, c) => v !== cloth.data[i + c])) { residual = `body showing at ${x},${y} (${skin.id})`; break; }
+				for (const i of pixels) {
+					if ([0, 1, 2, 3].some((c) => composite.data[i + c] !== cloth.data[i + c])) {
+						residual = `body showing at ${i / 4 % body.w},${Math.floor(i / 4 / body.w)} (${skin.id})`;
+						break;
+					}
 				}
 				expect(residual, `${id}: ${name}`).toBeUndefined();
 			}
@@ -56,23 +62,100 @@ describe('painted template fit', () => {
 		}
 	});
 	it('covers the waistband join without a skin gap, including its sides', () => {
-		const clothes = blank(400, 512);
+		const clothes = blank(PAINT_AVATAR.w, PAINT_AVATAR.h);
 		drawOver(clothes, master('bottom')); drawOver(clothes, master('top'));
-		expect(fitFailures(body, clothes, { allowance: 16, seams: [[165, 304, 242, 309]] })).toEqual([]);
+		expect(fitFailures(body, clothes, { allowance: 16, seams: [[168, 319, 242, 323]] })).toEqual([]);
 	});
 	it('rejects an outlying paint mark and a gap cut into a shoe seam', () => {
 		const shoes = master('shoes');
-		shoes.data.set([255, 255, 255, 255], (400 * 440 + 20) * 4);
+		shoes.data.set([255, 255, 255, 255], (400 * 640 + 20) * 4);
 		expect(fitFailures(body, shoes, GARMENT_FIT.shoes).some((s) => s.startsWith('outside'))).toBe(true);
-		shoes.data[(400 * 467 + 177) * 4 + 3] = 0;
+		shoes.data[(400 * 637 + 160) * 4 + 3] = 0;
 		expect(fitFailures(body, shoes, GARMENT_FIT.shoes).some((s) => s.startsWith('seam'))).toBe(true);
 	});
 	it('rejects skin gaps at the neckline, cuffs, waist, hips, hems and shoe tops', () => {
-		for (const [name, x, y] of [['top', 182, 248], ['top', 147, 282], ['bottom', 175, 312], ['bottom', 153, 342], ['bottom', 181, 370], ['shoes', 177, 467]] as const) {
+		for (const [name, x, y] of [['top', 180, 210], ['top', 139, 279], ['bottom', 180, 321], ['bottom', 140, 365], ['bottom', 186, 423], ['shoes', 160, 637]] as const) {
 			const cloth = master(name);
 			cloth.data[(y * cloth.w + x) * 4 + 3] = 0;
 			expect(fitFailures(body, cloth, GARMENT_FIT[name]).length, `${name} at ${x},${y}`).toBeGreaterThan(0);
 		}
+	});
+	it('rejects deliberately narrowed shorts even when the compositor would mask the body', () => {
+		const shorts = master('bottom');
+		for (let y = 310; y < 380; y++) {
+			const row = Array.from({ length: body.w }, (_, x) => x).filter((x) => body.data[(y * body.w + x) * 4 + 3] >= 32 && covers(GARMENT_FIT.bottom.coverage, x, y));
+			if (!row.length) continue;
+			for (let x = row[0]; x < row[0] + 6; x++) shorts.data[(y * body.w + x) * 4 + 3] = 0;
+		}
+		expect(fitFailures(body, shorts, GARMENT_FIT.bottom).some((failure) => failure.startsWith('side coverage at '))).toBe(true);
+	});
+	it('keeps every keeper master aligned, greyscale and free of hidden RGB', () => {
+		const files = new Set(Object.values(PAINT_PARTS).flatMap((layers) => layers.map(([, file]) => file)));
+		for (const file of files) {
+			const image = master(file);
+			expect([image.w, image.h], file).toEqual([PAINT_AVATAR.w, PAINT_AVATAR.h]);
+			let invalid = false;
+			for (let i = 0; i < image.data.length; i += 4) {
+				if (image.data[i] !== image.data[i + 1] || image.data[i] !== image.data[i + 2] || (!image.data[i + 3] && image.data[i])) { invalid = true; break; }
+			}
+			expect(invalid, file).toBe(false);
+			expect(image.data.some((v, i) => i % 4 === 3 && v > 0), file).toBe(true);
+		}
+	});
+	it('keeps detail paint inside its collar, cuff, button, hem and shoe bands without extraction flecks', () => {
+		const template = JSON.parse(readFileSync('art/painted/template.json', 'utf8'));
+		const outside = (image: RgbaImage, bands: number[][]) => {
+			for (let y = 0; y < image.h; y++) for (let x = 0; x < image.w; x++) {
+				if (image.data[(y * image.w + x) * 4 + 3] && !bands.some(([x1, y1, x2, y2]) => x >= x1 && x <= x2 && y >= y1 && y <= y2)) return [x, y];
+			}
+		};
+		for (const name of ['top-collar', 'top-trim', 'bottom-trim', 'shoes-trim']) {
+			const image = master(name);
+			expect(outside(image, template.detailBands[name]), name).toBeUndefined();
+			const seen = new Set<number>();
+			for (let i = 0; i < image.w * image.h; i++) {
+				if (seen.has(i) || !image.data[i * 4 + 3]) continue;
+				const queue = [i]; seen.add(i);
+				for (const p of queue) for (let dy = -1; dy <= 1; dy++) for (let dx = -1; dx <= 1; dx++) {
+					const x = p % image.w + dx, y = Math.floor(p / image.w) + dy, q = y * image.w + x;
+					if (x < 0 || y < 0 || x >= image.w || y >= image.h || seen.has(q) || !image.data[q * 4 + 3]) continue;
+					seen.add(q); queue.push(q);
+				}
+				expect(queue.length, `${name} fleck at ${i % image.w},${Math.floor(i / image.w)}`).toBeGreaterThanOrEqual(6);
+			}
+		}
+		const collar = master('top-collar');
+		collar.data.set([180, 180, 180, 255], (296 * collar.w + 246) * 4);
+		expect(outside(collar, template.detailBands['top-collar'])).toEqual([246, 296]);
+	});
+	it('keeps the blouse free of enclosed transparent holes, including the right underarm', () => {
+		const holes = (image: RgbaImage) => {
+			const exterior = new Uint8Array(image.w * image.h); const queue = [0]; exterior[0] = 1;
+			for (const p of queue) for (const [dx, dy] of [[-1, 0], [1, 0], [0, -1], [0, 1]]) {
+				const x = p % image.w + dx, y = Math.floor(p / image.w) + dy, q = y * image.w + x;
+				if (x < 0 || y < 0 || x >= image.w || y >= image.h || exterior[q] || image.data[q * 4 + 3] >= 16) continue;
+				exterior[q] = 1; queue.push(q);
+			}
+			return Array.from(exterior.keys()).filter((i) => !exterior[i] && image.data[i * 4 + 3] < 16);
+		};
+		const blouse = master('top');
+		expect(holes(blouse)).toEqual([]);
+		for (let y = 295; y <= 300; y++) blouse.data.fill(0, (y * blouse.w + 246) * 4, (y * blouse.w + 248) * 4);
+		expect(holes(blouse)).toContain(296 * blouse.w + 246);
+	});
+	it('reserves the painted crown and brim for future hats above the shared head', () => {
+		const template = JSON.parse(readFileSync('art/painted/template.json', 'utf8'));
+		expect(template.canvas).toEqual([PAINT_AVATAR.w, PAINT_AVATAR.h]);
+		expect(template.torsoSharedBy).toEqual(['human', 'elf', 'cat', 'bunny']);
+		for (const name of ['head', 'neckline', 'shoulders', 'armholes', 'wrists', 'waist', 'hips', 'knees', 'ankles', 'soles']) expect(template.landmarks[name], name).toBeDefined();
+		expect(template.hat.crown[0]).toBe(template.landmarks.head[0]);
+		expect(template.hat.crown[1]).toBeLessThan(template.landmarks.head[1]);
+		expect(template.hat.brim[0][0]).toBeLessThan(template.landmarks.head[0]);
+		expect(template.hat.brim[1][0]).toBeGreaterThan(template.landmarks.head[0]);
+		expect(template.hat.hairIds).toContain('hair.bob');
+		const heads = (template.proportions.ground - template.proportions.skullTop) / (template.proportions.chin - template.proportions.skullTop);
+		expect(heads).toBeGreaterThanOrEqual(5);
+		expect(heads).toBeLessThanOrEqual(5.5);
 	});
 	it('keeps retained hats at their head landmark over every retained hair style', () => {
 		for (const hat of COSMETICS.filter((c) => c.slot === 'headwear')) for (const hair of COSMETICS.filter((c) => c.slot === 'hair')) {
@@ -106,6 +189,53 @@ describe('paint engine', () => {
 		expect(tintPaint(image, '#819b75')).toBe(tinted);
 		for (let i = 3; i < image.data.length; i += 4) expect(tinted.data[i]).toBe(image.data[i]);
 		expect(tintPaint(image, '#a89bc4').data).not.toEqual(tinted.data);
+	});
+	it('keeps facial marks distinct from every curated skin in the real compositor', () => {
+		const luminance = (data: Uint8ClampedArray, i: number) => [0.2126, 0.7152, 0.0722].reduce((sum, weight, c) => {
+			const v = data[i + c] / 255;
+			return sum + weight * (v <= 0.04045 ? v / 12.92 : ((v + 0.055) / 1.055) ** 2.4);
+		}, 0);
+		for (const skin of paintSwatches('skin')) {
+			const figure = avatarFigure({ ...DEFAULT_AVATAR, colors: { ...DEFAULT_AVATAR.colors, skin: skin.id } });
+			const body = paintPreview({ ...figure, layers: figure.layers.filter((l) => l.body) })[0];
+			for (const file of ['face-ink', 'face-mouth']) {
+				const source = master(file);
+				const composite = paintPreview({ ...figure, layers: figure.layers.filter((l) => l.body || ('painted' in l.art && l.art.painted.endsWith(`/${file}.webp`))) })[0];
+				let solid = 0, distinct = 0;
+				for (let i = 0; i < source.data.length; i += 4) {
+					if (source.data[i + 3] < 200 || body.data[i + 3] < 200) continue;
+					solid++;
+					const a = luminance(body.data, i), b = luminance(composite.data, i);
+					if ((Math.max(a, b) + 0.05) / (Math.min(a, b) + 0.05) >= 2) distinct++;
+				}
+				expect(solid, `${skin.id}/${file}`).toBeGreaterThan(0);
+				expect(distinct / solid, `${skin.id}/${file}`).toBeGreaterThan(0.9);
+			}
+		}
+	});
+	it('keeps dark hair highlights below pale grey', () => {
+		const source = master('hair-front');
+		for (const id of ['ink', 'cocoa']) {
+			const image = tintPaint(source, paintSwatch('hair', id).ramp[1]);
+			const samples = [];
+			for (let i = 0; i < source.data.length; i += 4) {
+				if (source.data[i + 3] < 240) continue;
+				samples.push(Math.max(image.data[i], image.data[i + 1], image.data[i + 2]));
+			}
+			samples.sort((a, b) => a - b);
+			expect(samples[Math.floor(samples.length * 0.9)], id).toBeLessThan(100);
+		}
+	});
+	it('keeps navy shoe highlights blue rather than pale grey', () => {
+		const source = master('shoes');
+		const image = tintPaint(source, paintSwatch('shoes', 'navy').ramp[1]);
+		const ratios = [];
+		for (let i = 0; i < source.data.length; i += 4) {
+			if (source.data[i + 3] < 240) continue;
+			ratios.push(image.data[i] / image.data[i + 2]);
+		}
+		ratios.sort((a, b) => a - b);
+		expect(ratios[Math.floor(ratios.length * 0.95)]).toBeLessThan(0.8);
 	});
 	it('keeps every saved palette id valid and maps retired ids to curated swatches', () => {
 		for (const [slot, swatches] of [['skin', SKIN_TONES], ['hair', HAIR_COLORS], ['eyes', EYE_COLORS], ['top', DYES]] as const) {

@@ -11,6 +11,7 @@ import { SPECIES } from '$lib/content/pets';
 import { ICON_PALETTE } from '$lib/sprites/svg';
 import { UI_ICONS, uiIconFigure } from './ui-icons';
 import { bed, messFigures } from './room';
+import { PAINT_AVATAR } from './painted-figures';
 import { paintPreview } from './preview-png';
 import { blank, drawOver, type RgbaImage } from './compose';
 import { pixelAvatarFigure as avatarFigure, pixelPetFigure as petFigure, avatarFigure as paintedAvatarFigure, petFigure as paintedPetFigure } from './layers';
@@ -54,7 +55,7 @@ it.skipIf(!process.env.SPRITE_PREVIEW)('renders contact sheets', () => {
 	writeFileSync('test-results/sprites/icons.png', encodePng(sheet(icons, 10, 18, 18), 4));
 	writeFileSync('test-results/sprites/bed.png', encodePng(paintPreview(bed)[0], 4));
 	const paintedKeepers = ['body.human', 'body.elf', 'body.cat', 'body.bunny'].map((body) => paintPreview(paintedAvatarFigure({ ...DEFAULT_AVATAR, parts: { ...DEFAULT_AVATAR.parts, body } }))[0]);
-	writeFileSync('test-results/sprites/painted-keeper.png', encodePng(sheet(paintedKeepers, 4, 402, 514)));
+	writeFileSync('test-results/sprites/painted-keeper.png', encodePng(sheet(paintedKeepers, 4, PAINT_AVATAR.w + 2, PAINT_AVATAR.h + 2)));
 	const paintedPets = [undefined, ...accessories.map((a) => a.id)].flatMap((acc) => (['egg', 'baby', 'teen', 'adult'] as const).map((stage) => paintPreview(paintedPetFigure('emberkit', stage, acc))[0]));
 	writeFileSync('test-results/sprites/painted-brambleback.png', encodePng(sheet(paintedPets, 4, 514, 386)));
 });

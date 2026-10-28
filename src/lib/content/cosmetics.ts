@@ -104,7 +104,7 @@ export const COSMETICS: Cosmetic[] = [
 	{ id: 'hair.curly', slot: 'hair', name: 'Curly', unlock: starter, layers: [layer(Z.back, A.hairCurlyBack), layer(Z.hair, A.hairCurly)] },
 
 	// tops
-	{ id: 'top.tee', slot: 'top', name: 'Garden shirt', unlock: starter, layers: [layer(Z.top, A.topTee)] },
+	{ id: 'top.tee', slot: 'top', name: 'Collared blouse', unlock: starter, layers: [layer(Z.top, A.topTee)] },
 	{ id: 'top.hoodie', slot: 'top', name: 'Hoodie', unlock: starter, layers: [layer(Z.top, A.topHoodie)] },
 	{ id: 'top.tank', slot: 'top', name: 'Tank top', unlock: starter, layers: [layer(Z.top, A.topTank)] },
 	{ id: 'top.sweater', slot: 'top', name: 'Sweater', unlock: starter, layers: [layer(Z.top, A.topSweater)] },
@@ -202,10 +202,10 @@ export const DEFAULT_AVATAR: AvatarConfig = {
 	colors: {
 		skin: 'peach',
 		hair: 'chestnut',
-		eyes: 'leaf',
-		top: 'green',
-		bottom: 'brown',
-		shoes: 'black',
+		eyes: 'hazel',
+		top: 'white',
+		bottom: 'navy',
+		shoes: 'white',
 		headwear: 'yellow',
 		accessory: 'purple'
 	}

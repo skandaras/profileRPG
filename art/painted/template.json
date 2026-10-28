@@ -1,18 +1,307 @@
 {
-  "canvas": [400, 512],
+  "canvas": [
+    400,
+    704
+  ],
   "bodyMaster": "masters/body.png",
-  "torsoSharedBy": ["human", "elf", "beast"],
+  "torsoSharedBy": [
+    "human",
+    "elf",
+    "cat",
+    "bunny"
+  ],
   "landmarks": {
-    "head": [200, 82],
-    "neckline": [200, 245],
-    "shoulders": [[169, 246], [232, 246]],
-    "armholes": [[159, 277], [243, 277]],
-    "wrists": [[113, 333], [293, 333]],
-    "waist": [[163, 326], [242, 326]],
-    "hips": [[159, 354], [246, 354]],
-    "knees": [[176, 410], [232, 410]],
-    "ankles": [[176, 477], [235, 477]],
-    "soles": [[176, 495], [235, 495]]
+    "head": [
+      200,
+      65
+    ],
+    "neckline": [
+      200,
+      201
+    ],
+    "shoulders": [
+      [
+        142,
+        211
+      ],
+      [
+        257,
+        211
+      ]
+    ],
+    "armholes": [
+      [
+        155,
+        271
+      ],
+      [
+        247,
+        271
+      ]
+    ],
+    "wrists": [
+      [
+        102,
+        392
+      ],
+      [
+        300,
+        392
+      ]
+    ],
+    "waist": [
+      [
+        168,
+        315
+      ],
+      [
+        243,
+        315
+      ]
+    ],
+    "hips": [
+      [
+        137,
+        365
+      ],
+      [
+        266,
+        365
+      ]
+    ],
+    "knees": [
+      [
+        199,
+        500
+      ],
+      [
+        226,
+        500
+      ]
+    ],
+    "ankles": [
+      [
+        160,
+        637
+      ],
+      [
+        224,
+        637
+      ]
+    ],
+    "soles": [
+      [
+        160,
+        680
+      ],
+      [
+        231,
+        680
+      ]
+    ]
   },
-  "note": "This source body fixes the pose before outfit authoring. All full-canvas layers share this origin. Ear and tail layers never change the torso mask."
+  "fitBounds": {
+    "top": [
+      114,
+      196,
+      286,
+      323
+    ],
+    "bottom": [
+      130,
+      316,
+      274,
+      430
+    ],
+    "shoes": [
+      [
+        138,
+        633,
+        186,
+        680
+      ],
+      [
+        207,
+        633,
+        255,
+        680
+      ]
+    ],
+    "face": [
+      166,
+      119,
+      234,
+      174
+    ],
+    "hair-front": [
+      137,
+      51,
+      263,
+      209
+    ],
+    "hair-back": [
+      137,
+      51,
+      263,
+      209
+    ],
+    "elf-ears": [
+      [
+        139,
+        115,
+        163,
+        143
+      ],
+      [
+        237,
+        115,
+        261,
+        143
+      ]
+    ],
+    "cat-ears": [
+      [
+        135,
+        37,
+        177,
+        94
+      ],
+      [
+        223,
+        37,
+        265,
+        94
+      ]
+    ],
+    "bunny-ears": [
+      [
+        151,
+        5,
+        184,
+        81
+      ],
+      [
+        216,
+        5,
+        249,
+        81
+      ]
+    ],
+    "tail": [
+      246,
+      270,
+      338,
+      369
+    ]
+  },
+  "hat": {
+    "crown": [
+      200,
+      51
+    ],
+    "brim": [
+      [
+        149,
+        97
+      ],
+      [
+        251,
+        97
+      ]
+    ],
+    "hairIds": [
+      "hair.bob"
+    ],
+    "note": "A painted hat must meet the crown/brim and declare its hair clipping before registration."
+  },
+  "note": "Fixed front-facing pose. Garments are generated with this body underlay, registered to these declared bounds, then their original paint is carried to the body edge within the seam bands. All masters use this canvas and origin; the renderer applies no part offsets.",
+  "proportions": {
+    "skullTop": 65,
+    "chin": 185,
+    "ground": 678,
+    "heads": 5.11,
+    "note": "Soft shoulders, relaxed hands and a small natural knee bend. Fixed fitting pose shared by every body."
+  },
+  "detailBands": {
+    "top-collar": [
+      [
+        152,
+        196,
+        254,
+        241
+      ],
+      [
+        118,
+        263,
+        158,
+        290
+      ],
+      [
+        251,
+        270,
+        280,
+        290
+      ]
+    ],
+    "top-trim": [
+      [
+        152,
+        196,
+        254,
+        241
+      ],
+      [
+        207,
+        225,
+        224,
+        312
+      ],
+      [
+        118,
+        263,
+        158,
+        290
+      ],
+      [
+        251,
+        270,
+        280,
+        290
+      ]
+    ],
+    "bottom-trim": [
+      [
+        158,
+        315,
+        250,
+        332
+      ],
+      [
+        130,
+        408,
+        200,
+        431
+      ],
+      [
+        207,
+        408,
+        274,
+        431
+      ]
+    ],
+    "shoes-trim": [
+      [
+        138,
+        633,
+        186,
+        680
+      ],
+      [
+        207,
+        633,
+        255,
+        680
+      ]
+    ]
+  }
 }

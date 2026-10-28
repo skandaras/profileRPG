@@ -16,8 +16,9 @@ export function tintPaint(image: RgbaImage, color: string): RgbaImage {
 	if (!cache) { cache = new Map(); tinted.set(image, cache); }
 	const hit = cache.get(color);
 	if (hit) return hit;
-	const ink = [67, 53, 59];
 	const pigment = hexToRgb(color);
+	// Dark pigments need darker ink so black hair and navy cloth keep their hue.
+	const ink = [67, 53, 59].map((v, c) => Math.min(v, pigment[c] * 0.65));
 	const out = blank(image.w, image.h);
 	for (let i = 0; i < image.data.length; i += 4) {
 		const v = (image.data[i] * 0.2126 + image.data[i + 1] * 0.7152 + image.data[i + 2] * 0.0722) / 255;

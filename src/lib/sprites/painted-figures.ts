@@ -6,32 +6,41 @@ import { REFERENCE_PALETTE } from '$lib/content/palettes';
 import type { Figure, LayerSpec } from './layers';
 import type { PetStage } from './art/pets';
 
-export const PAINT_AVATAR = { w: 400, h: 512, pivot: 430 } as const;
+export const PAINT_AVATAR = { w: 400, h: 704, pivot: 600, displayHeight: 44 } as const;
 export const PAINT_PET = { w: 512, h: 384, pivot: 310 } as const;
 export const PAINT_PARTS: Record<string, [number, string, ColorSlot?][]> = {
 	'body.human': [[10, 'body', 'skin']],
 	'body.elf': [[10, 'body', 'skin'], [55, 'elf-ears', 'skin']],
 	'body.cat': [[2, 'tail', 'hair'], [10, 'body', 'skin'], [55, 'cat-ears', 'hair']],
 	'body.bunny': [[10, 'body', 'skin'], [55, 'bunny-ears', 'hair']],
-	'face.bright': [[40, 'face'], [41, 'eyes', 'eyes']],
+	'face.bright': [[40, 'face'], [41, 'eyes', 'eyes'], [42, 'face-mouth'], [43, 'face-ink']],
 	'hair.bob': [[0, 'hair-back', 'hair'], [50, 'hair-front', 'hair']],
-	'top.tee': [[30, 'top', 'top']],
-	'bottom.shorts': [[20, 'bottom', 'bottom']],
-	'shoes.sneakers': [[25, 'shoes', 'shoes']]
+	'top.tee': [[30, 'top', 'top'], [31, 'top-collar'], [32, 'top-trim']],
+	'bottom.shorts': [[20, 'bottom', 'bottom'], [21, 'bottom-trim']],
+	'shoes.sneakers': [[25, 'shoes', 'shoes'], [26, 'shoes-trim']]
 };
+
+const MATERIAL_DYES: Record<string, string> = { 'top-collar': 'navy', 'top-trim': 'gold', 'bottom-trim': 'gold', 'shoes-trim': 'gold' };
 
 export function paintedAvatar(avatar: AvatarConfig): Figure | null {
 	const ids = Object.values(avatar.parts).filter((id): id is string => !!id);
 	if (!ids.length || ids.some((id) => !PAINT_PARTS[id])) return null;
+	const skin = paintSwatch('skin', avatar.colors.skin).id;
+	const darkSkin = ['umber', 'deep'].includes(skin);
+	const faceColors: Record<string, string> = {
+		'face-ink': skin === 'deep' ? '#d1a27e' : skin === 'umber' ? '#f1c99c' : '#68402a',
+		'face-mouth': darkSkin ? '#edbaa1' : '#783c30'
+	};
 	const layers: LayerSpec[] = ids.flatMap((id) => PAINT_PARTS[id].map(([z, file, channel]) => ({
 		body: file === 'body',
 		occludesBody: file in GARMENT_FIT ? garmentCoverage(GARMENT_FIT[file as keyof typeof GARMENT_FIT]) : undefined,
 		z, art: { painted: `/painted/${file}.webp`, ...PAINT_AVATAR, channel } as Art,
 		palette: REFERENCE_PALETTE,
-		paintColor: channel ? paintSwatch(channel, avatar.colors[channel]).ramp[1] : undefined
+		paintColor: channel ? paintSwatch(channel, avatar.colors[channel]).ramp[1]
+			: faceColors[file] ?? (MATERIAL_DYES[file] ? paintSwatch('top', MATERIAL_DYES[file]).ramp[1] : undefined)
 	})));
 	layers.sort((a, b) => a.z - b.z);
-	return { ...PAINT_AVATAR, painted: true, displayHeight: 40, layers };
+	return { ...PAINT_AVATAR, painted: true, layers };
 }
 
 /** Anchors belong to each painting, in its delivered 512 × 384 canvas. */

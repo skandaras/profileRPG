@@ -58,7 +58,7 @@ export const DYES: Dye[] = [
 	{ id: 'black', name: 'Charcoal', ramp: ['#16141d', '#2c2935', '#4a4652'], unlock: { kind: 'starter' } },
 	{ id: 'brown', name: 'Acorn', ramp: ['#583823', '#7f5636', '#a87a54'], unlock: { kind: 'starter' } },
 	{ id: 'teal', name: 'Lagoon', ramp: ['#1b6b6e', '#2f9c9a', '#71d2c8'], unlock: { kind: 'shop', price: 40 } },
-	{ id: 'navy', name: 'Midnight', ramp: ['#1b2350', '#2e3b7a', '#5062a8'], unlock: { kind: 'shop', price: 40 } },
+	{ id: 'navy', name: 'Midnight', ramp: ['#1b2350', '#2e3b7a', '#5062a8'], unlock: { kind: 'starter' } },
 	{ id: 'mint', name: 'Mint', ramp: ['#4b9e84', '#7fd0b0', '#c0f2dc'], unlock: { kind: 'shop', price: 60, level: 3 } },
 	{ id: 'sakura', name: 'Sakura', ramp: ['#cf7795', '#f5a8c0', '#ffd8e5'], unlock: { kind: 'drop' } },
 	{ id: 'starlight', name: 'Starlight', ramp: ['#4c3f8f', '#7c6fd8', '#c8c0ff'], unlock: { kind: 'drop' } },

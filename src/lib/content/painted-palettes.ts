@@ -10,15 +10,15 @@ export const PAINT_SKIN = curated(SKIN_TONES, {
 	porcelain: '#f3d5c3', peach: '#edbc9a', honey: '#dba77f', tan: '#bb8665', umber: '#90664e', deep: '#624838'
 });
 export const PAINT_HAIR = curated(HAIR_COLORS, {
-	ink: '#45404e', cocoa: '#665044', chestnut: '#84513f', honey: '#c5a56c', ginger: '#b57650', lavender: '#91839f', silver: '#b4b6b5'
+	ink: '#29232c', cocoa: '#503628', chestnut: '#795439', honey: '#c5a56c', ginger: '#b57650', lavender: '#91839f', silver: '#b4b6b5'
 });
 export const PAINT_EYES = curated(EYE_COLORS, {
 	hazel: '#746044', ocean: '#6095af', leaf: '#526f51', violet: '#827297'
 });
 export const PAINT_DYES = curated(DYES, {
 	red: '#b9726d', orange: '#c78d69', yellow: '#cfb574', green: '#819b75', blue: '#829bb8', purple: '#a89bc4',
-	pink: '#cb9ca7', white: '#e8e0cd', black: '#534e53', brown: '#97745b', teal: '#749f99', navy: '#56667b', gold: '#c3a36a'
-});
+	pink: '#cb9ca7', white: '#efe2c5', black: '#534e53', brown: '#97745b', teal: '#749f99', navy: '#263750', gold: '#c3a36a'
+}).map((s) => s.id === 'white' ? { ...s, name: 'Ivory' } : s);
 
 export function paintSwatches(slot: ColorSlot) {
 	return slot === 'skin' ? PAINT_SKIN : slot === 'hair' ? PAINT_HAIR : slot === 'eyes' ? PAINT_EYES : PAINT_DYES;
