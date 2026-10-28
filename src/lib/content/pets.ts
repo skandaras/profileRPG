@@ -39,7 +39,7 @@ export const SPECIES: Species[] = [
 	{
 		id: 'emberkit',
 		name: 'Brambleback',
-		blurb: 'A gentle hedge dragon who folds up his wings to follow you down narrow paths.',
+		blurb: 'An indigo dragon with golden crescent horns. Grows from a round little sitter into a wide-winged friend.',
 		affinity: ['str'],
 		starter: true,
 		rarity: 'common',

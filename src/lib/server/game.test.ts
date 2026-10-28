@@ -13,7 +13,7 @@ import { buy, inventoryOf } from './modules/inventory';
 import { claimMission, missionBoard, startMission } from './modules/missions';
 import { partyCards } from './modules/party';
 import { feed, hatch, listPets, addEgg } from './modules/pets';
-import { createPlayer, saveAvatar } from './modules/player';
+import { createPlayer, saveAvatar, saveSettings } from './modules/player';
 import { learnAbility, playerRow } from './modules/progression';
 import { cleanMess, greet, welcomeState } from './modules/welcome';
 import { provisionUser } from './users';
@@ -42,6 +42,16 @@ describe('onboarding', () => {
 		expect(result.pets).toHaveLength(1);
 		expect(result.pets[0]).toMatchObject({ name: 'Sprout', stage: 'baby', active: true });
 		expect(playerRow(db, id).gp).toBe(20);
+		expect(playerRow(db, id).themeId).toBe('night');
+	});
+
+	it('keeps a saved dawn theme through play and new player creation', () => {
+		const id = newHero();
+		play(id, (ctx) => saveSettings(ctx, { themeId: 'meadow' }));
+		newHero();
+		advanceClock(24 * H);
+		play(id, () => null);
+		expect(playerRow(db, id).themeId).toBe('meadow');
 	});
 
 	it('will not make a second hero', () => {

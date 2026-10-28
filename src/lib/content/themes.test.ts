@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { THEMES, type ThemeTokens } from './themes';
+import { DEFAULT_THEME, THEMES, type ThemeTokens } from './themes';
 
 function luminance(hex: string): number {
 	const n = parseInt(hex.slice(1), 16);
@@ -23,6 +23,12 @@ const TEXT_PAIRS: [keyof ThemeTokens, keyof ThemeTokens][] = [
 ];
 
 describe('themes', () => {
+	it('keeps every saved theme id, a light choice and the midnight starter', () => {
+		expect(THEMES.map((t) => t.id)).toEqual(['meadow', 'night', 'sakura', 'ocean', 'ember', 'crystal']);
+		expect(THEMES.some((t) => !t.dark && t.unlock.kind === 'starter')).toBe(true);
+		expect(DEFAULT_THEME).toBe('night');
+		expect(THEMES.find((t) => t.id === DEFAULT_THEME)?.unlock.kind).toBe('starter');
+	});
 	for (const t of THEMES) {
 		it(`${t.id} has visible focus, controls and progress`, () => {
 			for (const bg of SURFACES) {

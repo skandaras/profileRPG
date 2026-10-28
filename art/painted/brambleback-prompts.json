@@ -1,26 +1,126 @@
 {
-  "tool": "Built-in image_gen",
-  "rawGenerations": "handoff/p3b/raw (outside repository)",
-  "calls": 9,
-  "prompts": {
+  "tool": "Built-in image_gen (concept sources reused)",
+  "newCallsInD1": 0,
+  "rawGenerations": "handoff/concept-d/source (outside repository)",
+  "prompts": [
+    {
+      "id": "d-dragon-young",
+      "prompt": "Use case: stylized-concept. Transparent wide landscape sheet two original collectible monster illustrations EGG on LEFT half and BABY dragon on RIGHT half. MIDNIGHT TAROT style: deep midnight indigo watercolor, fine old gold ink outline, ivory highlights and broad clean cel-like shadow planes, few strong rounded shapes, not detailed realistic scales. Brambleback little dragon signature: a pair of crescent-shaped rounded golden horns that will grow into a halo arch, indigo blue body, warm ivory belly and long soft muzzle, enormous gentle amber eyes, rounded paws, curled broad diamond tail. Left egg ivory shell with gold crescent cap, indigo lower shell, no symbols or text. Right wingless seated hatchling head 55 percent body height, tiny crescent horn buds, very round plump body, warm smile. Never cat-like, no pointed ears. Original design no existing franchise creature. Entire subjects isolated clean alpha with generous margins and clear central gutter, no tarot cards or UI, no labels, no background or ground shadows.",
+      "source": "source/d-dragon-young.webp",
+      "mode": "built-in image_gen",
+      "transparent_background": true
+    },
+    {
+      "id": "d-dragon-grown",
+      "reference": "source/d-dragon-young.webp",
+      "prompt": "Use case: stylized-concept. EDIT/DERIVE from the reference egg and baby: paint ONLY TWO NEW stages of the SAME original dragon Brambleback, retaining palette, face language and signature feature. Landscape transparent sheet, TEEN on LEFT half and ADULT on RIGHT half, equal separate cells, generous 6% margin around each subject with no touching canvas edge, clear central gutter. MIDNIGHT TAROT: indigo and ivory watercolor, gold ink edges, gentle golden eyes. Signature crescent horns grow into a near-complete arch on adult with space between tips. TEEN LEFT upright BIPED standing on two longer hind legs, big round head, little crescent horns, small folded bat membrane wings, babyish smile. ADULT RIGHT low sturdy QUADRUPED, extra wide TWO opened strut-supported BAT MEMBRANE wings indigo with gold borders, TWO curved gold horns framing head as open halo, long diamond-tipped tail curves upward. Head remains 45 percent torso, broad rounded muzzle, round body, big eyes, smiling. No long scary neck. Clean cel-like shading under watercolor, bold readable silhouettes at 128 by 96 pixels, no cat anatomy, no existing franchise designs, gentle eerie-cute. True transparent alpha, NO text labels, no background, no ground shadow, NO eggs or baby on output.",
+      "source": "source/d-dragon-grown.webp",
+      "mode": "built-in image_gen",
+      "transparent_background": true
+    }
+  ],
+  "preparation": "handoff/d1/prepare-art.py",
+  "contract": "512 \u00d7 384; lowest visible row y=350; teen mirrored to face left; transparent RGB and alpha <=8 cleared; proportional resampling only",
+  "stages": {
     "egg": {
-      "prompt": "Use case: stylized-concept. Production game sprite, watercolour/anime storybook painting on a genuinely transparent background. One Brambleback DRAGON EGG only, centered, no text, no floor or shadow. Warm cream plump pear-shaped shell, warm clay orange speckles concentrated near base, a small soft cream horn nub at top and a subtle single moss-green spine ridge along the upper right shell. Warm orange ridge motif hints at the dragon inside. Gentle hand-painted pigment texture, clean fine warm brown pencil contours, broad readable forms for a 100px game sprite. Palette clay orange #cd815b, cream #fff2d3, moss #78915c. Entire egg visible with transparent margin. No creature, no cat shapes, no accessories."
+      "input": "concept-d/egg.webp",
+      "sha256": "f061bfc64ae389c6b1591d2f1144c927c331c0c828ec6a6936be061c53d1b6d6",
+      "crop": [
+        115,
+        16,
+        397,
+        368
+      ],
+      "mirror": false,
+      "size": [
+        261,
+        326
+      ],
+      "origin": [
+        125,
+        25
+      ],
+      "bounds": [
+        125,
+        25,
+        386,
+        351
+      ]
     },
     "baby": {
-      "prompt": "Use case: stylized-concept. Production game sprite on genuinely transparent background. One adorable BABY BRAMBLEBACK DRAGON, full-body side-on facing LEFT, watercolour/anime children's storybook, fine warm brown pencil contours, softly mottled broad pigment washes. Clay orange #cd815b skin, cream #fff2d3 snout and chubby belly, ONE row of soft rounded moss-green #78915c dorsal spines, tiny cream horn buds. A newborn hatchling with enormous round head occupying HALF its whole body length, huge glossy warm brown eye, elongated rounded dragon snout with a small nostril and sweet smile, NO external ears. Chubby pear belly, very short stubby four legs, sitting unsteadily on round hindquarters, tiny front paws, three cream claws each. NO wings visible. Very short round curled tail, with a rounded tip. Clean readable silhouette at 100 pixels. Entire dragon in frame, transparent margins, no ground, no shadow, no text, no props, no accessories, no cat shapes. Match a warm gentle watercolour game aesthetic."
+      "input": "concept-d/baby.webp",
+      "sha256": "510085f62aa37e475730858cc3e902ffd500fd1e0297790a142232834ac8c892",
+      "crop": [
+        84,
+        16,
+        428,
+        368
+      ],
+      "mirror": false,
+      "size": [
+        319,
+        326
+      ],
+      "origin": [
+        96,
+        25
+      ],
+      "bounds": [
+        96,
+        25,
+        415,
+        351
+      ]
     },
     "teen": {
-      "prompt": "Use case: stylized-concept. Input image is a species STYLE/IDENTITY reference, not a pose to copy. Paint the TEEN evolution of this baby Brambleback dragon as a NEW distinct full-body silhouette, on genuinely transparent background. Same clay orange skin, cream snout/belly, warm glossy brown eye and smile, moss-green single dorsal spine ridge, soft pencil contours and watercolour pigment. Side-on facing LEFT. Teen is lanky, standing confidently on FOUR longer legs with all paws on the ground, belly lifted clearly from the ground. Long graceful upright neck. Head now one THIRD of creature body length instead of half, still cute and large-eyed, with elongated rounded snout and NO external ears. Two short cream horns. TWO small but CLEAR leather membrane wings held UP above its back, simple triangular scalloped shapes with visible finger struts, muted clay/peach membranes, no feathers or leaf-like folded wings. Longer tapering tail swept behind, small developing moss spade at tip. Alert standing pose. Make the neck/legs/wing silhouette unmistakably different from the seated wingless hatchling. Entire figure with generous transparent margins, clean alpha, no floor/shadow/text/accessories/cat shapes. Single creature.",
-      "editPrompt": "Precise object edit of the supplied teen dragon sprite. Change ONLY the two wings: make BOTH membrane wings HALF their current height and half their current span, small adolescent wings held upright above the shoulder, their tops no higher than the dragon's eyes. Their attachment stays on the shoulder, with clear little scalloped membranes and finger struts. The head, long neck, slim body, legs, face, colours, dorsal spines and long tail MUST remain exactly the same. This is a TEEN dragon whose wings have not grown to adult size yet. Genuinely transparent background with clean alpha, no glow, no background wash, no floor or shadows. Keep entire sprite, no text, no accessories.",
-      "youngRepaintPrompt": "Use case: precise-object-edit. Repaint the TEEN Brambleback sprite (image 1 edit target), using image 2 baby as the exact palette, pencil line weight, warm brown glossy eye and watercolour speckle/face-language reference. One full-body dragon side-on facing LEFT, genuinely transparent background, no ground/shadow/text. Keep teen identity: standing alert on four paws, TWO small upright scalloped membrane wings with finger struts above shoulders (tops no higher than eyes), two short cream horns, single moss-green ridge and longer trailing tail with moss spade tip. Make it visibly young and cute: greatly enlarge round head to about one THIRD of head-plus-torso body length (excluding tail), greatly enlarge warm brown eye, shorten neck to a compact soft connection, thicken and round torso and ALL legs into chubby rounded forms with little cream claws. Belly raised above ground, standing distinct from seated wingless baby. Keep same warm clay orange and cream, moss spines, speckle wash, fine warm brown contours and sweet rounded snout smile. Whole dragon and tail inside canvas with margins. Avoid mature slender anatomy, tall neck, thin legs, tiny head. Preserve small adolescent wings; do not give broad adult wings.",
-      "finalRaw": "teen-young.png"
+      "input": "concept-d/teen.webp",
+      "sha256": "03339e1f7d9fbc1fcb353c3bb415b565a6c56a89040f60427f557e03dfdb314b",
+      "crop": [
+        129,
+        16,
+        383,
+        368
+      ],
+      "mirror": true,
+      "size": [
+        235,
+        326
+      ],
+      "origin": [
+        138,
+        25
+      ],
+      "bounds": [
+        138,
+        25,
+        373,
+        351
+      ]
     },
     "adult": {
-      "prompt": "Use case: stylized-concept. Image 1 is a species STYLE/IDENTITY reference of a TEEN. Paint its fully grown ADULT BRAMBLEBACK evolution with a NEW distinctly sturdier silhouette. Production watercolour/anime storybook game sprite, genuinely transparent background. Same clay orange #cd815b skin with soft warm speckles, cream #fff2d3 snout and belly, moss-green #78915c full dorsal spine ridge, glossy warm brown eye, elongated rounded snout with a gentle smile, fine warm brown pencil contours, soft broad watercolour washes. Side-on facing LEFT, full creature including wing tips and tail. Adult proudly standing on FOUR strong sturdy legs, thick rounded torso and broad cream chest, raised friendly head now proportionally SMALLER (about one QUARTER of body length) while remaining large-eyed and soft-faced, no external ears. TWO clearly CURVED cream horns sweeping backward from the skull. TWO fully OPEN dragon membrane wings rising proudly and spreading broadly, visible finger struts radiating from wing wrists, warm peach membranes and scalloped trailing edge; larger and broader relative to its thick torso than the teen's. Full single moss spine ridge down neck/back/tail. LONG tail sweeping behind the body, clearly visible MOSS GREEN SPADE TIP. Keep adorable and welcoming, no aggressive face, no sharp fangs, no cat shapes, no accessories, no floor or shadow or text. Clean alpha, empty transparent margin all around, single creature, no scenery. A proud fully grown garden dragon, distinct from a lanky adolescent.",
-      "editPrompt": "Precise small object edit. Keep this entire adult dragon sprite EXACTLY the same, but fix the horn count. There are currently THREE cream horns on top of the head; remove the smallest foremost horn (the small horn at the upper LEFT, nearest the forehead) and paint continuous orange skull in that spot. Keep the TWO larger swept-back curved cream horns. Do not change the wings, proud stout body, long spade-tipped tail, eyes, expression, legs, pose, colours or watercolour style. Genuinely transparent background, clean alpha with no glow or background wash. Full sprite, no text or accessories.",
-      "youngRepaintPrompt": "Use case: precise-object-edit. Repaint image 1 ADULT Brambleback dragon as a permanently cute young-looking pet; image 2 BABY is the exact palette, watercolour speckle texture, fine warm brown contour and soft friendly face-language reference. Single full-body dragon, side-on facing LEFT, genuinely transparent background, no floor/shadow/text. Preserve adult identity: TWO broad OPEN membrane wings with radiating finger struts, scalloped peach membranes, two swept-back curved cream horns (exactly two), full single moss-green spine ridge, long curled moss SPADE-tipped tail. Substantially enlarge the rounded head to roughly 40% of head-plus-torso length excluding tail. ENORMOUS round glossy warm brown eye: even bigger relative to the face than a cute teen's eye, occupying about one third of face height, like the baby's. Very short soft neck, plump rounded pear torso and cream chest/belly, FOUR short THICK rounded legs and broad little paws with cream claws. Friendly sweet soft-faced smile, proudly standing but youthful and cuddly. Wings spread broadly above back as adult stage distinction; head should be a major silhouette feature nearly as high as wing tips. Same clay orange, cream and moss, warm orange speckles, delicate pencil line, pigment washes as baby. Entire dragon including wing tips and tail contained with transparent margin. Avoid small mature head, slender neck, long thin legs, sharp face, extra horns, ears, props. Keep broadly open adult wings distinct from the teen's small upright wings.",
-      "finalRaw": "adult-young.png",
-      "youngCorrectionPrompt": "Precise-object-edit of this ADULT dragon. Keep its broad open wings, plump body, short thick legs, full moss spine ridge, long spade tail, warm colours, speckle texture and pencil lines. Three required corrections: (1) REMOVE ALL background wash, glow and colour outside the creature. GENUINELY TRANSPARENT clean alpha empty background, no shadow. (2) Remove the tiny third cream horn nub nearest forehead at upper left; keep exactly TWO big curved horns, orange scalp where nub was. (3) Make the head a little rounder and enlarge the visible glossy brown eye by 40 percent, including iris, white and outline. Eye must be huge and baby-like, about 40 percent of face height, bigger in proportion than teen. Shorten the neck by bringing head lower toward shoulders, retain short cream throat. Friendly soft proud smile. Entire creature including wings and spade tip within frame, transparent margins. No text, floor, props."
+      "input": "concept-d/adult.webp",
+      "sha256": "c9fe4ad2ddff8914d98d5b29139a162931f39b9f56ece9f98361646b45869e86",
+      "crop": [
+        16,
+        22,
+        496,
+        361
+      ],
+      "mirror": false,
+      "size": [
+        462,
+        326
+      ],
+      "origin": [
+        25,
+        25
+      ],
+      "bounds": [
+        25,
+        25,
+        487,
+        351
+      ]
     }
   }
 }

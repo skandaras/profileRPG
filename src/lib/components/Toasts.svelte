@@ -91,12 +91,9 @@
 		display: flex;
 		gap: 8px;
 		align-items: center;
-		animation: pop 180ms steps(3);
+		animation: pop 180ms ease-out;
 	}
 
-	.toast::before {
-		display: none;
-	}
 
 	.toast.warn {
 		color: var(--bad);
@@ -125,7 +122,7 @@
 		cursor: pointer;
 	}
 	dialog::backdrop {
-		background: color-mix(in srgb, var(--ink) 55%, transparent);
+		background: color-mix(in srgb, var(--shadow) 75%, transparent);
 	}
 	dialog.celebrate {
 		position: fixed;
@@ -136,7 +133,8 @@
 		color: var(--ink);
 		width: calc(100% - 40px);
 		border: 1px solid var(--line);
-		padding: 24px 16px;
+		padding: 38px 20px 26px;
+		border-radius: 70px 70px 2px 2px;
 	}
 	dialog:not([open]) {
 		display: none;
@@ -145,7 +143,7 @@
 	.celebrate {
 		text-align: center;
 		max-width: 360px;
-		animation: pop 240ms steps(4);
+		animation: pop 240ms ease-out;
 	}
 
 	.burst {

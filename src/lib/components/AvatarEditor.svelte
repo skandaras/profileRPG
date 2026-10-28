@@ -160,8 +160,11 @@
 		display: flex;
 		justify-content: center;
 		padding: 12px 0 16px;
-		background: var(--bg-3);
-		margin-bottom: 12px;
+		background: var(--window);
+		border: 1px solid var(--line);
+		border-radius: 50% 50% 2px 2px / 65px 65px 2px 2px;
+		margin: 0 auto 12px;
+		max-width: 260px;
 	}
 
 	.parts {

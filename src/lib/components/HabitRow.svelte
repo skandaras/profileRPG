@@ -37,11 +37,12 @@
 </script>
 
 <div class="habit" class:done={habit.done}>
+	<span class="habit-icon"><DisplayIcon value={habit.icon} scale={1.5} /></span>
 	<div class="body">
 		{#if link}
-			<a class="name" href="/habits/{habit.id}"><DisplayIcon value={habit.icon} /> {habit.title}</a>
+			<a class="name" href="/habits/{habit.id}">{habit.title}</a>
 		{:else}
-			<span class="name"><DisplayIcon value={habit.icon} /> {habit.title}</span>
+			<span class="name">{habit.title}</span>
 		{/if}
 		<div class="meta small soft">
 			{#if habit.quantity}
@@ -53,6 +54,7 @@
 			{#if habit.target > 1}<span class="numeral">{habit.count}/{habit.target}</span>{/if}
 			{#if habit.daysLeft && habit.daysLeft > 1 && !habit.done}<span>· {habit.daysLeft} days left</span>{/if}
 		</div>
+		{#if habit.done}<span class="done-label small"><PixelIcon name="check" scale={1} /> Done{habit.completedToday ? ' today' : ' this period'}</span>{/if}
 		{#if habit.streak > 1}<span class="small soft">{habit.streak} in a row</span>{/if}
 	</div>
 
@@ -60,9 +62,8 @@
 		<input type="hidden" name="id" value={habit.id} />
 		<button bind:this={tickButton} class="tick" disabled={busy || (habit.kind === 'task' && habit.done && !canUndo)}
 			aria-label={canUndo ? `Undo the last tick of ${habit.title}` : habit.done ? `${habit.title}, done. Log again` : `Tick off ${habit.title}`}>
-			{#if habit.done}<PixelIcon name="check" scale={1.5} />
-			{:else}<span aria-hidden="true">+</span>{/if}
-			{#if canUndo}<span class="undo-label small">Undo</span>{/if}
+			{#if canUndo}<span class="undo-label small">Undo</span>
+			{:else}<PixelIcon name="check" scale={1.5} />{/if}
 		</button>
 		{#if showAmount && habit.quantity}
 			<label class="sr-only" for="amt-{habit.id}">How many {habit.unit}</label>
@@ -84,19 +85,26 @@
 <style>
 	.habit {
 		display: grid;
-		grid-template-columns: 1fr auto;
+		grid-template-columns: 33px minmax(0, 1fr) auto;
 		align-items: center;
-		column-gap: 16px;
-		padding: 15px;
-		min-height: 82px;
+		gap: 12px;
+		padding: 10px 13px;
+		min-height: 75px;
 		background: var(--paper);
-		border-radius: 18px;
-		margin-bottom: 10px;
-		box-shadow: 0 3px 12px color-mix(in srgb, var(--shadow) 12%, transparent);
+		border: 1px solid var(--line);
+		outline: 1px solid var(--line);
+		outline-offset: -5px;
+		margin-bottom: 8px;
 	}
 
-	.habit:last-child {
-		border-bottom: 0;
+	.habit-icon {
+		align-self: stretch;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		border: 1px solid var(--line);
+		border-radius: 22px 22px 2px 2px;
+		min-height: 52px;
 	}
 
 	.body {
@@ -104,30 +112,39 @@
 	}
 
 	.name {
-		gap: 8px;
-		display: flex;
-		align-items: center;
+		display: block;
 		min-height: 24px;
-		font-size: 15px;
-		font-family: 'Nunito', system-ui, sans-serif;
-		line-height: 24px;
-		font-weight: 800;
+		font: 600 23px/1.05 'Cormorant Garamond', Georgia, serif;
 		text-decoration: none;
-		margin: 0 0 2px;
+		margin: 0 0 4px;
 		overflow-wrap: anywhere;
 	}
 
 	.meta {
-		min-height: 24px;
+		min-height: 20px;
 		display: flex;
 		flex-wrap: wrap;
-		gap: 4px;
+		gap: 3px;
 		align-items: center;
-		line-height: 20px;
+		font-size: 11px;
+		line-height: 18px;
 	}
 
 	.stat {
-		font-size: 12px;
+		font-size: 10px;
+	}
+
+	.meta .numeral {
+		font-family: 'DM Sans', system-ui, sans-serif;
+		font-weight: 400;
+	}
+
+	.done-label {
+		display: flex;
+		align-items: center;
+		gap: 4px;
+		color: var(--ink);
+		font-size: 11px;
 	}
 
 	.tick-form {
@@ -136,7 +153,7 @@
 		gap: 8px;
 		align-items: center;
 		flex-wrap: wrap;
-		max-width: 120px;
+		max-width: 74px;
 		justify-content: flex-end;
 	}
 
@@ -147,36 +164,19 @@
 		height: 44px;
 		padding: 0;
 		flex: none;
-		font: 500 28px 'Nunito', system-ui, sans-serif;
 		border: 1px solid var(--accent);
-		border-radius: 15px;
-		background: var(--bg-2);
-		color: var(--ink);
+		border-radius: 0;
+		background: var(--accent);
+		color: var(--accent-ink);
 		cursor: pointer;
 	}
-
-	.done .name { text-decoration: line-through; }
-
-	.done .tick {
-		background: var(--accent);
-		border-color: var(--accent);
-		color: var(--accent-ink);
-	}
-
-	.done .tick :global(path) { stroke: var(--accent-ink); }
 
 	.tick:disabled {
 		cursor: wait;
 	}
 
 	.undo-label {
-		position: absolute;
-		top: 46px;
-		right: 0;
-		width: 44px;
-		text-align: center;
-		color: var(--ink-soft);
-		font-size: 12px;
+		font: 400 12px 'DM Sans', system-ui, sans-serif;
 	}
 
 	.quantity {
@@ -194,7 +194,7 @@
 	}
 
 	.extras {
-		grid-column: 1 / -1;
+		grid-column: 2 / -1;
 		display: flex;
 		gap: 8px;
 		margin-top: 4px;
@@ -210,4 +210,13 @@
 		cursor: pointer;
 	}
 
+	@media (max-width: 359px) {
+		.habit {
+			gap: 8px;
+			padding: 10px;
+		}
+		.name {
+			font-size: 21px;
+		}
+	}
 </style>

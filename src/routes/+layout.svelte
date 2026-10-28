@@ -2,7 +2,7 @@
 	import '../app.css';
 	import { page } from '$app/state';
 	import { pushNotices } from '$lib/toasts.svelte';
-	import { THEMES } from '$lib/content/themes';
+	import { DEFAULT_THEME, THEMES } from '$lib/content/themes';
 	import Bar from '$lib/components/Bar.svelte';
 	import PixelIcon from '$lib/components/PixelIcon.svelte';
 	import Toasts from '$lib/components/Toasts.svelte';
@@ -27,7 +27,7 @@
 		{ href: '/me', label: 'Me', icon: 'xp' }
 	] as const;
 
-	const activeTheme = $derived(THEMES.find((t) => t.id === data.hero?.themeId) ?? THEMES[0]);
+	const activeTheme = $derived(THEMES.find((t) => t.id === data.hero?.themeId) ?? THEMES.find((t) => t.id === DEFAULT_THEME)!);
 	const isActive = (href: string) => {
 		const path = page.url.pathname;
 		if (href === '/me') return ['/me', '/wardrobe', '/shop', '/party', '/settings'].some((p) => path.startsWith(p));
@@ -45,8 +45,8 @@
 	<header class="top">
 		<div class="inner">
 			<a class="who" href="/me">
-				<PixelIcon name="paw" scale={1.5} /><span class="name title">{data.hero.heroName}</span>
-				<span class="chip">Lv {data.hero.level}</span>
+				<span class="name title">{data.hero.heroName}</span>
+				<span class="level">Lv {data.hero.level}</span>
 				{#if data.hero.points > 0}<span class="chip pts">+{data.hero.points}<span class="sr-only"> points to spend</span></span>{/if}
 			</a>
 			<p class="tagline small soft">A little progress, every day.</p>
@@ -55,8 +55,8 @@
 				<span class="numeral">{data.hero.xp} / {data.hero.xpNext} XP</span>
 			</div>
 			<a class="gp" href="/shop" aria-label="{data.hero.gp} GP, open shop">
-				<PixelIcon name="gp" scale={2} />
-				<span>{data.hero.gp}</span>
+				<PixelIcon name="gp" scale={1.5} />
+				<span class="coins">{data.hero.gp}</span><span class="gp-label">GP</span>
 			</a>
 		</div>
 		{#if data.hero.resting}
@@ -73,7 +73,7 @@
 	<nav class="tabbar" aria-label="Main">
 		{#each TABS as t (t.href)}
 			<a href={t.href} aria-current={isActive(t.href) ? 'page' : undefined}>
-				<PixelIcon name={t.icon} scale={1} />
+				<PixelIcon name={t.icon} scale={1.5} />
 				<span class="lbl">{t.label}</span>
 			</a>
 		{/each}
@@ -84,41 +84,51 @@
 
 <style>
 	.top {
-		background: var(--bg-2);
-		border-radius: 0 0 25px 25px;
-		box-shadow: 0 3px 14px color-mix(in srgb, var(--shadow) 10%, transparent);
 		padding-top: env(safe-area-inset-top);
 	}
 
 	.inner {
-		max-width: 560px;
+		max-width: 720px;
 		margin: auto;
-		padding: 18px 22px 12px;
+		padding: 8px 0;
+		border-bottom: 1px solid var(--line);
 		display: grid;
-		grid-template-columns: 1fr auto;
-		gap: 2px 12px;
-		min-height: 114px;
+		grid-template-columns: minmax(0, 1fr) auto;
+		gap: 0 12px;
 		align-items: center;
 	}
 
 	.who {
 		display: flex;
 		align-items: center;
-		gap: 8px;
+		gap: 10px;
 		text-decoration: none;
 		min-width: 0;
 		min-height: 44px;
 	}
 
-	.tagline { grid-row: 2; grid-column: 1 / -1; margin: -8px 0 7px 33px; font-size: 11px; }
-
 	.name {
 		margin: 0;
-		font-size: 20px;
+		font-size: 28px;
+		font-weight: 600;
 		overflow: hidden;
 		text-overflow: ellipsis;
 		white-space: nowrap;
-		max-width: 8em;
+	}
+
+	.level {
+		border-left: 1px solid var(--line);
+		padding-left: 10px;
+		white-space: nowrap;
+		font-size: 13px;
+	}
+
+	.tagline {
+		grid-row: 2;
+		grid-column: 1 / -1;
+		margin: -2px 0 7px;
+		font-size: 11px;
+		color: var(--ink);
 	}
 
 	.xp {
@@ -130,30 +140,43 @@
 		gap: 12px;
 	}
 
+	.xp .numeral {
+		font: 600 11px 'DM Sans', system-ui, sans-serif;
+	}
+
 	.gp {
 		grid-row: 1;
 		grid-column: 2;
 		display: flex;
 		align-items: center;
-		gap: 8px;
+		gap: 4px;
 		min-height: 44px;
 		text-decoration: none;
-		font: 800 20px 'Nunito', system-ui, sans-serif;
+	}
+
+	.coins {
+		font: 600 28px/1 'Cormorant Garamond', Georgia, serif;
+	}
+
+	.gp-label {
+		font-size: 12px;
 	}
 
 	.resting {
-		max-width: 560px;
+		max-width: 720px;
 		margin: auto;
-		padding: 4px 20px 12px;
+		padding: 8px 0;
 	}
 
 	main {
-		max-width: 560px;
+		max-width: 756px;
 		margin: auto;
-		padding: 22px 22px calc(96px + env(safe-area-inset-bottom));
+		padding: 17px 18px calc(96px + env(safe-area-inset-bottom));
 	}
 
 	main.onboarding {
+		max-width: 636px;
+		padding-top: 28px;
 		padding-bottom: 32px;
 	}
 
@@ -165,36 +188,53 @@
 		z-index: 20;
 		display: flex;
 		justify-content: center;
-		background: var(--bg-2);
-		border-radius: 24px 24px 0 0;
-		box-shadow: 0 -4px 18px color-mix(in srgb, var(--shadow) 15%, transparent);
-		padding: 8px 12px calc(8px + env(safe-area-inset-bottom));
+		background: var(--bg);
+		border-top: 3px double var(--line);
+		padding: 10px 14px calc(10px + env(safe-area-inset-bottom));
 	}
 
 	.tabbar a {
 		flex-direction: column;
-		gap: 4px;
+		gap: 5px;
 		flex: 1;
-		max-width: 112px;
+		max-width: 140px;
 		display: flex;
 		align-items: center;
 		justify-content: center;
 		text-decoration: none;
 		color: var(--ink);
-		min-height: 60px;
-		border-radius: 15px;
+		min-height: 54px;
+		border: 1px solid transparent;
 	}
 
 	.tabbar a[aria-current='page'] {
-		color: var(--accent);
-		background: var(--bg-3);
-		color: var(--ink);
+		background: var(--paper);
+		border-color: var(--line);
+		border-radius: 25px 25px 3px 3px;
 	}
 
 	.lbl {
-		font-family: 'Nunito', system-ui, sans-serif;
-		font-size: 16px;
-		font-weight: 800;
+		font-size: 11px;
+		font-weight: 600;
+		padding: 0;
+		margin: 0;
 	}
 
+	@media (max-width: 755px) {
+		.inner, .resting {
+			margin-inline: 18px;
+		}
+	}
+
+	@media (max-width: 359px) {
+		.who {
+			gap: 6px;
+		}
+		.name {
+			font-size: 24px;
+		}
+		.level {
+			padding-left: 6px;
+		}
+	}
 </style>

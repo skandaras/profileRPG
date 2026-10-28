@@ -1,9 +1,9 @@
 @font-face {
-	font-family: 'Nunito';
+	font-family: 'Cormorant Garamond';
 	font-style: normal;
-	font-weight: 200 1000;
+	font-weight: 300 700;
 	font-display: swap;
-	src: url('/fonts/nunito.woff2') format('woff2');
+	src: url('/fonts/cormorant-garamond.woff2') format('woff2');
 }
 
 @font-face {
@@ -14,7 +14,7 @@
 	src: url('/fonts/dm-sans.woff2') format('woff2');
 }
 
-/* Garden paper, open groups and clear controls. Colours come from the theme. */
+/* The tarot spread shares its rules, ink and paper across every page. */
 *,
 *::before,
 *::after {
@@ -45,27 +45,27 @@ h1,
 h2,
 h3,
 .title {
-	font-family: 'Nunito', system-ui, sans-serif;
-	font-weight: 750;
+	font-family: 'Cormorant Garamond', Georgia, serif;
+	font-weight: 600;
 	line-height: 1.2;
 	margin: 0 0 0.5rem;
 }
 
 h1 {
-	font-size: 28px;
-	line-height: 32px;
+	font-size: 43px;
+	line-height: 1.05;
 	margin-bottom: 16px;
 	overflow-wrap: anywhere;
 }
 
 h2 {
-	font-size: 22px;
-	line-height: 28px;
+	font-size: 31px;
+	line-height: 1.1;
 }
 
 h3 {
-	font-size: 18px;
-	line-height: 24px;
+	font-size: 23px;
+	line-height: 1.15;
 }
 
 p {
@@ -85,10 +85,11 @@ a {
 .box {
 	position: relative;
 	background: var(--bg-2);
-	border: 0;
-	border-radius: 16px;
-	box-shadow: 0 3px 14px color-mix(in srgb, var(--shadow) 12%, transparent);
-	padding: 16px;
+	border: 1px solid var(--line);
+	outline: 1px solid var(--line);
+	outline-offset: -5px;
+	border-radius: 0;
+	padding: 18px;
 	margin: 0 0 20px;
 }
 
@@ -106,14 +107,14 @@ a {
 	padding: 8px 12px;
 	min-width: 44px;
 	font: inherit;
-	font-size: 18px;
-	line-height: 24px;
-	font-family: 'Nunito', system-ui, sans-serif;
-	font-weight: 750;
+	font-size: 14px;
+	line-height: 20px;
+	font-family: 'DM Sans', system-ui, sans-serif;
+	font-weight: 500;
 	color: var(--accent-ink);
 	background: var(--accent);
 	border: 1px solid var(--accent);
-	border-radius: 16px;
+	border-radius: 2px;
 	box-shadow: none;
 	cursor: pointer;
 	text-decoration: none;
@@ -142,7 +143,7 @@ a {
 .btn.small {
 	min-height: 44px;
 	padding: 4px 12px;
-	font-size: 18px;
+	font-size: 14px;
 }
 
 .btn.wide {
@@ -167,15 +168,21 @@ textarea {
 	color: var(--ink);
 	background: var(--bg-3);
 	border: 1px solid var(--line);
-	border-radius: 16px;
+	border-radius: 2px;
 	padding: 8px 12px;
 	min-height: 44px;
 	width: 100%;
 }
 
+input::placeholder,
+textarea::placeholder {
+	color: var(--ink-soft);
+	opacity: 1;
+}
+
 label {
 	display: block;
-	font-weight: 750;
+	font-weight: 600;
 	margin-bottom: 4px;
 }
 
@@ -216,15 +223,15 @@ label {
 }
 
 .chip {
-	font-family: 'Nunito', system-ui, sans-serif;
+	font-family: 'DM Sans', system-ui, sans-serif;
 	display: inline-flex;
 	align-items: center;
 	gap: 4px;
 	padding: 2px 8px;
-	border: 0;
-	border-radius: 16px;
+	border: 1px solid var(--line);
+	border-radius: 2px;
 	background: var(--bg-3);
-	font-size: 14px;
+	font-size: 12px;
 	white-space: nowrap;
 }
 
@@ -238,10 +245,10 @@ label {
 
 .bar {
 	position: relative;
-	height: 10px;
+	height: 6px;
 	background: var(--bg-3);
 	border: 1px solid var(--line);
-	border-radius: 20px;
+	border-radius: 0;
 	overflow: hidden;
 }
 
@@ -285,7 +292,7 @@ label {
 	padding: 8px 8px;
 	background: var(--bg-3);
 	border: 1px solid var(--line);
-	border-radius: 16px;
+	border-radius: 2px;
 	font: inherit;
 	color: var(--ink);
 	cursor: pointer;
@@ -312,10 +319,10 @@ label {
 
 .page-heading {
 	display: flex;
-	align-items: center;
+	align-items: end;
 	justify-content: space-between;
 	gap: 12px;
-	margin-bottom: 16px;
+	margin-bottom: 18px;
 }
 
 .page-heading h1 {
@@ -323,8 +330,8 @@ label {
 }
 
 .numeral {
-	font-family: 'Nunito', system-ui, sans-serif;
-	font-weight: 750;
+	font-family: 'Cormorant Garamond', Georgia, serif;
+	font-weight: 600;
 }
 
 button {
@@ -370,7 +377,7 @@ strong {
 	font-weight: 600;
 }
 
-/* Repeated page patterns share the same spacing and quiet paper edge. */
+/* Repeated page patterns use the same inked edge. */
 .grow {
 	flex: 1;
 	min-width: 0;
@@ -426,6 +433,8 @@ strong {
 	gap: 8px;
 	padding: 16px 8px;
 	background: var(--bg-3);
+	border: 1px solid var(--line);
+	border-radius: 48% 48% 2px 2px / 34px 34px 2px 2px;
 	text-align: center;
 }
 
@@ -445,7 +454,7 @@ fieldset {
 
 legend,
 .lbl {
-	font-weight: 750;
+	font-weight: 600;
 	padding: 0;
 	margin-bottom: 8px;
 }
@@ -504,8 +513,8 @@ h1:focus,
 }
 
 .title {
-	font-size: 18px;
-	line-height: 24px;
+	font-size: 23px;
+	line-height: 1.15;
 }
 
 body::before {
@@ -525,4 +534,36 @@ body::before {
 	text-transform: uppercase;
 	color: var(--ink-soft);
 	margin: 0 0 5px;
+}
+
+.page-heading > .soft {
+	font-size: 10px;
+	letter-spacing: 1px;
+	text-transform: uppercase;
+	text-align: right;
+}
+
+.arch-card {
+	position: relative;
+	isolation: isolate;
+	background: var(--paper);
+	border: 1px solid var(--line);
+	border-radius: 50% 50% 6px 6px / 60% 60% 6px 6px;
+	overflow: hidden;
+}
+
+.scene-label {
+	position: absolute;
+	inset: auto 0 0;
+	border-top: 1px solid var(--line);
+	background: var(--paper);
+	padding: 4px 8px;
+	font: 500 16px/1.3 'Cormorant Garamond', Georgia, serif;
+	text-align: center;
+	z-index: 2;
+}
+
+@media (max-width: 359px) {
+	.box { padding: 14px; }
+	h1 { font-size: 38px; }
 }

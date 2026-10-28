@@ -88,6 +88,8 @@
 		display: flex;
 		gap: 16px;
 		align-items: center;
+		border-radius: 70px 70px 0 0;
+		padding-top: 30px;
 	}
 
 	.links {

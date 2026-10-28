@@ -40,5 +40,7 @@
 
 <style>
 	.svg-icon { display: inline-flex; vertical-align: middle; flex: none; }
-	.svg-icon :global(svg) { width: 100%; height: 100%; }
+	.svg-icon :global(svg) { width: 100%; height: 100%; stroke: currentColor; }
+	/* Shared symbols read like ink on the card, including on filled controls. */
+	.svg-icon :global(svg *) { stroke: currentColor; stroke-width: 1.7; fill: none; }
 </style>

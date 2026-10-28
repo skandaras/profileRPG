@@ -60,6 +60,7 @@
 
 {#if step === 0}
 	<section class="box intro">
+		<p class="eyebrow">A little progress, every day</p>
 		<h1 tabindex="-1">Welcome to LevelUp!</h1>
 		<p>
 			Every walk, every chapter, every glass of water makes your hero a little stronger. Log what you do, level up, raise a
@@ -190,8 +191,9 @@
 	}
 
 	.starter {
-		padding: 12px;
+		padding: 24px 12px 12px;
 		gap: 8px;
+		border-radius: 60px 60px 2px 2px;
 	}
 
 	.templates {

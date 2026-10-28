@@ -35,7 +35,6 @@
 
 <svelte:head><title>Home · LevelUp</title></svelte:head>
 
-<p class="eyebrow">Make a little room</p>
 <div class="page-heading"><h1 tabindex="-1">Home</h1><span class="small soft home-date">{new Intl.DateTimeFormat('en', { weekday: 'long', day: 'numeric', month: 'short', timeZone: 'UTC' }).format(data.today * 86_400_000)}</span></div>
 
 <section>
@@ -53,6 +52,7 @@
 
 	{#if data.welcome.active}
 		<div class="box welcome">
+			<span class="eyebrow">Welcome back{#if data.welcome.returnStreak > 1}<span class="return-streak"> · {data.welcome.returnStreak} days in a row</span>{/if}</span>
 			{#if data.welcome.mess > 0}
 				<p>
 					{#if data.welcome.missedYou}
@@ -68,12 +68,9 @@
 					<button class="btn wide"><PixelIcon name="joy" scale={1} /> Give {petName} a pat</button>
 				</form>
 			{/if}
-			{#if data.welcome.returnStreak > 1}
-				<p class="small soft">{data.welcome.returnStreak} days in a row</p>
-			{/if}
 		</div>
 	{:else if data.companion && !data.companion.away}
-		<p class="small soft mood"><PixelIcon name="joy" scale={1} /> {data.companion.name} {MOOD_TEXT[data.companion.mood as keyof typeof MOOD_TEXT]}.</p>
+		<p class="box mood"><PixelIcon name="joy" scale={1} /> {data.companion.name} {MOOD_TEXT[data.companion.mood as keyof typeof MOOD_TEXT]}.</p>
 	{/if}
 </section>
 
@@ -142,7 +139,14 @@
 {/if}
 
 <style>
-	.home-date { font-size: 11px; }
+	.page-heading {
+		margin-bottom: 14px;
+	}
+
+	.home-date {
+		font-size: 10px;
+	}
+
 	.mess {
 		position: absolute;
 		transform: translate(-50%, -50%);
@@ -168,18 +172,24 @@
 		justify-content: center;
 		align-items: center;
 		gap: 8px;
-		min-height: 32px;
-		margin-bottom: 24px;
+		min-height: 54px;
+		margin-bottom: 14px;
+		font-size: 12px;
+		text-align: center;
 	}
 
-	.gentle-note { text-align: center; margin: 18px 0 0; font-size: 11px; }
+	.gentle-note {
+		text-align: center;
+		margin: 0;
+		font-size: 11px;
+	}
 
 	.today {
-		margin-top: 24px;
+		margin-top: 12px;
 	}
 
 	.today-heading {
-		margin-bottom: 12px;
+		margin-bottom: 8px;
 	}
 
 	.today-heading h2 {
@@ -189,8 +199,8 @@
 	.add-habit {
 		display: inline-flex;
 		align-items: center;
-		min-height: 44px;
-		margin-top: 8px;
+		min-height: 33px;
+		margin-top: 0;
 	}
 
 	.away {
@@ -207,5 +217,46 @@
 	summary {
 		cursor: pointer;
 		padding: 8px 0;
+	}
+
+	.welcome {
+		display: grid;
+		grid-template-columns: minmax(0, 1fr) auto;
+		gap: 3px 12px;
+		padding: 10px 14px;
+		margin-bottom: 14px;
+	}
+
+	.return-streak {
+		text-transform: none;
+		letter-spacing: 0;
+		font-weight: 400;
+	}
+
+	.welcome .eyebrow {
+		grid-column: 1 / -1;
+		margin: 0;
+		color: var(--ink);
+		letter-spacing: 1px;
+	}
+
+	.welcome p {
+		grid-column: 1;
+		font-size: 11px;
+		margin: 0;
+	}
+
+	.welcome form {
+		grid-column: 2;
+		grid-row: 2;
+		align-self: center;
+		max-width: 150px;
+	}
+
+	.welcome .btn {
+		border-radius: 16px 16px 3px 3px;
+		font-size: 12px;
+		gap: 6px;
+		padding: 9px 10px;
 	}
 </style>

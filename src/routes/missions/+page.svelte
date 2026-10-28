@@ -117,12 +117,10 @@
 	}
 
 	.mission {
-		padding: 12px 0;
-		border-bottom: 1px solid var(--trim);
-	}
-
-	.mission:last-child {
-		border-bottom: 0;
+		padding: 14px;
+		margin-top: 14px;
+		border: 1px solid var(--line);
+		background: var(--bg-3);
 	}
 
 	.mission p {

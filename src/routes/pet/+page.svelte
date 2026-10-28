@@ -3,6 +3,7 @@
 	import { withNotices } from '$lib/act';
 	import { STATS } from '$lib/content/stats';
 	import { MOOD_TEXT, petXpToNext } from '$lib/game/pet-needs';
+	import TarotArch from '$lib/components/TarotArch.svelte';
 	import Bar from '$lib/components/Bar.svelte';
 	import PetSprite from '$lib/components/PetSprite.svelte';
 	import PixelIcon from '$lib/components/PixelIcon.svelte';
@@ -31,25 +32,42 @@
 
 {#if companion}
 	<section class="companion">
-		<div class="care-room">
-			<div class="care-window" aria-hidden="true"></div>
-			<PetSprite speciesId={companion.speciesId} stage={companion.stage} accessoryId={companion.accessoryId} mood={companion.mood} scale={4.5} label={companion.name} />
-		</div>
-		<div class="pet-summary">
-			<div class="pet-info">
-				<div class="spread"><h2>{companion.name}</h2><button bind:this={renameButton} class="rename small soft" type="button" onclick={() => (renaming = !renaming)} aria-expanded={renaming}>Rename</button></div>
-				<p class="small soft">{companion.speciesName} · <span class="numeral">Lv {companion.level}</span> · {companion.stage}</p>
-				<p class="pet-mood small soft">{companion.away ? `${companion.name} is away on a mission.` : `${companion.name} ${MOOD_TEXT[companion.mood]}.`} Loves {companion.affinity.map((a) => STATS[a].name).join(' & ')}.</p>
+		<div class="pet-top">
+			<div class="care-room arch-card">
+				<TarotArch />
+				<PetSprite speciesId={companion.speciesId} stage={companion.stage} accessoryId={companion.accessoryId} mood={companion.mood} scale={3.7} label={companion.name} />
+				<span class="scene-label">{companion.name}’s nook</span>
+			</div>
+			<div class="pet-details">
+				<div class="pet-summary">
+					<div class="pet-info">
+						<h2>{companion.name}</h2>
+						<p class="small soft">{companion.speciesName} · <span class="numeral">Lv {companion.level}</span> · {companion.stage}</p>
+						<button bind:this={renameButton} class="rename small soft" type="button" onclick={() => (renaming = !renaming)} aria-expanded={renaming}>Rename</button>
+						<p class="pet-mood small soft">{companion.away ? `${companion.name} is away on a mission.` : `${companion.name} ${MOOD_TEXT[companion.mood]}.`} Loves {companion.affinity.map((a) => STATS[a].name).join(' & ')}.</p>
+					</div>
+				</div>
+				{#if renaming}
+					<form method="POST" action="?/rename" class="rename-form" use:enhance={withNotices({ then: (ok) => { if (ok) { renaming = false; renameButton?.focus(); } } })}>
+						<input type="hidden" name="pet" value={companion.id} />
+						<label class="sr-only" for="pet-name">New name</label>
+						<input bind:this={renameInput} id="pet-name" name="name" maxlength="24" value={companion.name} />
+						<button class="btn small">Save</button>
+					</form>
+				{/if}
+
+				{#if !companion.away}
+					<div class="care">
+						{#each [['pat', 'Pat', companion.cooldowns.pat], ['play', 'Play', companion.cooldowns.play], ['tidy', 'Tidy', companion.cooldowns.tidy]] as const as [action, label, cd] (action)}
+							<form method="POST" action="?/{action}" use:enhance={withNotices()}>
+								<input type="hidden" name="pet" value={companion.id} />
+								<button class="btn ghost wide" disabled={cd > 0}><PixelIcon name={action === 'pat' ? 'joy' : action === 'play' ? 'ball' : 'broom'} scale={1} /> {label}{cd > 0 ? ` (${wait(cd)})` : ''}</button>
+							</form>
+						{/each}
+					</div>
+				{/if}
 			</div>
 		</div>
-		{#if renaming}
-			<form method="POST" action="?/rename" class="row" use:enhance={withNotices({ then: (ok) => { if (ok) { renaming = false; renameButton?.focus(); } } })}>
-				<input type="hidden" name="pet" value={companion.id} />
-				<label class="sr-only" for="pet-name">New name</label>
-				<input bind:this={renameInput} id="pet-name" name="name" maxlength="24" value={companion.name} />
-				<button class="btn small">Save</button>
-			</form>
-		{/if}
 
 		<div class="box needs">
 			<h2 class="sr-only">Daily care</h2>
@@ -60,14 +78,6 @@
 		</div>
 
 		{#if !companion.away}
-			<div class="care">
-				{#each [['pat', 'Pat', companion.cooldowns.pat], ['play', 'Play', companion.cooldowns.play], ['tidy', 'Tidy', companion.cooldowns.tidy]] as const as [action, label, cd] (action)}
-					<form method="POST" action="?/{action}" use:enhance={withNotices()}>
-						<input type="hidden" name="pet" value={companion.id} />
-						<button class="btn ghost wide" disabled={cd > 0}><PixelIcon name={action === 'pat' ? 'joy' : action === 'play' ? 'ball' : 'broom'} scale={1} /> {label}{cd > 0 ? ` (${wait(cd)})` : ''}</button>
-					</form>
-				{/each}
-			</div>
 
 			<div class="spread feed-heading"><h2>Feed</h2><span class="small soft">From your bag</span></div>
 			{#if data.food.length}
@@ -77,7 +87,7 @@
 							<input type="hidden" name="pet" value={companion.id} />
 							<input type="hidden" name="item" value={f.id} />
 							<button class="tile" title={f.blurb} aria-label="Feed {f.name} to {companion.name}">
-								<PixelIcon art={f.icon} tint={f.tint} scale={2} />
+								<PixelIcon art={f.icon} tint={f.tint} scale={1.5} />
 								<span class="food-description"><strong>{f.name}</strong><span class="small soft">{f.qty} in your bag{f.effect.fullness ? ` · +${f.effect.fullness} Full` : ''}{f.effect.joy ? ` · +${f.effect.joy} Joy` : ''}</span></span>
 								<span class="feed-label numeral">Feed</span>
 							</button>
@@ -89,8 +99,8 @@
 			{/if}
 		{/if}
 		{#if data.canForage}
-			<form method="POST" action="?/forage" use:enhance={withNotices()} class="mt">
-				<button class="btn ghost wide"><PixelIcon name="berry" scale={1} /> Forage for berries (free, once a day)</button>
+			<form method="POST" action="?/forage" use:enhance={withNotices()} class="forage">
+				<button class="forage-button"><PixelIcon name="berry" scale={1} /> Forage for berries (free, once a day)</button>
 			</form>
 		{/if}
 	</section>
@@ -151,69 +161,114 @@
 {/if}
 
 <style>
-	.care-room { height: 174px; background: radial-gradient(ellipse at 25% 20%, var(--window), transparent 65%), var(--wash); box-shadow: inset 0 -25px 24px var(--floor); border-radius: 40px 40px 20px 20px; position: relative; display: flex; align-items: end; justify-content: center; padding-bottom: 7px; }
-	.care-window { position: absolute; left: 35px; top: 32px; width: 60px; height: 80px; border: 5px solid var(--paper); border-radius: 40px 40px 4px 4px; background: var(--window); }
-	.care-window::before { content: ''; position: absolute; height: 100%; width: 4px; left: 24px; background: var(--paper); }
+	.page-heading {
+		margin-bottom: 14px;
+	}
 
 	.companion {
 		margin-bottom: 24px;
 	}
 
-	.pet-summary {
+	.pet-top {
 		display: grid;
-		grid-template-columns: 1fr;
-		align-items: center;
-		gap: 8px;
-		min-height: 0;
-		margin-bottom: 14px;
-		padding: 12px 0 0;
+		grid-template-columns: minmax(0, 1fr) minmax(0, 1.04fr);
+		gap: 15px;
+		align-items: start;
+		margin-bottom: 16px;
+	}
+
+	.care-room {
+		height: 250px;
+		display: flex;
+		align-items: end;
+		justify-content: center;
+		padding-bottom: 23px;
+		border-radius: 50% 50% 4px 4px / 35% 35% 4px 4px;
+	}
+
+	.care-room :global(.pet) {
+		position: relative;
+		z-index: 1;
+	}
+
+	.pet-summary {
+		margin-bottom: 6px;
+		padding-top: 3px;
 	}
 
 	.pet-info h2 {
-		font-size: 24px;
-		line-height: 28px;
+		font-size: 31px;
+		line-height: 1.05;
+		margin-bottom: 6px;
+		overflow-wrap: anywhere;
 	}
 
 	.pet-info p {
 		margin-bottom: 0;
+		font-size: 11px;
+		line-height: 1.4;
+	}
+
+	.pet-info .numeral {
+		font-family: 'DM Sans', system-ui, sans-serif;
+	}
+
+	.rename-form {
+		display: grid;
+		gap: 6px;
+		margin-block: 8px;
 	}
 
 	.rename {
 		background: none;
 		border: 0;
-		padding: 0;
+		padding: 4px 0;
 		font-family: inherit;
 		text-decoration: underline;
 		cursor: pointer;
 		min-height: 24px;
 	}
 
+	.pet-info .pet-mood {
+		font-size: 11px;
+		border-top: 1px solid var(--line);
+		margin-top: 5px;
+		padding-top: 8px;
+	}
+
 	.needs {
 		display: grid;
-		gap: 4px;
-		margin-bottom: 20px;
+		gap: 0;
+		margin-bottom: 18px;
+		padding: 8px 14px;
 	}
 
 	.need {
 		display: grid;
-		grid-template-columns: 24px 48px 1fr;
+		grid-template-columns: 18px 53px minmax(0, 1fr);
 		align-items: center;
 		gap: 8px;
-		min-height: 32px;
-		font-size: 13px;
+		min-height: 30px;
+		font-size: 12px;
+	}
+
+	.need :global(.val) {
+		font: 600 12px 'DM Sans', system-ui, sans-serif;
+		min-width: 46px;
+		color: var(--ink);
 	}
 
 	.care {
 		display: grid;
-		grid-template-columns: repeat(3, 1fr);
-		gap: 8px;
-		margin-bottom: 24px;
+		gap: 5px;
 	}
 
 	.care .btn {
-		padding: 8px 4px;
-		gap: 4px;
-		font-size: 16px;
+		justify-content: flex-start;
+		padding: 8px 12px;
+		gap: 8px;
+		font-size: 13px;
+		background: var(--paper);
 	}
 
 	.nest {
@@ -223,7 +278,7 @@
 	}
 
 	.feed-heading {
-		margin-bottom: 16px;
+		margin: 10px 0;
 	}
 
 	.feed-heading h2 {
@@ -232,19 +287,21 @@
 
 	.food {
 		display: grid;
-		gap: 12px;
+		gap: 10px;
 	}
 
 	.food .tile {
 		display: grid;
-		grid-template-columns: 32px 1fr auto;
+		grid-template-columns: 24px minmax(0, 1fr) auto;
 		align-items: center;
 		gap: 12px;
-		padding: 16px;
+		padding: 10px 14px;
 		width: 100%;
-		min-height: 88px;
-		background: var(--bg-2);
+		min-height: 66px;
+		background: var(--paper);
 		text-align: left;
+		outline: 1px solid var(--line);
+		outline-offset: -5px;
 	}
 
 	.food-description {
@@ -258,12 +315,36 @@
 		font-weight: 600;
 	}
 
+	.food-description .small {
+		font-size: 11px;
+	}
+
 	.feed-label {
-		padding: 12px 12px;
-		border-radius: 12px;
+		display: grid;
+		place-items: center;
+		min-height: 44px;
+		min-width: 56px;
+		padding: 8px 10px;
 		background: var(--accent);
 		color: var(--accent-ink);
-		font-size: 18px;
+		font: 400 14px 'DM Sans', system-ui, sans-serif;
+	}
+
+	.forage {
+		text-align: center;
+		margin-top: 4px;
+	}
+
+	.forage-button {
+		color: var(--ink);
+		border: 0;
+		background: none;
+		text-decoration: underline;
+		text-underline-offset: 3px;
+		font: inherit;
+		font-size: 11px;
+		min-height: 32px;
+		cursor: pointer;
 	}
 
 	.egg {
@@ -273,4 +354,33 @@
 		padding: 8px 0;
 	}
 
+	@media (min-width: 600px) {
+		.care-room {
+			height: 290px;
+			padding-bottom: 24px;
+		}
+		.care-room :global(.pet) {
+			transform: scale(1.4);
+			transform-origin: 50% 100%;
+		}
+		.pet-info h2 {
+			font-size: 42px;
+		}
+		.pet-info p {
+			font-size: 14px;
+		}
+	}
+
+	@media (max-width: 359px) {
+		.pet-top {
+			gap: 10px;
+		}
+		.care-room :global(.pet) {
+			transform: scale(0.88);
+			transform-origin: 50% 100%;
+		}
+		.need {
+			gap: 5px;
+		}
+	}
 </style>

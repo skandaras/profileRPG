@@ -20,15 +20,13 @@ type BaseTokens = {
 	bad: string;
 	xp: string;
 	gp: string;
-	sky: string;
-	floor: string;
 	statStr: string;
 	statDex: string;
 	statInt: string;
 	statKno: string;
 };
 
-export type ThemeTokens = BaseTokens & { wash: string; wash2: string; paper: string; window: string; plant: string; shadow: string };
+export type ThemeTokens = BaseTokens & { wash: string; wash2: string; paper: string; window: string; shadow: string };
 
 export interface Theme {
 	id: string;
@@ -39,195 +37,92 @@ export interface Theme {
 	tokens: ThemeTokens;
 }
 
-const STATS_LIGHT = { statStr: '#a52e43', statDex: '#376b3e', statInt: '#315d9e', statKno: '#76429b' };
-const STATS_DARK = { statStr: '#ff94a0', statDex: '#72d88a', statInt: '#8ab5ff', statKno: '#c99aff' };
+const STATS_LIGHT = { statStr: '#923341', statDex: '#365c3b', statInt: '#305384', statKno: '#71427e' };
+const STATS_DARK = { statStr: '#ffc0c5', statDex: '#b6e1bc', statInt: '#c2d5ff', statKno: '#e1c6f2' };
 
-const BASE_THEMES: (Omit<Theme, 'tokens'> & { tokens: BaseTokens })[] = [
+export const DEFAULT_THEME = 'night';
+
+// Every wash endpoint is also a tested surface: the pigment never hides the ink.
+export const THEMES: Theme[] = [
 	{
-		id: 'meadow',
-		name: 'Meadow',
-		blurb: 'Grass, sunshine and a picnic blanket.',
-		unlock: { kind: 'starter' },
-		dark: false,
+		id: 'meadow', name: 'Meadow dawn', blurb: 'Ivory card stock, moss washes and gold-brown ink.',
+		unlock: { kind: 'starter' }, dark: false,
 		tokens: {
-			bg: '#f1eadc',
-			bg2: '#fff9ee',
-			bg3: '#e6dfcc',
-			ink: '#3b3329',
-			inkSoft: '#665b4a',
-			line: '#83745f',
-			accent: '#4d6740',
-			accentInk: '#fff9ee',
-			good: '#4d6740',
-			bad: '#a23932',
-			xp: '#687b46',
-			gp: '#906324',
-			sky: '#e6dfcc',
-			floor: '#d7c7ab',
-			focus: '#8d3c2b',
-			trim: '#d7c7ab',
+			bg: '#f5efdf', bg2: '#fff9ed', bg3: '#e9e1cd', paper: '#fff9ed',
+			wash: '#e2e4d0', wash2: '#eddfcc', ink: '#433722', inkSoft: '#655237',
+			line: '#897047', trim: '#897047', accent: '#745222', accentInk: '#fff9ed',
+			focus: '#724025', good: '#365c3b', bad: '#923341', xp: '#745222', gp: '#745222',
+			window: '#e2e4d0', shadow: '#433722',
 			...STATS_LIGHT
 		}
 	},
 	{
-		id: 'night',
-		name: 'Starry night',
-		blurb: 'For late-evening check-ins.',
-		unlock: { kind: 'level', level: 3 },
-		dark: true,
+		id: 'night', name: 'Midnight tarot', blurb: 'Midnight-blue watercolour and old gold.',
+		unlock: { kind: 'starter' }, dark: true,
 		tokens: {
-			bg: '#24251e',
-			bg2: '#303128',
-			bg3: '#3d4032',
-			ink: '#fbefda',
-			inkSoft: '#d0c7ae',
-			line: '#a99d80',
-			accent: '#c2cd92',
-			accentInk: '#292e1d',
-			good: '#c2cd92',
-			bad: '#f3ac98',
-			xp: '#c2cd92',
-			gp: '#f7d998',
-			sky: '#3d4032',
-			floor: '#5f624b',
-			focus: '#f3ba98',
-			trim: '#5f624b',
+			bg: '#111c31', bg2: '#1b2b44', bg3: '#25394c', paper: '#1b2b44',
+			wash: '#354563', wash2: '#2a304d', ink: '#f8e8c7', inkSoft: '#ecdbb9',
+			line: '#c7a872', trim: '#c7a872', accent: '#e5c58b', accentInk: '#162137',
+			focus: '#ffe3a6', good: '#b6e1bc', bad: '#ffc0c5', xp: '#e5c58b', gp: '#e5c58b',
+			window: '#25394c', shadow: '#111c31',
 			...STATS_DARK
 		}
 	},
 	{
-		id: 'sakura',
-		name: 'Sakura',
-		blurb: 'Cherry blossom season, all year round.',
-		unlock: { kind: 'drop' },
-		dark: false,
+		id: 'sakura', name: 'Sakura', blurb: 'Rose-plum washes with pale rose-gold ink.',
+		unlock: { kind: 'drop' }, dark: true,
 		tokens: {
-			focus: '#753b4c',
-			trim: '#d3b9b3',
-			bg: '#f2e5df',
-			bg2: '#fff7f0',
-			bg3: '#e8d8d3',
-			ink: '#493137',
-			inkSoft: '#6e5056',
-			line: '#886c70',
-			accent: '#874259',
-			accentInk: '#fff7f0',
-			good: '#3d623e',
-			bad: '#9b343a',
-			xp: '#885469',
-			gp: '#855d28',
-			sky: '#e8d8d3',
-			floor: '#d3b9b3',
-			...STATS_LIGHT
-		}
-	},
-	{
-		id: 'ocean',
-		name: 'Tidepool',
-		blurb: 'Sea breeze and warm sand.',
-		unlock: { kind: 'drop' },
-		dark: false,
-		tokens: {
-			focus: '#245b78',
-			trim: '#becdbf',
-			bg: '#e4ebe5',
-			bg2: '#f8faf0',
-			bg3: '#d4e0d8',
-			ink: '#293e3c',
-			inkSoft: '#4b6059',
-			line: '#657d72',
-			accent: '#35675f',
-			accentInk: '#f8faf0',
-			good: '#3a623d',
-			bad: '#9b3b35',
-			xp: '#486e66',
-			gp: '#815b25',
-			sky: '#d4e0d8',
-			floor: '#c8ceb4',
-			...STATS_LIGHT
-		}
-	},
-	{
-		id: 'ember',
-		name: 'Hearth',
-		blurb: 'Glowing coals and a warm fire.',
-		unlock: { kind: 'shop', price: 150, level: 6 },
-		dark: true,
-		tokens: {
-			focus: '#ffcfaa',
-			trim: '#705842',
-			bg: '#2d2520',
-			bg2: '#3b3028',
-			bg3: '#483a2f',
-			ink: '#ffefdb',
-			inkSoft: '#e0c4aa',
-			line: '#bb9e7d',
-			accent: '#efbd83',
-			accentInk: '#34251b',
-			good: '#c4d5a0',
-			bad: '#ffb4a2',
-			xp: '#efbd83',
-			gp: '#f7d998',
-			sky: '#483a2f',
-			floor: '#6b5140',
+			bg: '#281824', bg2: '#382433', bg3: '#463040', paper: '#382433',
+			wash: '#503345', wash2: '#392b45', ink: '#ffeddd', inkSoft: '#edd1d0',
+			line: '#d0a18b', trim: '#d0a18b', accent: '#f1c4a9', accentInk: '#281824',
+			focus: '#ffe0bb', good: '#c3e3bc', bad: '#ffc0c5', xp: '#f1c4a9', gp: '#f1c4a9',
+			window: '#463040', shadow: '#281824',
 			...STATS_DARK
 		}
 	},
 	{
-		id: 'crystal',
-		name: 'Crystal cave',
-		blurb: 'Deep purple stone and glowing gems.',
-		unlock: { kind: 'drop' },
-		dark: true,
+		id: 'ocean', name: 'Deep sea', blurb: 'Deep teal washes, sea-glass ink and antique gold.',
+		unlock: { kind: 'drop' }, dark: true,
 		tokens: {
-			focus: '#a6dfdc',
-			trim: '#65566f',
-			bg: '#292633',
-			bg2: '#353140',
-			bg3: '#423c50',
-			ink: '#f9eef6',
-			inkSoft: '#d3c4df',
-			line: '#afa0bb',
-			accent: '#c9b6e5',
-			accentInk: '#2d263c',
-			good: '#bed8b7',
-			bad: '#ffb0bc',
-			xp: '#c9b6e5',
-			gp: '#f3d5a0',
-			sky: '#423c50',
-			floor: '#65566f',
+			bg: '#102c32', bg2: '#163a40', bg3: '#21464b', paper: '#163a40',
+			wash: '#295158', wash2: '#20394c', ink: '#f5edce', inkSoft: '#d0e5dc',
+			line: '#c6b382', trim: '#c6b382', accent: '#e6cf94', accentInk: '#102c32',
+			focus: '#bcf4e4', good: '#c3e3bc', bad: '#ffc0c5', xp: '#e6cf94', gp: '#e6cf94',
+			window: '#21464b', shadow: '#102c32',
+			...STATS_DARK
+		}
+	},
+	{
+		id: 'ember', name: 'Hearth', blurb: 'Oxblood and wine washes edged in warm copper-gold.',
+		unlock: { kind: 'shop', price: 150, level: 6 }, dark: true,
+		tokens: {
+			bg: '#30191f', bg2: '#40232a', bg3: '#4c3035', paper: '#40232a',
+			wash: '#57343a', wash2: '#3f2937', ink: '#ffedcf', inkSoft: '#f2d1bd',
+			line: '#d3a17b', trim: '#d3a17b', accent: '#f2c28e', accentInk: '#30191f',
+			focus: '#ffe0aa', good: '#c3e3bc', bad: '#ffc0c5', xp: '#f2c28e', gp: '#f2c28e',
+			window: '#4c3035', shadow: '#30191f',
+			...STATS_DARK
+		}
+	},
+	{
+		id: 'crystal', name: 'Amethyst', blurb: 'Amethyst washes with lavender ink and pale gold.',
+		unlock: { kind: 'drop' }, dark: true,
+		tokens: {
+			bg: '#251c35', bg2: '#342743', bg3: '#413253', paper: '#342743',
+			wash: '#4b3b60', wash2: '#30334f', ink: '#f9e9dd', inkSoft: '#e0d0ed',
+			line: '#c5ad96', trim: '#c5ad96', accent: '#e8d0a2', accentInk: '#251c35',
+			focus: '#e6d6ff', good: '#c3e3bc', bad: '#ffc0c5', xp: '#e8d0a2', gp: '#e8d0a2',
+			window: '#413253', shadow: '#251c35',
 			...STATS_DARK
 		}
 	}
 ];
-
-export const THEMES: Theme[] = BASE_THEMES.map((theme) => {
-	const t = theme.tokens;
-	const painted = theme.id === 'meadow' ? {
-		bg: '#f6f1e7', bg2: '#fffbf3', bg3: '#dfe8d3', ink: '#343e37', inkSoft: '#535e52',
-		accent: '#49634d', accentInk: '#fffdf5', good: '#49634d', bad: '#953f3d', xp: '#49634d', gp: '#835a27',
-		line: '#74816b', sky: '#e1e7cf', floor: '#dedac2', trim: '#c5c9b7'
-	} : theme.id === 'night' ? {
-		bg: '#242f31', bg2: '#303d3e', bg3: '#435448', ink: '#f8f0df', inkSoft: '#d3dfd3',
-		accent: '#c9e1b0', accentInk: '#24302c', good: '#c9e1b0', bad: '#f3bcb4', xp: '#c9e1b0', gp: '#efd08e',
-		statStr: '#ffc0c5', statDex: '#a6dba9', statInt: '#b2cafa', statKno: '#d5bce8',
-		line: '#a4b6a5', sky: '#3c534d', floor: '#4a5249', trim: '#708475'
-	} : {};
-	const tokens = { ...t, ...painted };
-	return { ...theme, tokens: {
-		...tokens, wash: theme.id === 'meadow' ? '#e1e7cf' : theme.id === 'night' ? '#3c534d' : tokens.bg3,
-		wash2: theme.id === 'meadow' ? '#f1dbc9' : theme.id === 'night' ? '#56483f' : tokens.bg,
-		paper: tokens.bg2, window: theme.id === 'meadow' ? '#edf3dc' : theme.id === 'night' ? '#45616a' : tokens.sky,
-		plant: tokens.accent, shadow: theme.dark ? '#152527' : '#b9bdab'
-	} };
-});
 
 const CSS_NAMES: Record<keyof ThemeTokens, string> = {
 	wash: '--wash',
 	wash2: '--wash-2',
 	paper: '--paper',
 	window: '--window',
-	plant: '--plant',
 	shadow: '--shadow',
 	bg: '--bg',
 	bg2: '--bg-2',
@@ -243,8 +138,6 @@ const CSS_NAMES: Record<keyof ThemeTokens, string> = {
 	bad: '--bad',
 	xp: '--xp',
 	gp: '--gp',
-	sky: '--sky',
-	floor: '--floor',
 	statStr: '--stat-str',
 	statDex: '--stat-dex',
 	statInt: '--stat-int',

@@ -7,7 +7,7 @@ import { paintSwatch, paintSwatches } from '$lib/content/painted-palettes';
 import { blank, drawOver, type RgbaImage } from './compose';
 import { covers, fitFailures, GARMENT_FIT, garmentCoverage } from './fit';
 import { avatarFigure, paintFigure, petFigure, pixelAvatarFigure } from './layers';
-import { PAINT_PARTS } from './painted-figures';
+import { BRAMBLE_ANCHORS, PAINT_PARTS } from './painted-figures';
 import { tintPaint } from './painted';
 import { paintPreview } from './preview-png';
 import { uiIconFigure } from './ui-icons';
@@ -130,5 +130,45 @@ describe('paint engine', () => {
 			expect(figure.painted).toBe(true);
 			expect(Buffer.from(paintPreview(figure)[0].data).equals(Buffer.from(paintPreview(petFigure('emberkit', stage))[0].data))).toBe(true);
 		}
+	});
+});
+
+
+describe('Midnight tarot Brambleback masters', () => {
+	const bounds = (image: RgbaImage) => {
+		let left = image.w, top = image.h, right = 0, bottom = 0;
+		for (let y = 0; y < image.h; y++) for (let x = 0; x < image.w; x++) {
+			const i = (y * image.w + x) * 4;
+			if (!image.data[i + 3]) {
+				if (image.data[i] || image.data[i + 1] || image.data[i + 2]) throw new Error(`Transparent RGB at ${x},${y}`);
+				continue;
+			}
+			left = Math.min(left, x); top = Math.min(top, y);
+			right = Math.max(right, x); bottom = Math.max(bottom, y);
+		}
+		return { left, top, right, bottom, width: right - left + 1 };
+	};
+	for (const stage of ['egg', 'baby', 'teen', 'adult'] as const) {
+		it(`${stage} keeps the native canvas, clear margins, ground line and painted anchors`, () => {
+			const image = master(`brambleback-${stage}`);
+			expect([image.w, image.h]).toEqual([512, 384]);
+			const b = bounds(image);
+			expect(b.left).toBeGreaterThanOrEqual(12);
+			expect(b.right).toBeLessThan(500);
+			expect(b.top).toBeGreaterThanOrEqual(20);
+			expect(b.bottom).toBe(350);
+			for (const [x, y] of Object.values(BRAMBLE_ANCHORS[stage])) {
+				expect(image.data[(y * image.w + x) * 4 + 3]).toBeGreaterThan(200);
+			}
+		});
+	}
+	it('gives the open-winged adult a wider silhouette than the upright teen', () => {
+		const span = (stage: string) => {
+			const image = master(`brambleback-${stage}`);
+			let left = 512, right = 0;
+			for (let y = 0; y < image.h; y++) for (let x = 0; x < image.w; x++) if (image.data[(y * image.w + x) * 4 + 3] > 128) { left = Math.min(left, x); right = Math.max(right, x); }
+			return right - left;
+		};
+		expect(span('adult')).toBeGreaterThan(span('teen') * 1.7);
 	});
 });

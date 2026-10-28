@@ -36,10 +36,10 @@ export function paintedAvatar(avatar: AvatarConfig): Figure | null {
 
 /** Anchors belong to each painting, in its delivered 512 × 384 canvas. */
 export const BRAMBLE_ANCHORS: Record<PetStage, { head: [number, number]; neck: [number, number] }> = {
-	egg: { head: [256, 150], neck: [256, 250] },
-	baby: { head: [201, 145], neck: [220, 264] },
-	teen: { head: [126, 73], neck: [163, 208] },
-	adult: { head: [120, 78], neck: [146, 191] }
+	egg: { head: [256, 110], neck: [256, 230] },
+	baby: { head: [212, 99], neck: [213, 205] },
+	teen: { head: [218, 74], neck: [225, 157] },
+	adult: { head: [200, 95], neck: [211, 187] }
 };
 
 export function paintedPet(species: string, stage: PetStage, accessory?: string | null): Figure | null {

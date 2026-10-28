@@ -37,9 +37,11 @@ Garden gold is `#9b652d / #d9a84e / #f7d998` (shadow / base / light).
 Species and materials can use their own ramps. Preserve player skin, hair and dye choices.
 
 Interface colours come from theme tokens in `content/themes.ts`; artwork palettes live
-with the art or its catalogue. The room remains a CSS scene using theme tokens. Paper
-cards have rounded corners and soft shadows. Nunito carries headings, buttons, navigation
-and numbers; DM Sans carries body text, labels and form values.
+with the art or its catalogue. The room remains a CSS scene using theme tokens. The tarot spread uses
+double-ruled frames and arched portrait panels. Cormorant Garamond carries headings
+and large numbers; DM Sans carries reading text, controls and navigation. Both are
+self-hosted with their OFL texts in `static/fonts/`. Browser icons inherit the current
+theme ink as fine SVG outlines; catalogue palettes remain available to sprite previews.
 
 ## Frames and animation
 
@@ -253,8 +255,8 @@ Brambleback portrait source is `sprites/art/app.svg`: a compact side-on clay hea
 cream horn, one snout and one eye, with no wing. `app-small.svg` is the dedicated 16px
 drawing with a larger eye and no cheek patch. The exported `static/icon.svg` selects it
 at viewports up to 16px. PNGs rasterize the larger SVG directly at their output sizes.
-Manifest background/theme colours and the default browser theme colour use Meadow's
-`bg`, currently `#f1eadc`. The browser colour follows the player's theme on server render
+Manifest background/theme colours and the default browser theme colour use Night's
+`bg`, `#111c31`. The browser colour follows the player's theme on server render
 and after settings changes; keep a single `meta theme-color`.
 
 `docs/screens.png` shows five phone viewports from the real app: Home, Home on a
@@ -329,25 +331,28 @@ retained hair styles. New painted hats must declare fit before registration.
 
 ### Painted Brambleback
 
-The pet canvas is **512 × 384**. The ground line stays at y=350 in every stage. Egg,
-baby, teen and adult have different silhouettes and developing proportions/features:
-speckled shell with a horn nub and moss ridge, seated wingless hatchling with an enormous
-head and short round tail, round-headed standing teen with a short neck and small raised membrane
-wings, plump young-looking adult with open strut wings, two curved horns and a long spade-tipped tail.
-Clay orange, cream, moss, rounded snout and warm brown eyes tie the stages together.
+The pet canvas is **512 × 384**, facing left, with the lowest visible pixels on
+**y=350**. The Midnight tarot concept supplies all four stages: a crescent-capped
+ivory and indigo egg; a seated wingless baby with enormous eyes and crescent buds;
+an upright teen with longer legs, small membrane wings and crescent horns; a low,
+four-pawed adult with wide open wings, a golden halo of two horns and a spade tail.
+Indigo, ivory, old gold, rounded faces and large amber eyes tie the stages together.
 Every future species follows this evolution rule; resized drawings do not qualify.
 Lossless WebP delivery lives in `static/painted`, aligned PNG masters in
-`art/painted/masters`. Nine built-in generation calls (four stages, two initial fixes, two young-looking
-repaints and one adult correction)
-are recorded in `brambleback-prompts.json`; raw generations stay in `handoff/p3b/raw`,
-outside this repository.
+`art/painted/masters`. `brambleback-prompts.json` records the two reused concept prompts,
+source hashes and alignment steps. D1 made no new generation calls. Raw sources stay in
+`handoff/concept-d/source`, outside this repository. The teen is mirrored from the
+concept to face left. Preparation clears faint fringe and hidden RGB, resamples with
+alpha preserved, and centres each stage on the common ground line. Never repaint an
+image simply to align it. `painted.test.ts` checks the canvas, margins, ground line,
+transparent RGB, anchors and the adult's broader silhouette.
 
 | Stage | Head | Neck |
 |---|---|---|
-| Egg (unused) | 256,150 | 256,250 |
-| Baby | 201,145 | 220,264 |
-| Teen | 126,73 | 163,208 |
-| Adult | 120,78 | 146,191 |
+| Egg (unused) | 256,110 | 256,230 |
+| Baby | 212,99 | 213,205 |
+| Teen | 218,74 | 225,157 |
+| Adult | 200,95 | 211,187 |
 
 `PET_ACCESSORIES_ENABLED` beside the catalogue is currently false. `petFigure` and the
 painted renderer ignore saved accessory ids; pet care, shop, mission-find text and
@@ -365,9 +370,13 @@ ids resolve to the nearest curated swatch by luminance-weighted RGB distance and
 that selection in the editor. Nothing migrates in the database. The same alias applies
 when an unfinished outfit uses the pixel fallback.
 
-Nunito and DM Sans variable Latin WOFF2 files are self-hosted with their OFL licences
-in `static/fonts/`. Theme tokens supply paper, two wash endpoints, window, plant and
-shadow alongside the existing UI colours. Contrast tests cover text, focus, borders and
-progress on both wash endpoints and paper in every theme. Meadow and Night use the
-study's paper palette; the other four keep their own colours. Room decorations remain
-CSS. Phase-2 icons and the app icon are unchanged.
+Cormorant Garamond and DM Sans variable Latin WOFF2 files are self-hosted with their
+OFL texts in `static/fonts/`. Theme tokens supply every UI colour, the paper and two
+watercolour wash endpoints, the room window and its rules. Contrast tests cover text,
+stat colours, focus rings, borders and progress on every card and wash endpoint in all
+six themes. New players start on `night` (Midnight tarot); saved choices stay intact.
+`meadow` is the light ivory dawn variant; `sakura`, `ocean`, `ember` and `crystal` are
+rose-plum, deep sea, oxblood and amethyst. Both Night and Meadow are freely selectable.
+The room architecture is a shared token-coloured SVG inside a full-width arch card;
+pet care uses the same architecture for its nook. The current fitted keeper and its
+coverage checks stay in place for D2. The phase-2 app icon is unchanged.

@@ -9,7 +9,7 @@ new colour themes. Built for Starbase Home at **levelup.starbasehome.net**, behi
 
 Painted watercolour art pairs warm paper, moss and clay with soft cards. The default
 keeper and Brambleback use paintings; the remaining wardrobe and pets keep their pixel
-art while the painted catalogue grows. Headings use Nunito; body text uses DM Sans.
+art while the painted catalogue grows. Headings use Cormorant Garamond; reading text and controls use DM Sans. The tarot chrome defaults to midnight blue and gold, with five other themes.
 Both fonts are self-hosted with OFL licences.
 
 ## What's in it
