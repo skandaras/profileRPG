@@ -1,72 +1,58 @@
 {
-  "tool": "Built-in image_gen",
-  "batch": "D2 review repaint",
-  "calls": 7,
-  "styleReference": "handoff/concept-d/keeper.webp",
-  "bodyUnderlay": "handoff/d2/body-template.png",
-  "rawDirectory": "handoff/d2/raw (outside the repository)",
-  "note": "Seven successful repaint calls: body first, blouse, shorts, shoes, face, front bob and back bob. Existing elf/cat/bunny ears and tail were reused and registered to the new landmarks. No CLI fallback. The per-part specifications below record the prompt set.",
-  "sharedPrompt": "Soft genuine watercolour washes and fine warm ink like the keeper concept. Friendly young adult, about five to five and a half heads high, relaxed fixed front-facing fitting pose. No airbrushed 3D modelling. Garments use the new body as image 1 underlay and the concept as image 2 style reference. Transparent background, no lettering or ground shadow. Preserve the full canvas and origin.",
-  "prompts": {
-    "body": "One friendly young adult body underlay, blank face and no hair, modest plain grey leotard with a flat chest wash and no bust contours or sculpted shading. Large gently rounded head, short soft legs, dropped soft shoulders, relaxed hands a little away from the torso, small natural bend at one knee, separate feet on one ground line. Broad translucent monochrome watercolour washes, fine light warm ink, no muscles, hard shadows or glossy highlights. Skull y65, chin183, neck201, shoulders211, waist317, hips359, wrists389, knees493, ankles635, soles678 in the 400x704 reference. Head approximately118px tall and body approximately613px.",
-    "top": "Loose straight-cut ivory short-sleeved blouse falling from the shoulders with airy fabric and small loose folds. Navy pointed collar/cuffs, narrow old-gold piping, small gold buttons. No breast shapes, chest contour, under-bust shading, darts or tight waist. Shoulders x140/260 y211, collar196–225, sleeve cuffs275–284, straight torso x151–259, tucked hem322. Paint over exact body and upper arms; output garment only, remove skin/body, preserve full frame.",
-    "bottom": "Relaxed navy tailored shorts with soft watercolour pigment blooms, translucent indigo variations, broad folds at hips and leg openings, warm fine ink seams, subtle gold piping and soft cuffed hems. No flat dark block, rigid outline, glossy 3D shading or printed speckle. Follow the underlay thighs and natural knee stance: waist316 x163–247, hips365 x137–266, outer hems418, inner hems428, crotch398. Roomy modest shape, shorts only, preserve full frame.",
-    "shoes": "One pair of modest ivory canvas sneakers with narrow old-gold trim, exact feet positions and natural toe angles. Broad ivory watercolour wash and a few fine warm ink lines; three simple lace crossings each, continuous thin gold piping, pale soles. No dot eyelets, glitter, grey flecks, hatching or noisy detail. Not platforms, boots or oversized feet. Left x138–186/y633–680, right x207–255/y633–680. Shoes only, preserve full frame.",
-    "face": "Only facial marks: friendly curved brows, two large expressive almond eyes with dark pupils, hazel irises, white sclera and one joined glint each, tiny fine nose, gentle smiling mouth. Rounded youthful eyes, no makeup or glossy lips. Eyes centred180/220,y140, brows125, nose155, smile168; head65–185. Fine warm brown ink and delicate iris wash. No skin patches, head outline, hair or ears; clear transparency separates the marks; original template placement.",
-    "hair-front": "Only front bob on the new template skull: short soft brown jaw-length bob like concept, rounded ends and lifted side part clearing both eyes/brows. About five broad rounded locks, fine warm ink and watercolour blooms. No glossy plastic 3D strands, spiky flyaways or hundreds of thin lines. Monochrome medium-light grey values, restrained highlights, no white streaks. Crown51, x137–263, side ends209 above shoulders211. Face opening x166–234/y112–179; no rear mass in opening. Erase body/head, preserve full frame.",
-    "hair-back": "Only back bob mass behind new template head: rounded crown51, x137–263, soft jaw-length ends207 above shoulders211. About five broad rounded locks with soft watercolour blooms and fine warm pencil ink. Medium-light grey values, restrained highlights, no white streaks, glossy strands or flyaways. Solid back mass; erase body/head/skin/face/ears, preserve full frame."
-  },
-  "reused": [
-    "elf-ears",
-    "cat-ears",
-    "bunny-ears",
-    "tail"
-  ],
-  "preparation": "Body proportions are registered before garment generation: body-registration.json. Part alpha bounds register to template.json fitBounds at origin. Source pigment rows seal full coverage and seams. Separate navy/gold materials, iris pigment, eye whites/pupils and adaptive facial ink. Hair highlights capped below paper white; shoe values compressed for clean dark dyes. Runtime uses one shared ink→pigment→paper ramp, with ink darkened for dark pigments; alpha is preserved.",
-  "sources": {
-    "body": {
-      "file": "handoff/d2/raw/body.png",
-      "sha256": "ddf27804f802472cfd854e8a6941f5d53f1b33cc714167c97e5dd7ce18b35200"
+  "batch": "K \u2014 simplified keeper B",
+  "method": "Built-in image_gen. Four successful calls, one rejected template call; no CLI fallback. Approved B base and bob values reused. New outfits painted on the unchanged B underlay. Shared original alpha bounds and affine registration for every source. Separate body/face paintings use the same alpha and light facial geometry; deep pigments calibrated from the generated deep skin painting. Fixed-colour whole outfits separated with source contours, cleaned of skin and detached islands, and fitted against independent coverage/seam bands. Immutable adjacent cloth pigment closes small extraction gaps; trousers resample their own row contours to the template calves. Eye cavities retain the original B whites, iris planes and pupils; skin tint never enters them.",
+  "successfulPrompts": [
+    {
+      "asset": "outfit-02",
+      "prompt": "Use case: precise-object-edit. Production game wardrobe layer. Reference 1 is the EXACT keeper pose and sizing underlay. Reference 2 shows three outfit designs, use only the LEFT outfit: ivory crescent jumper, navy pleated skirt, navy socks and ivory ankle boots. Paint that complete outfit onto reference 1's exact shoulders, outward arms, torso, hips, legs and feet. Preserve reference 1 head, face, hands, legs and pose EXACTLY. Do not move hands or feet. Clothing should be roomy and cover sides, wrist cuffs, neck and boot tops. Clean dark ink, cel shading matching B. No chest contours. One full front facing clothed keeper, no layout or labels. Transparent background. Do not draw extra characters. This is an outfit replacement of a fully clothed cartoon character.",
+      "raw": "handoff/k/raw/outfit-02.png"
     },
-    "bottom": {
-      "file": "handoff/d2/raw/bottom.png",
-      "sha256": "a49cf0b44fa21fcdbd4b3a50984100b2881315e1e415757c3389ab30c8adc61b"
+    {
+      "asset": "outfit-03",
+      "prompt": "Use case: precise-object-edit. Production game wardrobe layer. Reference 1 is the EXACT keeper pose and sizing underlay. Reference 2 shows three outfit designs; use only the MIDDLE outfit: navy hood-down jacket with gold clasp over ivory shirt, navy straight trousers, ivory boots. Paint that complete outfit onto reference 1's exact shoulders, outward arms, torso, hips, legs and feet. Preserve reference 1 head, face, hands and pose EXACTLY. Do not move hands or feet. The hood stays DOWN off the head; hair unobstructed. Clothing should be roomy and cover sides, cuffs, neckline and boot tops. Clean dark ink and two-tone cel shading matching B. One full front facing clothed keeper on transparent background, no shadows, text, extra characters or layout.",
+      "raw": "handoff/k/raw/outfit-03.png"
     },
-    "bunny-ears": {
-      "file": "handoff/d2/raw/bunny-ears.png",
-      "sha256": "6192c6590f1a05a19e0a55e19e22e34360d51959afd43b6a9216d0030903200f"
+    {
+      "asset": "outfit-04",
+      "prompt": "Use case: precise-object-edit. Production game wardrobe layer. Reference 1 is the EXACT keeper pose and sizing underlay. Reference 2 shows three outfit designs; use only the RIGHT outfit: modest navy overall dress with three small gold stars, ivory puff-sleeved collared blouse, ivory socks and navy Mary Jane shoes. Paint that complete outfit onto reference 1's exact shoulders, outward arms, torso, hips, legs and feet. Preserve reference 1 head, face, hands, legs and pose EXACTLY. Do not move hands or feet. Clothing should cover sides, sleeve hems, neck and shoe tops. Clean dark ink and two-tone cel shading matching B. One full front facing clothed keeper on transparent background. No extra characters, shadows, text or layout.",
+      "raw": "handoff/k/raw/outfit-04.png"
     },
-    "cat-ears": {
-      "file": "handoff/d2/raw/cat-ears.png",
-      "sha256": "96c0308f1b61a1d9eac8bc204cb99c2e1f72e342407ce1aa7714e6f07c4aa592"
-    },
-    "elf-ears": {
-      "file": "handoff/d2/raw/elf-ears.png",
-      "sha256": "c06d55606a84cd4725ee6bc3b8d63b0fe2b4426c7858059987b4d1a07dd64596"
-    },
-    "face": {
-      "file": "handoff/d2/raw/face.png",
-      "sha256": "6e41de725a5804c727e1a181eebd2714cb1773c36aaa6c5688e5f912926ef2e8"
-    },
-    "hair-back": {
-      "file": "handoff/d2/raw/hair-back.png",
-      "sha256": "61beed52495e8877f1427d1483fbace4bfe283b8942cdda39901c470f9a6b588"
-    },
-    "hair-front": {
-      "file": "handoff/d2/raw/hair-front.png",
-      "sha256": "da879a646d301c344a20c7165aa28e7a746f20a8887532e96c5f0cd089abe30f"
-    },
-    "shoes": {
-      "file": "handoff/d2/raw/shoes.png",
-      "sha256": "9f88b94a1e044a2a89a9d9ffd9b2cbbb123e9347e61cfa20d664b99bee7d6d30"
-    },
-    "tail": {
-      "file": "handoff/d2/raw/tail.png",
-      "sha256": "a34bfa18daf5b93d632064c1bf83f40e14e2cb7ea2d3e49db2443c264a20de19"
-    },
-    "top": {
-      "file": "handoff/d2/raw/top.png",
-      "sha256": "44f51bcd83b30aec8ddd4167b6f104c37ff048ade57f391b832c2e042217a0a6"
+    {
+      "asset": "keeper-deep",
+      "prompt": "Use case: identity-preserve. Edit the fully clothed keeper B from reference 1, changing ONLY the skin colour to the warm deep-brown skin in reference 2. Same canvas, original exact face outline, eyes, amber irises, bob, clothing, limbs, pose, hands and shoes unchanged. Keep the cel-shaded planes, subtle warm highlights and clear small smile and brows. Dark brown skin with good face contrast. One full front facing clothed cartoon character, transparent background, no text, no shadows. Reference 1 is the exact identity and placement; reference 2 is skin palette only, not pose or face.",
+      "raw": "handoff/k/raw/deep.png"
     }
+  ],
+  "reused": [
+    {
+      "asset": "keeper-light/outfit-01",
+      "source": "handoff/keeper-b/source/02-b-base.png"
+    },
+    {
+      "asset": "keeper-bob",
+      "source": "handoff/keeper-b/b-hair-values.webp"
+    }
+  ],
+  "rejected": {
+    "asset": "template",
+    "prompt": "Use case: identity-preserve. Production chibi game template. Edit the reference keeper B. Keep EXACTLY the same huge head, face, big amber eyes, brown bob, short chibi proportions and relaxed outward arms, hands and stance. Replace the collar shirt, shorts and sneakers with a very simple fitted sleeveless ivory unitard ending at upper thighs and bare feet. Modest neutral doll fitting template, no anatomy or chest contours. Keep neck, arms, hands and legs visible. The feet must be the same place as the original soles. Clean dark ink, two-tone cel shading, original B face and silhouette. One full front-facing character, transparent background, no shadows, no floor, no text. This is the fixed template used under four whole outfit layers.",
+    "reason": "Output moderation rejected the request. No template output used."
+  },
+  "sources": {
+    "handoff/keeper-b/source/02-b-base.png": "8979cd51a15d786fc52af1104fe5cee2336569fa3a17481b4a28e99093e2340a",
+    "handoff/keeper-b/b-hair-values.webp": "5202e0e3a899897e01f8c2dd9ee49c8889c8486c877490cea04156384b3f8b2a",
+    "handoff/k/raw/outfit-02.png": "38fd1906f7750f902191162e7ef25d7e81e041b49a85b227c8cc78303eabf002",
+    "handoff/k/raw/outfit-03.png": "dd694781e3739cdad8de8f17ac8fa90485cdcf22c682c1701342acd797b2d12a",
+    "handoff/k/raw/deep.png": "7fdabec53aa713d6dc4ee5cad73737859bd9f768482fe9438372e25a250eceff",
+    "handoff/k/raw/outfit-04.png": "f4506a4d4ca84b84a943839112d01340b633b0ccfa27de5b39198d090e6f0736"
+  },
+  "masters": {
+    "outfit-02.png": "511d594313fce6afc85c43ea8ae77803fa220b03d201d6d7b41c115e660e499f",
+    "keeper-bob.png": "3815f1379b624a8427b5917b4771d8be32fbad37270f030a0741a666b3ddfd95",
+    "outfit-03.png": "545c4e74418ba00955f7cb624d4bda983d5aba349c57d7fe3196ee64fbf5b757",
+    "keeper-deep.png": "91f32842ddd0d39ce65a1d20ae070545a51c0e10e07ff8652fcacec898c75060",
+    "outfit-01.png": "aa171c76f90f3ef67f37f7ada5e173c3fdbe05772e3afab14a26f2d9a88be140",
+    "outfit-04.png": "3a0bb744525905664c6f8a5434b866f73f8c8d6ee7263ed188fb318c2e0f3cd2",
+    "keeper-light.png": "151354bf7c010ca662f051223e461f62c3a7d6f7bcca9274b0334390ec070970"
   }
 }

@@ -16,7 +16,7 @@
 <h1>Wardrobe</h1>
 
 <section class="box">
-	<AvatarEditor bind:avatar level={data.level} owned={data.owned} />
+	<AvatarEditor bind:avatar />
 	<form method="POST" action="?/save" use:enhance={withNotices()} class="mt">
 		<input type="hidden" name="avatar" value={JSON.stringify(avatar)} />
 		<button class="btn wide" disabled={!changed}>{changed ? 'Save this look' : 'Saved'}</button>

@@ -1,4 +1,5 @@
-import type { Art, AvatarConfig, ColorSlot } from '$lib/content/types';
+import { keeperLook } from '$lib/content/keeper';
+import type { AvatarConfig } from '$lib/content/types';
 import { PET_ACCESSORIES_ENABLED } from '$lib/content/cosmetics';
 import { GARMENT_FIT, garmentCoverage } from './fit';
 import { paintSwatch } from '$lib/content/painted-palettes';
@@ -6,41 +7,23 @@ import { REFERENCE_PALETTE } from '$lib/content/palettes';
 import type { Figure, LayerSpec } from './layers';
 import type { PetStage } from './art/pets';
 
-export const PAINT_AVATAR = { w: 400, h: 704, pivot: 600, displayHeight: 44 } as const;
+export const PAINT_AVATAR = { w: 400, h: 704, pivot: 570, displayHeight: 44 } as const;
 export const PAINT_PET = { w: 512, h: 384, pivot: 310 } as const;
-export const PAINT_PARTS: Record<string, [number, string, ColorSlot?][]> = {
-	'body.human': [[10, 'body', 'skin']],
-	'body.elf': [[10, 'body', 'skin'], [55, 'elf-ears', 'skin']],
-	'body.cat': [[2, 'tail', 'hair'], [10, 'body', 'skin'], [55, 'cat-ears', 'hair']],
-	'body.bunny': [[10, 'body', 'skin'], [55, 'bunny-ears', 'hair']],
-	'face.bright': [[40, 'face'], [41, 'eyes', 'eyes'], [42, 'face-mouth'], [43, 'face-ink']],
-	'hair.bob': [[0, 'hair-back', 'hair'], [50, 'hair-front', 'hair']],
-	'top.tee': [[30, 'top', 'top'], [31, 'top-collar'], [32, 'top-trim']],
-	'bottom.shorts': [[20, 'bottom', 'bottom'], [21, 'bottom-trim']],
-	'shoes.sneakers': [[25, 'shoes', 'shoes'], [26, 'shoes-trim']]
+export const OUTFIT_PAINT: Record<string, keyof typeof GARMENT_FIT> = {
+	'top.tee': 'outfit-01', 'top.sweater': 'outfit-02', 'top.hoodie': 'outfit-03', 'top.tunic': 'outfit-04'
 };
 
-const MATERIAL_DYES: Record<string, string> = { 'top-collar': 'navy', 'top-trim': 'gold', 'bottom-trim': 'gold', 'shoes-trim': 'gold' };
-
-export function paintedAvatar(avatar: AvatarConfig): Figure | null {
-	const ids = Object.values(avatar.parts).filter((id): id is string => !!id);
-	if (!ids.length || ids.some((id) => !PAINT_PARTS[id])) return null;
-	const skin = paintSwatch('skin', avatar.colors.skin).id;
-	const darkSkin = ['umber', 'deep'].includes(skin);
-	const faceColors: Record<string, string> = {
-		'face-ink': skin === 'deep' ? '#d1a27e' : skin === 'umber' ? '#f1c99c' : '#68402a',
-		'face-mouth': darkSkin ? '#edbaa1' : '#783c30'
-	};
-	const layers: LayerSpec[] = ids.flatMap((id) => PAINT_PARTS[id].map(([z, file, channel]) => ({
-		body: file === 'body',
-		occludesBody: file in GARMENT_FIT ? garmentCoverage(GARMENT_FIT[file as keyof typeof GARMENT_FIT]) : undefined,
-		z, art: { painted: `/painted/${file}.webp`, ...PAINT_AVATAR, channel } as Art,
-		palette: REFERENCE_PALETTE,
-		paintColor: channel ? paintSwatch(channel, avatar.colors[channel]).ramp[1]
-			: faceColors[file] ?? (MATERIAL_DYES[file] ? paintSwatch('top', MATERIAL_DYES[file]).ramp[1] : undefined)
-	})));
-	layers.sort((a, b) => a.z - b.z);
-	return { ...PAINT_AVATAR, painted: true, layers };
+export function paintedAvatar(avatar: AvatarConfig): Figure {
+	const look = keeperLook(avatar);
+	const outfit = OUTFIT_PAINT[look.parts.top!];
+	const layer = (z: number, file: string): LayerSpec => ({
+		z, art: { painted: `/painted/${file}.webp`, ...PAINT_AVATAR }, palette: REFERENCE_PALETTE
+	});
+	return { ...PAINT_AVATAR, painted: true, layers: [
+		{ ...layer(10, look.colors.skin === 'deep' ? 'keeper-deep' : 'keeper-light'), body: true },
+		{ ...layer(30, outfit), occludesBody: garmentCoverage(GARMENT_FIT[outfit]) },
+		{ ...layer(50, 'keeper-bob'), paintColor: paintSwatch('hair', look.colors.hair).ramp[1] }
+	] };
 }
 
 /** Anchors belong to each painting, in its delivered 512 × 384 canvas. */

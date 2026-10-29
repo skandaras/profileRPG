@@ -61,6 +61,20 @@ describe('onboarding', () => {
 		).toThrow(GameError);
 	});
 
+	it('reads a saved legacy look through its mapped figure without changing the stored ids', async () => {
+		const { avatarFigure } = await import('$lib/sprites/layers');
+		const id = newHero();
+		const legacy = {
+			parts: { body: 'body.elf', face: 'face.calm', feature: 'feature.glasses', headwear: 'hat.crown', accessory: 'acc.cape', hair: 'hair.curly', top: 'top.tank', bottom: 'bottom.overalls', shoes: 'shoes.boots' },
+			colors: { skin: 'porcelain', hair: 'seafoam', eyes: 'rose', top: 'starlight' }
+		};
+		play(id, (ctx) => ctx.tx.update(players).set({ avatar: legacy }).where(eq(players.userId, ctx.userId)).run());
+		const saved = play(id, (ctx) => playerRow(ctx.tx, ctx.userId).avatar).result;
+		expect(saved).toEqual(legacy);
+		expect(avatarFigure(saved)).toEqual(avatarFigure({ ...DEFAULT_AVATAR, colors: { ...DEFAULT_AVATAR.colors, hair: 'honey' } }));
+		expect(playerRow(db, id).avatar).toEqual(legacy);
+	});
+
 	it('quietly drops cosmetics nobody has unlocked', () => {
 		const id = newHero();
 		play(id, (ctx) => saveAvatar(ctx, { ...DEFAULT_AVATAR, parts: { ...DEFAULT_AVATAR.parts, headwear: 'hat.crown', top: 'top.hoodie' } }));
@@ -194,6 +208,20 @@ describe('missions', () => {
 });
 
 describe('eggs and the shop', () => {
+	it('keeps retired ownership but excludes retired items from the actual shop and purchases', () => {
+		const id = newHero();
+		for (const itemId of ['bottom.overalls', 'hat.crown', 'dye.teal']) {
+			db.insert(inventory).values({ userId: id, itemId, qty: 1, acquiredAt: START }).run();
+		}
+		const event = { locals: { user: { id } } };
+		const stock = shopPage(event as unknown as Parameters<typeof shopPage>[0]).stock;
+		for (const itemId of ['bottom.overalls', 'hat.crown', 'dye.teal']) {
+			expect(stock.some((i) => i.id === itemId)).toBe(false);
+			expect(inventoryOf(db, id).get(itemId)).toBe(1);
+			expect(() => play(id, (ctx) => buy(ctx, itemId))).toThrow('That is not in the shop');
+		}
+	});
+
 	it('keeps saved accessories and ownership while pet care and shop offer none', () => {
 		const id = newHero();
 		const pet = listPets(db, id, START)[0];
@@ -231,7 +259,7 @@ describe('eggs and the shop', () => {
 		play(id, (ctx) => feed(ctx, pet.id, 'food.kibble'));
 		expect(inventoryOf(db, id).get('food.kibble')).toBe(1);
 		expect(() => play(id, (ctx) => buy(ctx, 'toy.ball'))).toThrow('Not enough GP');
-		expect(() => play(id, (ctx) => buy(ctx, 'hat.crown'))).toThrow('Not for sale');
+		expect(() => play(id, (ctx) => buy(ctx, 'hat.crown'))).toThrow('That is not in the shop');
 		db.delete(inventory).where(eq(inventory.userId, id)).run();
 		expect(() => play(id, (ctx) => feed(ctx, pet.id, 'food.kibble'))).toThrow('no Crunchy kibble');
 	});

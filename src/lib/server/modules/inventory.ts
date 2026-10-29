@@ -61,7 +61,7 @@ export function consume(ctx: Ctx, itemId: string, qty = 1): boolean {
 
 export function buy(ctx: Ctx, itemId: string, qty = 1) {
 	const item = getItem(itemId);
-	if (!item || (!PET_ACCESSORIES_ENABLED && item.kind === 'petacc')) throw new GameError('That is not in the shop');
+	if (!item || item.retired || (!PET_ACCESSORIES_ENABLED && item.kind === 'petacc')) throw new GameError('That is not in the shop');
 	const player = ctx.tx.select().from(players).where(eq(players.userId, ctx.userId)).get()!;
 	const count = item.stackable ? Math.max(1, Math.min(20, Math.floor(qty))) : 1;
 	const owned = !item.stackable && owns(ctx.tx, ctx.userId, player.level, itemId);

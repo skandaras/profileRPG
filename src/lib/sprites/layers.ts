@@ -3,16 +3,15 @@
  * palette it should be painted in. Pure, so the server, the browser and the
  * tests all agree on what a character looks like.
  */
-import { getCosmetic, getPetAccessory, getSpecies } from '$lib/content';
-import { ACCENT_GOLD, dyeRamp, eyeRamp, faceInkRamp, hairRamp, REFERENCE_PALETTE, skinRamp, WHITE_RAMP } from '$lib/content/palettes';
+import { getPetAccessory, getSpecies } from '$lib/content';
+import { ACCENT_GOLD, REFERENCE_PALETTE } from '$lib/content/palettes';
 import { speciesPalette } from '$lib/content/pets';
-import { PET_ACCESSORIES_ENABLED, SLOT_ORDER } from '$lib/content/cosmetics';
-import type { Art, AvatarConfig, ColorSlot } from '$lib/content/types';
+import { PET_ACCESSORIES_ENABLED } from '$lib/content/cosmetics';
+import type { Art, AvatarConfig } from '$lib/content/types';
 import type { PetStage } from './art/pets';
 import { PET_ACC } from './art/pets';
-import { AVATAR, PET } from './frames';
+import { PET } from './frames';
 import { svgDocument } from './svg';
-import { paintSwatch } from '$lib/content/painted-palettes';
 import { clipCoverage, type Point } from './fit';
 import { tintPaint } from './painted';
 import { paintedAvatar, paintedPet } from './painted-figures';
@@ -28,8 +27,6 @@ export interface LayerSpec {
 	paintColor?: string;
 	body?: boolean;
 	occludesBody?: readonly (readonly Point[])[];
-	/** Keep a closed hat from being pierced by the hair beneath it. */
-	clipTop?: number;
 	dx?: number;
 	dy?: number;
 }
@@ -42,35 +39,6 @@ export interface Figure {
 	/** Height in the original scale API; native painted pixels stay separate. */
 	displayHeight?: number;
 	layers: LayerSpec[];
-}
-
-const TINTED_SLOTS: ColorSlot[] = ['top', 'bottom', 'shoes', 'headwear', 'accessory'];
-
-export function pixelAvatarFigure(avatar: AvatarConfig): Figure {
-	const c = avatar.colors;
-	const layers: LayerSpec[] = [];
-	const headwear = avatar.parts.headwear ? getCosmetic(avatar.parts.headwear) : undefined;
-	for (const slot of SLOT_ORDER) {
-		const id = avatar.parts[slot];
-		const part = id ? getCosmetic(id) : undefined;
-		if (!part) continue;
-		const tint = (TINTED_SLOTS as string[]).includes(slot) ? c[slot as ColorSlot] : c.top;
-		const palette: PaletteSet = {
-			skin: skinRamp(c.skin),
-			hair: hairRamp(c.hair),
-			eye: eyeRamp(c.eyes),
-			primary: (slot === 'face' || slot === 'feature') ? faceInkRamp(c.skin) : dyeRamp(tint),
-			secondary: part.secondary ?? WHITE_RAMP,
-			accent: part.accent ?? ACCENT_GOLD
-		};
-		for (const l of part.layers) layers.push({
-			z: l.z, art: l.art, palette,
-			clipTop: slot === 'hair' ? headwear?.coversHairAbove : undefined
-		});
-	}
-	// Stable: parts at the same depth keep slot order.
-	layers.sort((a, b) => a.z - b.z);
-	return { w: AVATAR.w, h: AVATAR.h, pivot: AVATAR.pivot, layers };
 }
 
 export function pixelPetFigure(speciesId: string, stage: PetStage, accessoryId?: string | null): Figure {
@@ -95,9 +63,8 @@ export function pixelPetFigure(speciesId: string, stage: PetStage, accessoryId?:
 	return { w: PET.w, h: PET.h, pivot: PET.pivot, layers };
 }
 
-/** A whole legacy outfit stays together until its painted parts are authored. */
 export function avatarFigure(avatar: AvatarConfig): Figure {
-	return paintedAvatar(avatar) ?? pixelAvatarFigure({ ...avatar, colors: Object.fromEntries(Object.entries(avatar.colors).map(([slot, id]) => [slot, paintSwatch(slot as ColorSlot, id).id])) });
+	return paintedAvatar(avatar);
 }
 
 export function petFigure(speciesId: string, stage: PetStage, accessoryId?: string | null): Figure {
@@ -138,10 +105,6 @@ export function paintFigure(fig: Figure, pngs: DecodedPngs = new Map()): RgbaIma
 			}
 			if (src) {
 				if (l.body && coverage.length) src = clipCoverage(src, coverage);
-				if (l.clipTop) {
-					src = { ...src, data: src.data.slice() };
-					src.data.fill(0, 0, Math.min(src.h, l.clipTop) * src.w * 4);
-				}
 				drawOver(img, src, l.dx ?? 0, l.dy ?? 0);
 			}
 		}

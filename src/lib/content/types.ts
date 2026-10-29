@@ -66,7 +66,7 @@ export type AvatarSlot =
 	| 'headwear'
 	| 'accessory';
 
-/** Which colour choice tints which part. Clothing slots tint their primary channel. */
+/** Saved colour slots. The keeper editor offers skin and hair; outfit colours are fixed. */
 export type ColorSlot = 'skin' | 'hair' | 'eyes' | 'top' | 'bottom' | 'shoes' | 'headwear' | 'accessory';
 
 export interface AvatarConfig {

@@ -43,7 +43,7 @@ export const MISSIONS: Mission[] = [
 			{ item: 'food.berry', weight: 40, qty: [1, 3] },
 			{ item: 'food.kibble', weight: 25, qty: [1, 2] },
 			{ gp: [3, 8], weight: 20 },
-			{ item: 'hat.flowers', weight: 6 },
+			{ gp: [10, 20], weight: 6 },
 			{ egg: 'pebblet', weight: 4 }
 		]
 	},
@@ -62,7 +62,7 @@ export const MISSIONS: Mission[] = [
 			{ item: 'treat.cake', weight: 25 },
 			{ item: 'food.kibble', weight: 25, qty: [1, 2] },
 			{ gp: [5, 10], weight: 25 },
-			{ item: 'dye.starlight', weight: 6 },
+			{ gp: [10, 20], weight: 6 },
 			{ item: 'theme.sakura', weight: 4 }
 		]
 	},
@@ -80,7 +80,7 @@ export const MISSIONS: Mission[] = [
 		loot: [
 			{ item: 'food.fish', weight: 25 },
 			{ gp: [8, 15], weight: 30 },
-			{ item: 'top.tunic', weight: 8 },
+			{ gp: [10, 20], weight: 8 },
 			{ item: 'treat.star', weight: 6 },
 			{ egg: 'pebblet', weight: 5 }
 		]
@@ -100,7 +100,7 @@ export const MISSIONS: Mission[] = [
 			{ item: 'food.berry', weight: 20, qty: [2, 4] },
 			{ item: 'treat.cake', weight: 20 },
 			{ item: 'petacc.flower', weight: 8 },
-			{ item: 'dye.sakura', weight: 6 },
+			{ gp: [10, 20], weight: 6 },
 			{ egg: 'fluffle', weight: 5 },
 			{ egg: 'pebblet', weight: 5 },
 			{ gp: [10, 20], weight: 20 }
@@ -121,7 +121,7 @@ export const MISSIONS: Mission[] = [
 			{ gp: [20, 40], weight: 30 },
 			{ item: 'treat.star', weight: 15 },
 			{ item: 'theme.crystal', weight: 6 },
-			{ item: 'hat.wizard', weight: 5 },
+			{ gp: [10, 20], weight: 5 },
 			{ egg: 'pebblet', weight: 10 },
 			{ egg: 'glimmerwing', weight: 3 },
 			{ item: 'toy.plush', weight: 6 }
@@ -142,7 +142,7 @@ export const MISSIONS: Mission[] = [
 			{ item: 'food.fish', weight: 25, qty: [2, 3] },
 			{ gp: [25, 45], weight: 25 },
 			{ item: 'theme.ocean', weight: 8 },
-			{ item: 'acc.cape', weight: 4 },
+			{ gp: [10, 20], weight: 4 },
 			{ egg: 'fluffle', weight: 6 },
 			{ item: 'treat.star', weight: 10 }
 		]
@@ -160,9 +160,9 @@ export const MISSIONS: Mission[] = [
 		gp: 55,
 		loot: [
 			{ gp: [35, 60], weight: 25 },
-			{ item: 'hat.wizard', weight: 8 },
-			{ item: 'acc.wings', weight: 5 },
-			{ item: 'dye.starlight', weight: 8 },
+			{ gp: [10, 20], weight: 8 },
+			{ gp: [10, 20], weight: 5 },
+			{ gp: [10, 20], weight: 8 },
 			{ egg: 'glimmerwing', weight: 6 },
 			{ item: 'treat.star', weight: 15 },
 			{ item: 'petacc.crown', weight: 4 }
@@ -181,9 +181,9 @@ export const MISSIONS: Mission[] = [
 		gp: 100,
 		loot: [
 			{ gp: [60, 120], weight: 25 },
-			{ item: 'hat.crown', weight: 6 },
-			{ item: 'acc.cape', weight: 6 },
-			{ item: 'acc.wings', weight: 6 },
+			{ gp: [10, 20], weight: 6 },
+			{ gp: [10, 20], weight: 6 },
+			{ gp: [10, 20], weight: 6 },
 			{ egg: 'glimmerwing', weight: 8 },
 			{ egg: 'fluffle', weight: 8 },
 			{ item: 'petacc.crown', weight: 6 }

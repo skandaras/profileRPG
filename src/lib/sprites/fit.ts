@@ -9,23 +9,26 @@ export interface FitContract {
 }
 
 export type Rect = readonly [number, number, number, number];
-export const GARMENT_FIT = {
-	top: {
-		coverage: [[[180, 201], [201, 226], [222, 201], [268, 219], [282, 272], [255, 287], [247, 274], [247, 304], [257, 323], [150, 323], [160, 304], [160, 274], [147, 287], [118, 272], [131, 219]]] as Point[][],
-		allowance: 16,
-		seams: [[179, 207, 185, 213], [216, 207, 222, 213], [130, 277, 148, 281], [255, 277, 272, 281], [168, 317, 242, 322]] as Rect[]
+const shirt: Point[] = [[177, 327], [177, 335], [200, 359], [224, 335], [224, 327], [251, 337], [296, 390], [250, 415], [244, 435], [276, 478], [280, 499], [270, 503], [260, 506], [250, 509], [240, 511], [220, 512], [205, 511], [200, 509], [195, 511], [180, 511], [170, 510], [160, 508], [150, 506], [140, 503], [130, 500], [118, 496], [121, 478], [152, 435], [151, 410], [105, 388], [147, 337]];
+const feet: Point[][] = [
+	[[134, 633], [190, 633], [199, 684], [130, 684]],
+	[[207, 633], [255, 633], [278, 684], [200, 684]]
+];
+export const GARMENT_FIT: Record<string, FitContract> = {
+	'outfit-01': { coverage: [shirt, ...feet], allowance: 34, seams: [[184, 345, 188, 349], [135, 398, 143, 401], [257, 400, 266, 404], [153, 501, 187, 506], [213, 501, 246, 506], [154, 635, 177, 639], [218, 635, 241, 639]] },
+	'outfit-02': {
+		coverage: [[[180, 332], [200, 346], [222, 332], [248, 338], [302, 416], [263, 451], [246, 425], [281, 501], [270, 507], [260, 510], [250, 512], [240, 514], [220, 515], [210, 516], [200, 518], [180, 517], [170, 515], [160, 513], [150, 512], [140, 511], [130, 509], [118, 502], [150, 425], [131, 450], [96, 416], [153, 338]], [[130, 583], [194, 583], [199, 684], [130, 684]], [[205, 583], [267, 583], [278, 684], [200, 684]]],
+		allowance: 40, seams: [[189, 344, 210, 347], [122, 431, 130, 437], [273, 431, 281, 436], [154, 510, 185, 514], [217, 510, 245, 514], [153, 585, 180, 589], [217, 585, 246, 589]]
 	},
-	bottom: {
-		coverage: [[[163, 316], [247, 316], [269, 360], [272, 417], [207, 430], [203, 399], [199, 430], [133, 417], [132, 361]]] as Point[][],
-		allowance: 12,
-		seams: [[168, 319, 242, 323], [138, 360, 146, 368], [258, 360, 266, 368], [149, 414, 195, 419], [211, 414, 259, 419]] as Rect[]
+	'outfit-03': {
+		coverage: [[[176, 327], [177, 337], [200, 350], [225, 337], [225, 327], [250, 333], [303, 412], [269, 446], [250, 433], [269, 684], [130, 684], [150, 433], [132, 446], [98, 412], [151, 333]]],
+		allowance: 28, seams: [[191, 348, 209, 352], [126, 429, 134, 435], [269, 429, 276, 435], [147, 502, 185, 506], [213, 502, 248, 506], [152, 635, 179, 639], [218, 635, 245, 639]]
 	},
-	shoes: {
-		coverage: [[[144, 635], [178, 635], [186, 681], [137, 681]], [[210, 635], [240, 635], [256, 681], [205, 681]]] as Point[][],
-		allowance: 14,
-		seams: [[147, 635, 172, 639], [214, 635, 236, 639]] as Rect[]
+	'outfit-04': {
+		coverage: [[[177, 327], [177, 336], [200, 352], [224, 336], [224, 327], [252, 340], [297, 388], [250, 415], [244, 430], [288, 513], [280, 516], [270, 519], [260, 523], [250, 525], [240, 527], [220, 527], [200, 526], [180, 527], [160, 526], [150, 524], [140, 521], [130, 519], [111, 514], [153, 430], [151, 410], [105, 388], [147, 337]], [[130, 617], [194, 617], [199, 684], [130, 684]], [[205, 617], [267, 617], [278, 684], [200, 684]]],
+		allowance: 46, seams: [[189, 348, 210, 352], [135, 400, 143, 404], [258, 400, 265, 404], [154, 521, 185, 525], [217, 521, 241, 525], [153, 618, 180, 622], [217, 618, 246, 622]]
 	}
-} as const;
+};
 
 /** Chebyshev distance includes diagonal paint edges; antialiased fringe is not solid pigment. */
 export function silhouetteDistance(body: RgbaImage): Uint16Array {
@@ -99,4 +102,28 @@ export function clipCoverage(body: RgbaImage, regions: readonly (readonly Point[
 		if (covers(regions, x, y)) clipped.data.fill(0, (y * body.w + x) * 4, (y * body.w + x + 1) * 4);
 	}
 	return clipped;
+}
+
+/** Enclosed clear pixels and detached pigment are extraction errors, regardless of fit. */
+export function paintDefects(image: RgbaImage): string[] {
+	const failures = new Set<string>();
+	const seen = new Uint8Array(image.w * image.h);
+	for (let i = 0; i < seen.length; i++) {
+		if (seen[i]) continue;
+		const painted = image.data[i * 4 + 3] >= 16;
+		const queue = [i]; seen[i] = 1; let border = false;
+		for (const p of queue) {
+			const x = p % image.w, y = Math.floor(p / image.w);
+			if (!x || !y || x === image.w - 1 || y === image.h - 1) border = true;
+			for (let dy = -1; dy <= 1; dy++) for (let dx = -1; dx <= 1; dx++) {
+				if (!painted && dx && dy) continue;
+				const nx = x + dx, ny = y + dy, q = ny * image.w + nx;
+				if (nx < 0 || ny < 0 || nx >= image.w || ny >= image.h || seen[q] || (image.data[q * 4 + 3] >= 16) !== painted) continue;
+				seen[q] = 1; queue.push(q);
+			}
+		}
+		if (painted && queue.length < 6) failures.add('fleck');
+		if (!painted && !border) failures.add('hole');
+	}
+	return [...failures];
 }

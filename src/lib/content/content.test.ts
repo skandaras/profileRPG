@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { ABILITIES } from './abilities';
-import { COSMETICS, DEFAULT_AVATAR, PET_ACCESSORIES } from './cosmetics';
+import { DEFAULT_AVATAR, PET_ACCESSORIES } from './cosmetics';
 import { HABIT_TEMPLATES } from './habits';
 import { allItems, getAbility, getCosmetic, getItem, getPetAccessory, getSpecies } from './index';
 import { MISSIONS } from './missions';
@@ -43,7 +43,7 @@ describe('catalogues', () => {
 		for (const g of Object.values(RETURN_MILESTONES)) dropped.add(g.item);
 		dropped.add('food.berry'); // the daily forage
 		for (const item of allItems()) {
-			if (item.unlock.kind === 'drop') expect(dropped.has(item.id), item.id).toBe(true);
+			if (!item.retired && item.unlock.kind === 'drop') expect(dropped.has(item.id), item.id).toBe(true);
 		}
 	});
 
@@ -69,18 +69,6 @@ describe('catalogues', () => {
 		}
 	});
 
-	it('draws every cosmetic on the avatar frame', () => {
-		for (const c of COSMETICS) {
-			for (const l of c.layers) {
-				if ('sprite' in l.art) {
-					expect(l.art.sprite.w, c.id).toBe(32);
-					expect(l.art.sprite.h, c.id).toBe(40);
-				}
-			}
-		}
-		expect(PET_ACCESSORIES.length).toBeGreaterThan(0);
-	});
-
 	it('keeps every pet accessory id resolvable while its UI is disabled', () => {
 		for (const accessory of PET_ACCESSORIES) {
 			expect(getPetAccessory(accessory.id)).toBe(accessory);
@@ -94,4 +82,20 @@ describe('catalogues', () => {
 			expect(sum, t.id).toBeCloseTo(1);
 		}
 	});
+});
+
+it('offers exactly the kept keeper options and preserves every retired item lookup', async () => {
+	const { OUTFITS } = await import('./cosmetics');
+	const { PAINT_HAIR, PAINT_SKIN } = await import('./painted-palettes');
+	const { availableItems } = await import('./index');
+	expect(PAINT_SKIN.map((s) => s.id)).toEqual(['peach', 'deep']);
+	expect(PAINT_HAIR.map((s) => s.id)).toEqual(['ink', 'cocoa', 'chestnut', 'honey', 'ginger']);
+	expect(OUTFITS.map((s) => s.id)).toEqual(['top.tee', 'top.sweater', 'top.hoodie', 'top.tunic']);
+	for (const item of allItems().filter((i) => i.retired)) {
+		expect(getItem(item.id)).toBe(item);
+		expect(availableItems()).not.toContain(item);
+	}
+	for (const mission of MISSIONS) for (const entry of mission.loot) {
+		if ('item' in entry) expect(getItem(entry.item)?.retired, mission.id).not.toBe(true);
+	}
 });

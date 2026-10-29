@@ -2,20 +2,20 @@
 
 A habit tracker played as a storybook pet RPG. Log the things you do (a walk, a chapter, a
 glass of water) and your hero earns XP and coins, trains their stats, levels up, unlocks
-abilities and clothes, raises a pet, and goes on missions that bring back eggs, outfits and
+abilities, raises a pet, and goes on missions that bring back eggs, treats and
 new colour themes. Built for Starbase Home at **levelup.starbasehome.net**, behind Authelia.
 
 ![Home, welcome-back, pet care, missions and party in Meadow](docs/screens.png)
 
-Painted watercolour art pairs warm paper, moss and clay with soft cards. The default
-keeper and Brambleback use paintings; the remaining wardrobe and pets keep their pixel
-art while the painted catalogue grows. Headings use Cormorant Garamond; reading text and controls use DM Sans. The tarot chrome defaults to midnight blue and gold, with five other themes.
-Both fonts are self-hosted with OFL licences.
+A cel-shaded chibi keeper and painted Brambleback share midnight blue and gold tarot
+cards. The keeper has two skins, five bob colours and four complete outfits; remaining
+pets keep their pixel art while the painted catalogue grows. Headings use Cormorant
+Garamond; reading text and controls use DM Sans. Both fonts are self-hosted with OFL
+licences. Five other themes include the light Meadow dawn.
 
 ## What's in it
 
-- **Onboarding**: name your hero, build their look (body, face, features, hair, clothes and
-  colours), choose a Brambleback hedge dragon, Brookbell river seal or Cloverruff moss
+- **Onboarding**: name your hero, choose skin tone, hair colour and a complete outfit, choose a Brambleback hedge dragon, Brookbell river seal or Cloverruff moss
   pup, and pick a few habits.
 - **Habits and tasks**: sixteen ready-made habits or build your own: daily, chosen weekdays,
   N times a week or every N days, with a difficulty, the stats it trains, and an optional
@@ -34,8 +34,8 @@ Both fonts are self-hosted with OFL licences.
   home page tells you what happened while you were away.
 - **Rest mode**: for illness or travel. No fines, no broken streaks, no hungry pets.
 - **Missions**: eight timed trips, gated by level, with success odds from your stats
-  (and your partner's help). They pay XP, GP and loot: eggs, clothes, dyes, treats, themes.
-- **Shop, wardrobe, themes**: spend GP, dress up, recolour, and switch between six UI
+  (and your partner's help). They pay XP, GP and loot: eggs, treats, toys, themes.
+- **Shop, wardrobe, themes**: spend GP, choose an outfit and hair colour, and switch between six UI
   themes as you unlock them.
 - **Party**: everyone on the server, their hero, level, stats and partner, plus a feed of
   level-ups, hatches and mission triumphs. Habit names stay private.

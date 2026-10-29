@@ -1,140 +1,110 @@
 # Art contract
 
-LevelUp uses painted watercolour characters for the default keeper and Brambleback,
-phase-2 SVG icons, and pixel fallback art for the remaining catalogue. The painted
-contract is below; the pixel contracts remain for unfinished batches. Catalogue ids are
-permanent: saved pets, outfits and inventory entries point at them.
+The keeper is B, a cel-shaded chibi with a short bob, bright amber eyes and clean dark
+ink. Brambleback uses the Midnight tarot paintings. Icons use SVG; the remaining pets,
+accessories and room props retain their pixel drawings. Catalogue ids are permanent.
 
-Character and room source drawings are palette-indexed grids in `src/lib/sprites/art/`.
-UI, item, food and toy icons are SVG fragments in that directory. PNG replacements
-use the same frames and composition. Run
-`SPRITE_PREVIEW=1 npx vitest run src/lib/sprites/preview` to write the six contact sheets
-in `test-results/sprites/`: avatar-parts, keeper, pets, brambleback, icons and bed.
-Inspect art at native size and an integer enlargement, against light and dark surfaces.
+PNG masters live in `art/painted/masters`; lossless WebP delivery lives in
+`static/painted`. `art/painted/prompts.json` records the keeper's prompts, reused
+sources, hashes and separation method. Raw generations and one-off preparation/review
+scripts live outside the repository in `handoff/k/`. The approved B sources remain in
+`handoff/keeper-b/`. Run `SPRITE_PREVIEW=1 npx vitest run src/lib/sprites/preview` and
+inspect all eight sheets in `test-results/sprites/`, on light and dark surfaces.
 
-## Garden pixel characters and props
+## Keeper template and wardrobe
 
-- Outline silhouettes with one dark pixel, `#2b1f33`. Pupils use `#1a1322`.
-- Round shapes with broad, even stair steps, usually runs of 2–3 pixels. Keep related
-  curls and lobes joined. Leave space between face, hair and clothes.
-- Use two flat shades for tiny materials, up to three where space supports them.
-  Base colour fills most of the shape; broad
-  highlights sit upper left, with one connected shadow below or to the right.
-- Join highlights into patches of at least two pixels. Single eye glints and small
-  fittings may use one pixel. Avoid speckled fur, checkerboards and dithering.
-- Every pixel is fully clear or fully opaque. No anti-aliasing, gradients, soft shadows
-  or translucent tints. Render sprites at integer scales with nearest-neighbour sampling.
-- Pets must not have cat shapes. Brambleback has a long snout, swept horns, folded
-  leather wings and a spiny tail. Brookbell has swimming flippers; Cloverruff has
-  hanging ears and four paws. Cairnback has a shell, Cloudwool has curled horns, and
-  Lamplume has feathered antennae and folded wings. Keep these silhouettes as they grow.
-  The keeper's shipped cat ears and tail remain avatar choices.
+One human body, one face and one bob serve every save. All layers are **400 × 704** at
+origin (0,0), with pivot **570** and display height **44** in the existing scale API.
+The canvas matches the approved B sample; Home at scale 4.5 displays it at 112.5 × 198
+CSS px, beside the unchanged 145.07 × 108.8 baby Brambleback. The ground is row 683.
+The head is large and the body short. No runtime placement offsets or pixel-avatar
+fallback remain. The browser scales paintings smoothly, with a CSS idle bob disabled
+by reduced motion. `paintFigure` and the Node preview use the same composite.
 
-Fixed pet and prop ramps favour clay, cream, moss, warm gold and muted river colours.
-Brambleback's body is `#9b5140 / #cd815b / #efbc83`, cream is
-`#b2a77e / #e5d9ae / #fff2d3`, moss is `#426647 / #78915c / #b2c98a`, and
-Garden gold is `#9b652d / #d9a84e / #f7d998` (shadow / base / light).
-Species and materials can use their own ramps. Preserve player skin, hair and dye choices.
+Layers: body/face at depth 10 (`keeper-light` or `keeper-deep`), one fixed-colour whole
+outfit at 30, the bob value layer at 50 (`keeper-bob`). Skin paintings share one alpha
+and fixed facial strokes; eyes, brows and mouth remain clear on both. Only the bob is
+tinted, through `tintPaint`'s cached ink → pigment → highlight ramp. Ink darkens with
+dark pigment, and tinting preserves every alpha value. Transparent pixels have zero RGB.
 
-Interface colours come from theme tokens in `content/themes.ts`; artwork palettes live
-with the art or its catalogue. The room remains a CSS scene using theme tokens. The tarot spread uses
-double-ruled frames and arched portrait panels. Cormorant Garamond carries headings
-and large numbers; DM Sans carries reading text, controls and navigation. Both are
-self-hosted with their OFL texts in `static/fonts/`. Browser icons inherit the current
-theme ink as fine SVG outlines; catalogue palettes remain available to sprite previews.
+`template.json` names the head, neckline, shoulders, armholes, wrists, waist, hips,
+knees, ankles and soles. Every outfit is painted on the same approved B underlay.
+All four sources use the original's shared crop/scale/origin. Source ink and cel folds
+are retained while separating skin and clothing; enclosed holes and detached flecks
+are removed. Trousers carry their original row contours to the shared calves. Small
+band-edge gaps carry adjacent source pigment; no renderer offset repairs a garment.
 
-## Frames and animation
+Whole outfits use the **existing `parts.top` slot**, without a schema change:
 
-| Art | Native frame | Placement |
-|---|---|---|
-| Avatar part | 32 × 40 | Full frame at the origin |
-| Pet stage, including eggs | 32 × 32 | Feet end on row 30; outline may use row 31 |
-| Pet accessory | 12 × 8 | Head pieces meet their anchor at bottom centre |
-| Item, food, toy or UI icon | SVG viewBox 0 0 32 32 | Static; 16, 24 or 32 CSS px |
-| Room mess | 12 × 12 | Five welcome-back props |
-| Pet bed | 28 × 10 | Static room prop |
-| App icon | SVG viewBox 0 0 32 32 | Dedicated 16-unit small drawing; 180/192/512px PNG exports |
-
-Coordinates start at zero. Frame sizes and avatar depths live in `sprites/frames.ts`;
-`PET_ACC` lives in `sprites/art/pets.ts`.
-
-A single avatar or pet frame gets an automatic second idle pose: rows above the pivot
-move down one pixel, while lower rows stay planted. The pivots are row 33 for avatars
-and row 24 for pets. The bounce applies to the whole composite, including accessories.
-For hand animation, put frames side by side and declare `frames` (e.g. a two-frame avatar
-PNG is 64 × 40; a two-frame pet PNG is 64 × 32). The highest declared frame count wins;
-a layer with fewer frames holds its last frame. UI icons and room props stay still.
-
-## Avatar landmarks and layers
-
-- Head: centred on (15.5, 18), rows 11–24, about x 8–23.
-- Eyes: x 10–12 and 19–21, with Garden eye details on rows 19–21.
-- Torso: rows 26–32, x 11–20; arms x 9–10 and 21–22; hands on row 32.
-- Legs: rows 33–36; feet rows 37–38. Rows 0–10 leave room for hair, ears and hats.
-
-Parts paint from back to front:
-
-| Depth | Layer |
+| Stored top | Complete outfit |
 |---|---|
-| 0 | Back hair, capes, wings, backpacks |
-| 2 | Tails |
-| 10 | Body |
-| 20 | Bottoms |
-| 25 | Shoes |
-| 30 | Tops |
-| 35 | Scarves, straps, overall bib |
-| 40 | Face |
-| 45 | Features: freckles, glasses, bandage, star |
-| 50 | Front hair |
-| 55 | Animal ears |
-| 60 | Hats |
-| 70 | Held items |
+| `top.tee` | 01 Collar and shorts (default) |
+| `top.sweater` | 02 Jumper and skirt |
+| `top.hoodie` | 03 Hood-down jacket |
+| `top.tunic` | 04 Starry overall dress |
 
-One part can supply several layers. Overalls put trousers at 20 and their bib at 35.
-Every hair style has back and front layers; the fringe outline ends on row 17 to clear
-brows and eyes. Closed hats declare `coversHairAbove` at their brim row. The renderer
-clips both hair layers above that row for grids and PNGs. Bands and crowns keep full hair.
-Check all hair/hat fits and faces on light and dark skin, in both idle frames.
+All four are free starter choices. Each includes its top, bottom and shoes in fixed
+ivory, navy and gold. The stored bottom, shoes, eye colour and dye slots are ignored
+by rendering. The editor and onboarding expose only two skins, five hair colours and
+four outfits. Existing unused slot data may stay in a save; rendering does not rewrite it.
 
-`avatar-cleanup.test.ts` guards every avatar layer: no detached single pixels except
-the four named freckles, no one-pixel shade patches except eye ink/glints, two shades
-per connected material smaller than 32 pixels (up to three for larger pieces), a
-majority base fill when shaded, and at most one shadow per connected material.
-Diagonal pixel neighbours count as joined. Mirrored parts compare outline and material
-boundaries about x=15.5 before lighting; all faces, the skirt, tunic and boots also
-compare exact shade values. Directional parts (ponytail, tail, overlapping kimono, side
-features, scarf, held sword and asymmetric hats) are listed explicitly in the guard.
+`keeperLook()` maps old saves before constructing their figure:
 
-## Reference colours and fixed colours
+- Bodies → human; faces → Bright; hair styles → bob. Features, hats and accessories
+  disappear. Their catalogue entries retain ids, names and unlock metadata, marked
+  `retired`; their paintings and pixel drawings are removed.
+- Skin: Porcelain, Peach and Honey → Light (`peach`); Tan, Umber and Deep → Deep (`deep`).
+- Hair: Ink/Black (`ink`), Cocoa/Dark brown (`cocoa`), Chestnut (`chestnut`), Honey blonde
+  (`honey`) and Ginger/Auburn (`ginger`) stay. Bubblegum, Lavender, Seafoam and Silver
+  → Honey blonde; Sky → Chestnut. These are nearest in luminance-weighted RGB to the
+  kept B pigments, using the previous curated pigment where one existed.
+- Tops: Tee, Tank and Sailor → 01; Sweater → 02; Hoodie, Kimono and Vest → 03;
+  Tunic → 04. Bottoms, shoes and decoration do not change that choice.
+- Eye colours → the fixed amber eyes; all dyes → the selected outfit's fixed colours.
+  Every old colour id remains valid and retired in its original catalogue.
 
-Avatar and accessory PNGs use the exact reference colours below. The renderer swaps each
-match for the same channel and shade in the selected palette. Every other colour stays
-as drawn. These channels are defined in `content/palettes.ts` as `REFERENCE_PALETTE`.
+`getItem`/`allItems` retain retired inventory metadata. `availableItems` filters them
+from shop/unlock surfaces; purchases reject them. Missions replace retired clothing
+and dye drops with 10–20 GP at the original weights. Owned items remain in inventories.
+No catalogue id, database row or migration is removed.
 
-| Channel | Shadow | Base | Light | Use |
-|---|---|---|---|---|
-| skin | `#dc9b7c` | `#f5c6a5` | `#ffe2cc` | Skin |
-| hair | `#77321a` | `#a44a26` | `#cb6d3f` | Hair, animal ears and tails |
-| eye | `#4a2b1a` | `#7c4c2b` | `#b27c4c` | Irises |
-| primary | `#9c2939` | `#d6455a` | `#f2808d` | Clothing dye or accessory tint |
-| secondary | `#b3b7c8` | `#e6e8f0` | `#ffffff` | Second material, fixed per item |
-| accent | `#a2761a` | `#e0b030` | `#ffe48a` | Trim and fittings, fixed per item |
+## Fit guards
 
-Fixed white is **`#fffefd`**, distinct from secondary light **`#ffffff`**. Preserve that
-one-value difference in PNGs so white soles and eye glints keep their colours.
-`FIXED_COLORS` in `sprites/grid.ts` also supplies outline, pupil and blush colours.
+`fit.ts` declares each outfit's independent full coverage polygons and neckline, cuff,
+hem and footwear seam bands. Outside allowances are 34, 40, 28 and 46 master pixels
+for outfits 01–04, allowing sleeves and skirts. The source layer must cover body alpha
+≥32 with garment alpha ≥240 across the entire band, both edges of every connected
+leg/sleeve row and its interior. The actual compositor clips body paint in those same
+regions. Source validation must pass before composite equality can pass.
 
-Faces put mouths, brows, calm and sleepy lids in primary shadow; cheery lids use primary base.
-Freckles use the same ink channel. `faceInkRamp()` supplies dark ink on lighter skin and
-warm light ink on Umber and Deep. Export those strokes in reference primary colours;
-fixed dark strokes would lose contrast on dark skin. Open eyes use a pupil, a flat iris
-and one glint; Sparkly joins the glint into a single bright corner. Determined leaves an
-empty row between brows and eyes.
+`painted.test.ts` checks every outfit on both skins (**eight combinations**), then compares
+body-plus-cloth with cloth alone throughout coverage in the real renderer. Negative
+controls narrow a garment by eight pixels, cut every named seam, introduce enclosed
+transparent holes, add misplaced paint and detach a tiny fleck. `paintDefects` rejects
+enclosed clear pixels and pigment components smaller than six pixels. Tests also check
+native alignment, hidden RGB, preserved hair alpha, every saved palette id, and exact
+pixel equality between a saved elf/glasses/crown/cape/overalls avatar and its mapped look.
 
-Pet grids use their species palette from `content/pets.ts`. **Pet PNGs keep their final
-colours**, even where they match a reference colour. `petFigure()` marks their layer
-`fixedColors: true`. Accessories still recolour from the reference palette, using their
-catalogue tint and accent. Do not export a tinted pet PNG expecting a later colour swap.
+## Remaining pixel pets and props
+
+Pixel pets use 32 × 32 frames with feet ending on row 30 (outline may use row 31),
+pivot row 24. Pet accessories use 12 × 8 with anchors below; room mess uses 12 × 12;
+the bed uses 28 × 10. All are palette-indexed grids under `sprites/art/`.
+
+Use a one-pixel outline `#2b1f33` and pupils `#1a1322`, broad even stair steps and two
+flat shades for tiny materials (up to three on larger shapes). Base colour fills most
+of each material; connected highlights sit upper left and a connected shadow below or
+right. Avoid speckle, dithering, detached pixels and single-pixel colour patches except
+pupil/nose ink and eye glints. Alpha is fully clear or opaque, without antialiasing.
+Render pixel art at integer scales with nearest-neighbour sampling. A single pose gets
+an automatic second idle frame above its pivot; declared multi-frame art holds shorter
+layers on their last frame. Room props and icons stay still.
+
+Fixed material colours live with the art. Pet PNGs carry final colours and declare
+`fixedColors: true`; accessories still recolour through `REFERENCE_PALETTE`. Fixed white
+`#fffefd` differs from secondary light `#ffffff`, keeping soles and eye glints fixed.
+An Art can be a sprite, PNG, trusted SVG fragment or painted WebP; a painted prop
+retains display height 16 while using its native canvas.
 
 ## Pets and anchors
 
@@ -166,41 +136,8 @@ including material boundaries and lighting. Egg emblems stay inside the shared s
 pets keep their side-on shapes and the anchors above. All drawings reject stray pixels,
 one-pixel colour patches, extra shades on tiny materials, split shadows and shaded
 materials with less than half base fill. Only pupil/nose ink and eye glints may form
-one-pixel colour patches. The shared `cleanup-guards.ts` counts diagonal joins for both
-avatar and pet tests. Accessory fit and eye clearance in both idle poses remain covered
+one-pixel colour patches. The shared `cleanup-guards.ts` counts diagonal joins for pet tests. Accessory fit and eye clearance in both idle poses remain covered
 by `garden.test.ts`.
-
-## Files and PNG registration
-
-| Art | Source or registry | PNG replacement path |
-|---|---|---|
-| Keeper body, faces, hair, first outfit | `sprites/art/garden-avatar.ts`, `art/avatar.ts` | `static/sprites/avatar/<slot>/<id>.png` |
-| Other wardrobe parts | `sprites/art/garden-wardrobe.ts`, `content/cosmetics.ts` | Same avatar path |
-| Pets and pet accessories | `sprites/art/pets.ts`, `content/pets.ts`, `content/cosmetics.ts` | `static/sprites/pets/<species>/<stage>.png`, `static/sprites/pet-accessories/<id>.png` |
-| Food, toys, items, room props | `sprites/art/icons.ts`, `content/items.ts`, `sprites/room.ts` | `static/sprites/icons/<id>.png` |
-| UI symbols | `sprites/art/ui.ts`, shared `art/icons.ts`, `sprites/ui-icons.ts` | `static/sprites/icons/<id>.png` |
-| App icons | `sprites/art/app.svg`, `app-small.svg`, `scripts/generate-icons.mjs` | `static/icon.svg`, `static/icon-{180,192,512}.png` |
-| README image | Real app captures | `docs/screens.png` |
-
-Source paths in the table are under `src/lib/` unless given in full. PNG paths describe
-the replacement convention; characters and room props use grids; icons use SVG fragments.
-
-An avatar layer in `content/cosmetics.ts` can point to a PNG:
-
-```ts
-{ z: Z.hair, art: { png: '/sprites/avatar/hair/bob.png', w: 32, h: 40, frames: 1 } }
-```
-
-Keep other layers of the part (such as back hair). Pet stages in `content/pets.ts` declare
-frame count and anchors without repeating the fixed 32 × 32 dimensions:
-
-```ts
-teen: { png: '/sprites/pets/emberkit/teen.png', frames: 2, anchors: { head: [14, 12], neck: [14, 25] } }
-```
-
-That PNG is a 64 × 32 strip in final pet colours. A pet accessory uses ordinary `Art`
-with `w: 12, h: 8` and its existing `place` and tint. A consumable sets
-`icon: { png: '/sprites/icons/kibble.png', w: 16, h: 16 }`.
 
 ## SVG icon contract
 
@@ -237,7 +174,7 @@ controls names in words. A meaningful standalone `PixelIcon` receives a `label`.
 
 The PNG decoder in `sprites/render.ts` serves the browser; `sprites/preview-png.ts`
 loads the same assets for contact sheets. Regression tests compare reference PNGs with
-grids, fixed pet colours, frame strips, hat clipping and accessory fits.
+grids, fixed pet colours, frame strips and pet accessory fits.
 
 ## Emoji display
 
@@ -263,85 +200,6 @@ and after settings changes; keep a single `meta theme-color`.
 welcome-back visit, pet care, missions and party, all in Meadow. Use an isolated dev
 database, wait for fonts and sprite images, dismiss notices, and keep the exported strip
 under 400 KB. One-off capture scripts belong outside the repo.
-
-## Painted engine
-
-The default outfit and Brambleback now use painted watercolour art. Other outfits,
-hairstyles, faces, species and accessories retain their phase-2 drawings until their
-painted batch. `painted-figures.ts` registers finished layers by their permanent ids.
-A selection containing an unfinished part uses the whole pixel outfit; it stays
-selectable and never combines a pixel limb with a painted body. The two grid regression
-suites explicitly use `pixelAvatarFigure` / `pixelPetFigure` to keep guarding that art.
-The ordinary figure functions select the painted slice. SVG icons keep their phase-2 art.
-
-`Art` also accepts `{ painted: '/painted/top.webp', w: 400, h: 704, channel: 'top' }`.
-It works for avatar parts, pets, accessories and props. `Figure.displayHeight` preserves
-the old scale API while its canvas uses the painting's native pixels. Icon/prop figures
-can use `uiIconFigure()` with painted art; its display height is 16 units.
-The browser decodes WebP, composes with straight-alpha source-over, and caches the finished
-figure. `tintPaint()` caches each source image/curated-colour pair with a WeakMap. Value
-0–0.25 retains pencil ink (darkened with dark pigment), 0.25–0.78 moves from ink to pigment, and 0.78–1 lifts the pigment
-toward paper. Alpha never changes during tinting. Fixed face marks and iris values are
-separate layers, so tinting eyes leaves pupils, whites, brows and mouth intact.
-
-Delivery files are lossless WebP under `static/painted/`; aligned PNG masters live in
-`art/painted/`. `prompts.json` records the generation prompt set. The Midnight tarot
-keeper was generated with one fixed body underlay; raw generations stay in
-`handoff/d2/raw`, outside the repository. The handoff preparation scripts register
-source alpha bounds to named template fit bounds, carry source pigment through seam and
-edge gaps, and split fixed navy/gold materials into greyscale layers. There are no part
-offsets in the renderer. Sources have invisible RGB and faint fringe cleared before
-resampling. Lossless WebP preserves all remaining edge alpha; smooth browser scaling is intentional. Painted figures have
-one raster pose and a CSS idle bob; reduced-motion disables it. Pixel figures keep their
-old frame animation. The Node preview decoder uses the corresponding PNG master.
-
-### Shared painted body and fit
-
-Every avatar layer is **400 × 704**, at origin (0,0), with pivot row 600 and display
-height 44 units. The keeper has a friendly young-adult silhouette, 5.11 heads from skull to soles,
-soft shoulders, relaxed hands and one gently bent knee in a fixed front-facing pose. Human, elf, catfolk and bunnyfolk use the same body
-painting; separate ears and tail supply their differences. The registered parts keep
-`body.human/elf/cat/bunny`, `face.bright`, `hair.bob`, `top.tee` (collared blouse),
-`bottom.shorts` and `shoes.sneakers`. New players use Peach, Chestnut, Hazel, Ivory,
-Midnight and Ivory. Saved colours remain valid. Midnight dye is now a starter choice.
-Collar/cuffs and gold piping/buttons are separate value paintings tinted through the
-same ramp using fixed navy/gold material swatches. Dyeing a garment keeps these details. Detail paint stays inside the named
-`detailBands` in `template.json`: neckline/cuffs, button placket, waistband/hems, and
-shoe panels/laces/soles. Extraction flecks smaller than six connected pixels are removed.
-Blouse cleanup must preserve enclosed cloth; transparent pinholes show the room through.
-Tests reject both misplaced detail paint and enclosed blouse holes.
-The mouth and brow/nose marks have separate warm ink layers that adapt on Umber and Deep;
-pupils and eye whites stay separate from recolourable irises. Facial feature contrast is
-checked against all six skins in the compositor. Dark hair keeps pigment-coloured shadows;
-shoe highlights stay below paper white so navy and black dyes do not pick up grey flecks. All keeper masters are greyscale with cleared hidden RGB.
-The body value range limits paper highlights so dark skin keeps its warmth.
-
-| Landmark | Master pixels |
-|---|---|
-| Head | 200,65 |
-| Hat crown / brim | 200,51 / 149,97–251,97 |
-| Neckline | 200,201 |
-| Shoulders | 142,211 / 257,211 |
-| Armholes | 155,271 / 247,271 |
-| Wrists | 102,392 / 300,392 |
-| Waist | 168,315 / 243,315 |
-| Hips | 137,365 / 266,365 |
-| Knees | 199,500 / 226,500 |
-| Ankles | 160,637 / 224,637 |
-| Shoe soles | 160,680 / 231,680 |
-
-`template.json` retains these landmarks. `fit.ts` states each garment's allowance,
-full body coverage polygons and neckline/cuff/waist/hem/ankle seams. The body layer is
-clipped under the selected garments' coverage and seams in the actual compositor.
-The paintings themselves must cover meaningful body alpha (32/255) with solid cloth
-(240/255) throughout each band; every row checks both edges of every connected leg or
-sleeve and its interior. Raw paint outside the body stays within 16 master pixels for
-the shirt, 12 for shorts and 14 for shoes. Masking cannot make missing cloth pass.
-`painted.test.ts` checks all three garments on four body ids and six curated skin tones,
-compares actual body-plus-garment composites to garment-only pixels in the coverage,
-and cuts holes at neckline, cuffs, waistband, hips, hems and shoe tops as negative
-controls. A deliberately narrowed pair of shorts must also fail raw side coverage. Retained hats are checked at their existing head landmark over all eight
-retained hair styles. New painted hats must declare fit before registration.
 
 ### Painted Brambleback
 
@@ -376,13 +234,7 @@ them; no UI requests them while disabled. Their 100 × 80 canvases and head (50,
 neck (50,28) contact points remain for re-enabling. Unpainted accessories still use the
 complete pixel pet when the feature is enabled.
 
-### Curated colour and chrome
-
-`content/painted-palettes.ts` supplies six skin, seven hair, four eye and thirteen dye
-swatches. Every old palette id remains in its catalogue and passes validation. Retired
-ids resolve to the nearest curated swatch by luminance-weighted RGB distance and show
-that selection in the editor. Nothing migrates in the database. The same alias applies
-when an unfinished outfit uses the pixel fallback.
+## Chrome
 
 Cormorant Garamond and DM Sans variable Latin WOFF2 files are self-hosted with their
 OFL texts in `static/fonts/`. Theme tokens supply every UI colour, the paper and two
@@ -392,5 +244,5 @@ six themes. New players start on `night` (Midnight tarot); saved choices stay in
 `meadow` is the light ivory dawn variant; `sakura`, `ocean`, `ember` and `crystal` are
 rose-plum, deep sea, oxblood and amethyst. Both Night and Meadow are freely selectable.
 The room architecture is a shared token-coloured SVG inside a full-width arch card;
-pet care uses the same architecture for its nook. The taller Midnight tarot keeper shares a ground line with Brambleback. The phase-2 app
+pet care uses the same architecture for its nook. The chibi keeper shares a ground line with Brambleback. The phase-2 app
 icon is unchanged.

@@ -127,53 +127,22 @@ try {
 	};
 
 	const checkAvatarChoices = async () => {
-		const categories = page.getByRole('group', { name: 'Avatar parts', exact: true });
 		for (const width of [320, 390]) {
 			await page.setViewportSize({ width, height: 844 });
-			await categories.getByRole('button').first().focus();
-			for (const button of await categories.getByRole('button').all()) {
-				assert.equal(await button.evaluate((n) => n === document.activeElement), true, 'Tab reaches every avatar category');
-				await page.keyboard.press('Enter');
-				assert.equal(await button.getAttribute('aria-pressed'), 'true', 'Enter selects the category');
-				const clipped = await categories.evaluate((group) => {
-					const bounds = group.getBoundingClientRect();
-					return [...group.querySelectorAll('button')].filter((node) => {
-						const rect = node.getBoundingClientRect();
-						return rect.left < bounds.left || rect.right > bounds.right || node.scrollWidth > node.clientWidth;
-					}).map((node) => node.textContent);
-				});
-				assert.deepEqual(clipped, [], `all category labels fit at ${width}px`);
-				await page.keyboard.press('Tab');
+			for (const [groupName, count] of [['Skin tone', 2], ['Hair colour', 5], ['Outfit', 4]]) {
+				const group = page.getByRole('group', { name: groupName, exact: true });
+				assert.equal(await group.getByRole('button').count(), count, `${groupName}: kept options only`);
+				for (const button of await group.getByRole('button').all()) {
+					await button.focus();
+					await page.keyboard.press('Enter');
+					assert.equal(await button.getAttribute('aria-pressed'), 'true', 'Enter selects the option');
+				}
 			}
+			assert.equal(await page.getByRole('group', { name: 'Avatar parts', exact: true }).count(), 0);
 		}
-		await page.getByRole('button', { name: 'Hair', exact: false }).click();
-		assert.equal(await page.locator('.parts .tile').count(), 8, 'eight free hair styles');
-		assert.equal(await page.getByRole('group', { name: 'Hair colour', exact: true }).getByRole('button').count(), 7, 'seven curated hair colours');
-		for (const name of ['Short', 'Spiky', 'Curled bob', 'Long', 'Twin tails', 'Ponytail', 'Top bun', 'Curly']) {
-			const choice = page.locator('.parts').getByRole('button', { name, exact: false });
-			await choice.click();
-			assert.equal(await choice.getAttribute('aria-pressed'), 'true');
-		}
-		for (const choice of await page.getByRole('group', { name: 'Hair colour', exact: true }).getByRole('button').all()) {
-			await choice.click();
-			assert.equal(await choice.getAttribute('aria-pressed'), 'true');
-		}
-		await page.locator('.parts').getByRole('button', { name: 'Curled bob' }).click();
+		await page.getByRole('button', { name: 'Light', exact: true }).click();
 		await page.getByRole('button', { name: 'Chestnut', exact: true }).click();
-		await page.getByRole('button', { name: 'Face', exact: false }).click();
-		assert.equal(await page.locator('.parts .tile').count(), 6, 'six free faces');
-		for (const choice of await page.locator('.parts .tile').all()) {
-			await choice.click();
-			assert.equal(await choice.getAttribute('aria-pressed'), 'true');
-		}
-		await page.locator('.parts').getByRole('button', { name: 'Bright' }).click();
-		await page.getByRole('button', { name: 'Body', exact: false }).click();
-		assert.equal(await page.getByRole('group', { name: 'Skin tone', exact: true }).getByRole('button').count(), 6, 'six skin tones');
-		for (const choice of await page.getByRole('group', { name: 'Skin tone', exact: true }).getByRole('button').all()) {
-			await choice.click();
-			assert.equal(await choice.getAttribute('aria-pressed'), 'true');
-		}
-		await page.getByRole('button', { name: 'Peach', exact: true }).click();
+		await page.locator('.parts').getByRole('button', { name: 'Collar and shorts' }).click();
 	};
 
 	// Onboarding
@@ -190,10 +159,9 @@ try {
 	await page.locator('#name').press('Enter');
 	await expectHeadingFocus();
 	await checkAvatarChoices();
-	await page.getByRole('button', { name: 'Hair', exact: false }).click();
-	await page.click('.parts .tile:has-text("Twin tails")');
+	await page.locator('.parts').getByRole('button', { name: 'Jumper and skirt' }).click();
 	await shot('onboarding-look');
-	await page.click('.parts .tile:has-text("Bob")');
+	await page.locator('.parts').getByRole('button', { name: 'Collar and shorts' }).click();
 	await page.click('button:has-text("Next")');
 	await expectHeadingFocus();
 	await page.click('.starter:has-text("Brambleback")');
@@ -315,21 +283,17 @@ try {
 		await shot(path.slice(1));
 		if (path === '/wardrobe') {
 			await checkAvatarChoices();
-			await page.getByRole('button', { name: 'Hair', exact: false }).click();
-			await page.locator('.parts').getByRole('button', { name: 'Curly', exact: true }).click();
-			await page.getByRole('button', { name: 'Silver', exact: true }).click();
+			await page.getByRole('button', { name: 'Honey blonde', exact: true }).click();
 			await shot('wardrobe-hair');
-			await page.getByRole('button', { name: 'Body', exact: false }).click();
 			await page.getByRole('button', { name: 'Deep', exact: true }).click();
-			await page.getByRole('button', { name: 'Face', exact: false }).click();
-			await page.locator('.parts').getByRole('button', { name: 'Determined' }).click();
-			await shot('wardrobe-faces');
+			await page.locator('.parts').getByRole('button', { name: 'Starry overall dress' }).click();
+			await shot('wardrobe-outfit');
 			await submit(page.getByRole('button', { name: 'Save this look', exact: true }));
 			await go('/wardrobe');
 			const saved = JSON.parse(await page.locator('input[name=avatar]').inputValue());
-			assert.equal(saved.parts.hair, 'hair.curly');
-			assert.equal(saved.parts.face, 'face.determined');
-			assert.equal(saved.colors.hair, 'silver');
+			assert.equal(saved.parts.hair, 'hair.bob');
+			assert.equal(saved.parts.top, 'top.tunic');
+			assert.equal(saved.colors.hair, 'honey');
 			assert.equal(saved.colors.skin, 'deep');
 		}
 	}

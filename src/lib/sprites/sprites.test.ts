@@ -6,11 +6,10 @@ import { mkdtempSync, writeFileSync, rmSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { describe, expect, it } from 'vitest';
-import { DEFAULT_AVATAR } from '$lib/content/cosmetics';
 import { REFERENCE_PALETTE, SKIN_TONES } from '$lib/content/palettes';
 import { blank, bob, drawOver, recolor, renderSprite } from './compose';
 import { FIXED_COLORS, Pix } from './grid';
-import { pixelAvatarFigure as avatarFigure, paintFigure, pixelPetFigure as petFigure } from './layers';
+import { paintFigure, pixelPetFigure as petFigure } from './layers';
 
 const px = (img: { w: number; data: Uint8ClampedArray }, x: number, y: number) =>
 	Array.from(img.data.subarray((y * img.w + x) * 4, (y * img.w + x) * 4 + 4));
@@ -43,13 +42,6 @@ describe('sprites', () => {
 		expect(px(img, 0, 0)[3]).toBe(0);
 		expect(px(img, 0, 1)[0]).toBe(255);
 		expect(px(img, 0, 3)[0]).toBe(0x1a);
-	});
-
-	it('orders avatar layers back to front', () => {
-		const fig = avatarFigure({ ...DEFAULT_AVATAR, parts: { ...DEFAULT_AVATAR.parts, hair: 'hair.long' } });
-		const zs = fig.layers.map((l) => l.z);
-		expect(zs).toEqual([...zs].sort((a, b) => a - b));
-		expect(paintFigure(fig)).toHaveLength(2);
 	});
 
 	it('puts a head accessory on the head anchor', () => {

@@ -1,6 +1,6 @@
 import { act, num, read, str } from '$lib/server/api';
 import { PET_ACCESSORIES_ENABLED } from '$lib/content/cosmetics';
-import { allItems } from '$lib/content';
+import { availableItems } from '$lib/content';
 import { buy, inventoryOf, owns } from '$lib/server/modules/inventory';
 import { companionRow } from '$lib/server/modules/pets';
 import { playerRow } from '$lib/server/modules/progression';
@@ -9,7 +9,7 @@ export const load = ({ locals }) =>
 	read(locals, (ctx) => {
 		const p = playerRow(ctx.tx, ctx.userId);
 		const bag = inventoryOf(ctx.tx, ctx.userId);
-		const stock = allItems()
+		const stock = availableItems()
 			.filter((i) => i.unlock.kind === 'shop' && (PET_ACCESSORIES_ENABLED || i.kind !== 'petacc'))
 			.map((i) => ({
 				id: i.id,

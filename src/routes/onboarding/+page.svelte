@@ -75,8 +75,8 @@
 {:else if step === 1}
 	<section class="box">
 		<h1 tabindex="-1">Create your look</h1>
-		<p class="soft small">More outfits, hats and colours unlock as you level up and explore.</p>
-		<AvatarEditor bind:avatar starterOnly />
+		<p class="soft small">Choose a skin tone, a hair colour and an outfit. You can change them in your Wardrobe.</p>
+		<AvatarEditor bind:avatar />
 	</section>
 {:else if step === 2}
 	<section class="box">

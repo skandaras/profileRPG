@@ -1,28 +1,19 @@
 <script lang="ts">
 	import { enhance } from '$app/forms';
 	import { withNotices } from '$lib/act';
-	import { getConsumable, getCosmetic, getTheme } from '$lib/content';
+	import { getConsumable, getTheme } from '$lib/content';
 	import PetSprite from '$lib/components/PetSprite.svelte';
-	import Avatar from '$lib/components/Avatar.svelte';
 	import PixelIcon from '$lib/components/PixelIcon.svelte';
-	import { DEFAULT_AVATAR } from '$lib/content/cosmetics';
-	import { getDye } from '$lib/content/palettes';
 
 	let { data } = $props();
 
 	const SECTIONS = [
 		{ kind: 'food', title: 'Snacks' },
 		{ kind: 'toy', title: 'Toys' },
-		{ kind: 'cosmetic', title: 'Clothes' },
 		{ kind: 'petacc', title: 'For your pet' },
-		{ kind: 'dye', title: 'Dyes' },
 		{ kind: 'theme', title: 'Themes' }
 	] as const;
 
-	const tryOn = (id: string) => {
-		const c = getCosmetic(id);
-		return c ? { ...DEFAULT_AVATAR, parts: { ...DEFAULT_AVATAR.parts, [c.slot]: id } } : DEFAULT_AVATAR;
-	};
 </script>
 
 <svelte:head><title>Shop · LevelUp</title></svelte:head>
@@ -48,11 +39,6 @@
 							{#if i.kind === 'food' || i.kind === 'toy'}
 								{@const c = getConsumable(i.id)}
 								{#if c}<PixelIcon art={c.icon} tint={c.tint} scale={3} />{/if}
-							{:else if i.kind === 'cosmetic'}
-								<Avatar avatar={tryOn(i.id)} scale={2} animate={false} label="" />
-							{:else if i.kind === 'dye'}
-								{@const d = getDye(i.id.slice(4))}
-								<span class="dye" aria-hidden="true" style:background={d?.ramp[1]}></span>
 							{:else if i.kind === 'theme'}
 								{@const t = getTheme(i.id.slice(6))}
 								{#if t}
@@ -87,13 +73,6 @@
 		min-height: 80px;
 		display: grid;
 		place-items: center;
-	}
-
-	.dye {
-		width: 44px;
-		height: 44px;
-		border: 1px solid var(--line);
-		border-radius: 50%;
 	}
 
 	.theme {
