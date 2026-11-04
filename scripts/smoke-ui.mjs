@@ -142,7 +142,7 @@ try {
 		}
 		await page.getByRole('button', { name: 'Light', exact: true }).click();
 		await page.getByRole('button', { name: 'Chestnut', exact: true }).click();
-		await page.locator('.parts').getByRole('button', { name: 'Collar and shorts' }).click();
+		await page.locator('.parts').getByRole('button', { name: 'Wayfarer' }).click();
 	};
 
 	// Onboarding
@@ -159,11 +159,12 @@ try {
 	await page.locator('#name').press('Enter');
 	await expectHeadingFocus();
 	await checkAvatarChoices();
-	await page.locator('.parts').getByRole('button', { name: 'Jumper and skirt' }).click();
+	await page.locator('.parts').getByRole('button', { name: 'Archivist' }).click();
 	await shot('onboarding-look');
-	await page.locator('.parts').getByRole('button', { name: 'Collar and shorts' }).click();
+	await page.locator('.parts').getByRole('button', { name: 'Wayfarer' }).click();
 	await page.click('button:has-text("Next")');
 	await expectHeadingFocus();
+	assert.equal(await page.locator('.starter .figure.painted').count(), 3, 'all starter species use the new painted cast');
 	await page.click('.starter:has-text("Brambleback")');
 	await page.fill('#petname', 'Ember');
 	await shot('onboarding-partner');
@@ -286,7 +287,7 @@ try {
 			await page.getByRole('button', { name: 'Honey blonde', exact: true }).click();
 			await shot('wardrobe-hair');
 			await page.getByRole('button', { name: 'Deep', exact: true }).click();
-			await page.locator('.parts').getByRole('button', { name: 'Starry overall dress' }).click();
+			await page.locator('.parts').getByRole('button', { name: 'Lamplighter' }).click();
 			await shot('wardrobe-outfit');
 			await submit(page.getByRole('button', { name: 'Save this look', exact: true }));
 			await go('/wardrobe');

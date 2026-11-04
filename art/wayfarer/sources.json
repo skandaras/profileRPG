@@ -1,0 +1,48 @@
+{
+  "direction": "Original angular ink-and-gouache fantasy cast; bold silhouettes, asymmetric travel clothing, muted earth and jewel colours. Broad graphic fantasy influence from Slay the Spire.",
+  "method": "Generated original art with imagegen. The direction sheet guided both transparent production atlases; a second edit cleaned cutout transparency. Production uses the unchanged generated PNGs, sampled by the game renderer.",
+  "assets": [
+    {
+      "path": "art/wayfarer/direction.png",
+      "sha256": "f2c17ec0beaf60998c0f664455d23e58ecdfb76ca4943640505f29758504683a"
+    },
+    {
+      "path": "static/painted/wayfarers.png",
+      "sha256": "fea93a484b0a7565d5f4ae663ca5e2c629e46a24d3610220a2411bd498be457f"
+    },
+    {
+      "path": "static/painted/familiars.png",
+      "sha256": "2208c039594a87f3b43545e77af4a624b661fd1be098c23a69b7cb1dd2f30233"
+    }
+  ],
+  "characters": {
+    "columns": [
+      "Wayfarer",
+      "Archivist",
+      "Ranger",
+      "Lamplighter"
+    ],
+    "rows": [
+      "Light skin",
+      "Deep skin"
+    ],
+    "hair": "Neutral source hair tinted by the application; five saved hair colour choices."
+  },
+  "familiars": {
+    "columns": [
+      "egg",
+      "baby",
+      "teen",
+      "adult"
+    ],
+    "rows": [
+      "Brambleback",
+      "Brookbell",
+      "Cloverruff",
+      "Cairnback",
+      "Cloudwool",
+      "Lamplume"
+    ],
+    "sampling": "Use measured source rectangles in src/lib/sprites/painted-figures.ts; illustrations cross nominal grid lines."
+  }
+}

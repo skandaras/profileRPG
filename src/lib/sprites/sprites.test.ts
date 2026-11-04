@@ -1,4 +1,3 @@
-import { getSpecies } from '$lib/content';
 import { uiIconFigure } from './ui-icons';
 import { paintPreview } from './preview-png';
 import { encodePng } from './png';
@@ -9,7 +8,7 @@ import { describe, expect, it } from 'vitest';
 import { REFERENCE_PALETTE, SKIN_TONES } from '$lib/content/palettes';
 import { blank, bob, drawOver, recolor, renderSprite } from './compose';
 import { FIXED_COLORS, Pix } from './grid';
-import { paintFigure, pixelPetFigure as petFigure } from './layers';
+import { paintFigure, type Figure } from './layers';
 
 const px = (img: { w: number; data: Uint8ClampedArray }, x: number, y: number) =>
 	Array.from(img.data.subarray((y * img.w + x) * 4, (y * img.w + x) * 4 + 4));
@@ -44,13 +43,7 @@ describe('sprites', () => {
 		expect(px(img, 0, 3)[0]).toBe(0x1a);
 	});
 
-	it('puts a head accessory on the head anchor', () => {
-		const fig = petFigure('emberkit', 'baby', 'petacc.bow');
-		expect(fig.layers).toHaveLength(2);
-		const art = fig.layers[1];
-		expect(art.dy! + 8 - 1).toBe(getSpecies('emberkit')!.art.baby.anchors.head[1]);
-		expect(petFigure('emberkit', 'egg', 'petacc.bow').layers).toHaveLength(1);
-	});
+
 });
 
 
@@ -62,25 +55,20 @@ it('preserves fixed white when a reference PNG is recoloured', () => {
 	expect(Object.values(REFERENCE_PALETTE).flat()).not.toContain(FIXED_COLORS.w);
 });
 
-it('keeps pet PNG colours and declared frames while accessories still recolour', () => {
-	const species = getSpecies('emberkit')!;
-	const original = species.art.baby;
-	try {
-		species.art.baby = { png: '/dragon.png', frames: 3, anchors: original.anchors };
-		const figure = petFigure(species.id, 'baby', 'petacc.bow');
-		const sheet = renderSprite(new Pix(96, 32).rect(0, 0, 32, 32, 'S').rect(32, 0, 32, 32, 'd').rect(64, 0, 32, 32, 'P').toSprite(), REFERENCE_PALETTE);
-		const accessory = new Pix(12, 8).rect(0, 0, 12, 8, 'P').toSprite();
-		figure.layers[1].art = { png: '/bow.png', w: 12, h: 8 };
-		const frames = paintFigure(figure, new Map([['/dragon.png', sheet], ['/bow.png', renderSprite(accessory, REFERENCE_PALETTE)]]));
-		expect(px(frames[0], figure.layers[1].dx!, figure.layers[1].dy!)).toEqual(px(renderSprite(accessory, figure.layers[1].palette), 0, 0));
-		expect(frames).toHaveLength(3);
-		expect(px(frames[0], 0, 0)).toEqual([245, 198, 165, 255]);
-		expect(px(frames[1], 0, 0)).toEqual([255, 255, 255, 255]);
-		expect(px(frames[2], 0, 0)).toEqual([214, 69, 90, 255]);
-		expect(figure.layers[1].fixedColors).not.toBe(true);
-	} finally {
-		species.art.baby = original;
-	}
+it('keeps fixed PNG colours and declared frames while an overlaid PNG recolours', () => {
+	const palette = { ...REFERENCE_PALETTE, primary: SKIN_TONES[5].ramp };
+	const figure: Figure = { w: 32, h: 32, pivot: 24, layers: [
+		{ z: 0, art: { png: '/base.png', w: 32, h: 32, frames: 3 }, palette: REFERENCE_PALETTE, fixedColors: true },
+		{ z: 1, art: { png: '/overlay.png', w: 12, h: 8 }, palette, dx: 4, dy: 8 }
+	] };
+	const sheet = renderSprite(new Pix(96, 32).rect(0, 0, 32, 32, 'S').rect(32, 0, 32, 32, 'd').rect(64, 0, 32, 32, 'P').toSprite(), REFERENCE_PALETTE);
+	const overlay = new Pix(12, 8).rect(0, 0, 12, 8, 'P').toSprite();
+	const frames = paintFigure(figure, new Map([['/base.png', sheet], ['/overlay.png', renderSprite(overlay, REFERENCE_PALETTE)]]));
+	expect(px(frames[0], 4, 8)).toEqual(px(renderSprite(overlay, palette), 0, 0));
+	expect(frames).toHaveLength(3);
+	expect(px(frames[0], 0, 0)).toEqual([245, 198, 165, 255]);
+	expect(px(frames[1], 0, 0)).toEqual([255, 255, 255, 255]);
+	expect(px(frames[2], 0, 0)).toEqual([214, 69, 90, 255]);
 });
 
 it('loads named PNG icons through the same preview and tint path as grids', () => {

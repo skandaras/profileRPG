@@ -3,17 +3,11 @@
  * palette it should be painted in. Pure, so the server, the browser and the
  * tests all agree on what a character looks like.
  */
-import { getPetAccessory, getSpecies } from '$lib/content';
-import { ACCENT_GOLD, REFERENCE_PALETTE } from '$lib/content/palettes';
-import { speciesPalette } from '$lib/content/pets';
-import { PET_ACCESSORIES_ENABLED } from '$lib/content/cosmetics';
+import { REFERENCE_PALETTE } from '$lib/content/palettes';
 import type { Art, AvatarConfig } from '$lib/content/types';
-import type { PetStage } from './art/pets';
-import { PET_ACC } from './art/pets';
-import { PET } from './frames';
+import type { PetStage } from '$lib/content/pets';
 import { svgDocument } from './svg';
-import { clipCoverage, type Point } from './fit';
-import { tintPaint } from './painted';
+import { preparePaint } from './painted';
 import { paintedAvatar, paintedPet } from './painted-figures';
 import type { PaletteSet } from './grid';
 import { blank, bob, drawOver, recolor, renderSprite, type RgbaImage } from './compose';
@@ -22,11 +16,9 @@ export interface LayerSpec {
 	z: number;
 	art: Art;
 	palette: PaletteSet;
-	/** Pet PNGs carry final colours; avatar and accessory PNGs use reference channels. */
+	/** PNG icons and props may carry final colours instead of reference palette channels. */
 	fixedColors?: boolean;
 	paintColor?: string;
-	body?: boolean;
-	occludesBody?: readonly (readonly Point[])[];
 	dx?: number;
 	dy?: number;
 }
@@ -41,35 +33,12 @@ export interface Figure {
 	layers: LayerSpec[];
 }
 
-export function pixelPetFigure(speciesId: string, stage: PetStage, accessoryId?: string | null): Figure {
-	const species = getSpecies(speciesId);
-	if (!species) return { w: PET.w, h: PET.h, pivot: PET.pivot, layers: [] };
-	const art = species.art[stage];
-	const palette = speciesPalette(species);
-	const layers: LayerSpec[] = [
-		{ z: 0, art: 'sprite' in art ? { sprite: art.sprite } : { png: art.png, w: PET.w, h: PET.h, frames: art.frames }, palette, fixedColors: true }
-	];
-	const acc = accessoryId && stage !== 'egg' ? getPetAccessory(accessoryId) : undefined;
-	if (acc) {
-		const [ax, ay] = art.anchors[acc.place];
-		layers.push({
-			z: 1,
-			art: acc.art,
-			palette: { ...palette, primary: acc.tint, accent: acc.accent ?? ACCENT_GOLD },
-			dx: Math.round(ax - PET_ACC.w / 2),
-			dy: acc.place === 'head' ? ay - PET_ACC.h + 1 : Math.round(ay - PET_ACC.h / 2)
-		});
-	}
-	return { w: PET.w, h: PET.h, pivot: PET.pivot, layers };
-}
-
 export function avatarFigure(avatar: AvatarConfig): Figure {
 	return paintedAvatar(avatar);
 }
 
-export function petFigure(speciesId: string, stage: PetStage, accessoryId?: string | null): Figure {
-	if (!PET_ACCESSORIES_ENABLED) accessoryId = null;
-	return paintedPet(speciesId, stage, accessoryId) ?? pixelPetFigure(speciesId, stage, accessoryId);
+export function petFigure(speciesId: string, stage: PetStage, _accessoryId?: string | null): Figure {
+	return paintedPet(speciesId, stage);
 }
 
 /** PNG layers arrive already decoded (the browser does that); sprites are painted here. */
@@ -85,7 +54,6 @@ export function layerFrames(l: LayerSpec): number {
  */
 export function paintFigure(fig: Figure, pngs: DecodedPngs = new Map()): RgbaImage[] {
 	const frames = Math.max(1, ...fig.layers.map(layerFrames));
-	const coverage = fig.layers.flatMap((l) => l.occludesBody ?? []);
 	const paint = (frame: number) => {
 		const img = blank(fig.w, fig.h);
 		for (const l of fig.layers) {
@@ -94,7 +62,7 @@ export function paintFigure(fig: Figure, pngs: DecodedPngs = new Map()): RgbaIma
 			else if ('svg' in l.art) src = pngs.get(svgDocument(l.art, l.palette));
 			else if ('painted' in l.art) {
 				src = pngs.get(l.art.painted);
-				if (src && l.paintColor) src = tintPaint(src, l.paintColor);
+				if (src) src = preparePaint(src, l.art, l.paintColor);
 			}
 			else {
 				const png = pngs.get(l.art.png);
@@ -104,7 +72,6 @@ export function paintFigure(fig: Figure, pngs: DecodedPngs = new Map()): RgbaIma
 				}
 			}
 			if (src) {
-				if (l.body && coverage.length) src = clipCoverage(src, coverage);
 				drawOver(img, src, l.dx ?? 0, l.dy ?? 0);
 			}
 		}

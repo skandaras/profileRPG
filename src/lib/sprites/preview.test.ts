@@ -1,61 +1,30 @@
-/**
- * Contact sheets of every piece of art, for whoever is drawing replacements.
- * Off by default; run `SPRITE_PREVIEW=1 npx vitest run src/lib/sprites/preview`
- * and open test-results/sprites/*.png.
- */
+/** Production contact sheets: SPRITE_PREVIEW=1 npx vitest run src/lib/sprites/preview */
 import { it } from 'vitest';
 import { mkdirSync, writeFileSync } from 'node:fs';
-import { OUTFITS, DEFAULT_AVATAR, PET_ACCESSORIES, PET_ACCESSORIES_ENABLED } from '$lib/content/cosmetics';
-import { CONSUMABLES } from '$lib/content/items';
+import { OUTFITS, DEFAULT_AVATAR } from '$lib/content/cosmetics';
+import { PAINT_SKIN, PAINT_HAIR } from '$lib/content/painted-palettes';
 import { SPECIES } from '$lib/content/pets';
-import { ICON_PALETTE } from '$lib/sprites/svg';
-import { UI_ICONS, uiIconFigure } from './ui-icons';
-import { bed, messFigures } from './room';
-import { PAINT_AVATAR } from './painted-figures';
+import { PAINT_AVATAR, PAINT_PET, STAGES } from './painted-figures';
+import { avatarFigure, petFigure } from './layers';
 import { paintPreview } from './preview-png';
 import { blank, drawOver, type RgbaImage } from './compose';
-import { avatarFigure, pixelPetFigure as petFigure, avatarFigure as paintedAvatarFigure, petFigure as paintedPetFigure } from './layers';
 import { encodePng } from './png';
 
-function sheet(images: RgbaImage[], cols: number, cw: number, ch: number): RgbaImage {
+function sheet(images: RgbaImage[], cols: number, cw: number, ch: number, background: number[]): RgbaImage {
 	const out = blank(cols * cw, Math.ceil(images.length / cols) * ch);
-	for (let i = 0; i < out.data.length; i += 4) out.data.set([214, 236, 214, 255], i);
-	images.forEach((img, n) => drawOver(out, img, (n % cols) * cw + 1, Math.floor(n / cols) * ch + 1));
+	for (let i = 0; i < out.data.length; i += 4) out.data.set(background, i);
+	images.forEach((img, n) => drawOver(out, img, (n % cols) * cw + 8, Math.floor(n / cols) * ch + 8));
 	return out;
 }
 
-it.skipIf(!process.env.SPRITE_PREVIEW)('renders contact sheets', () => {
+it.skipIf(!process.env.SPRITE_PREVIEW)('renders the whole cast on light and dark surfaces', () => {
 	mkdirSync('test-results/sprites', { recursive: true });
-	const avatars = OUTFITS.map((c) => {
-		const parts = { ...DEFAULT_AVATAR.parts, [c.slot]: c.id };
-		return paintPreview(avatarFigure({ ...DEFAULT_AVATAR, parts }))[0];
-	});
-	writeFileSync('test-results/sprites/avatar-parts.png', encodePng(sheet(avatars, 4, PAINT_AVATAR.w + 2, PAINT_AVATAR.h + 2)));
-
-	const pets = SPECIES.flatMap((s) =>
-		(['egg', 'baby', 'teen', 'adult'] as const).map((st) => paintPreview(petFigure(s.id, st))[0])
-	);
-	const accessories = PET_ACCESSORIES_ENABLED ? PET_ACCESSORIES : [];
-	const dressed = SPECIES.flatMap((s) => accessories.flatMap((a) =>
-		(['egg', 'baby', 'teen', 'adult'] as const).map((stage) => paintPreview(petFigure(s.id, stage, a.id))[0])
-	));
-	writeFileSync('test-results/sprites/pets.png', encodePng(sheet([...pets, ...dressed], 4, 34, 34), 3));
-	const bramblebacks = [undefined, ...accessories.map((a) => a.id)].flatMap((accessory) =>
-		(['egg', 'baby', 'teen', 'adult'] as const).map((stage) => paintPreview(petFigure('emberkit', stage, accessory))[0])
-	);
-	writeFileSync('test-results/sprites/brambleback.png', encodePng(sheet(bramblebacks, 4, 34, 34), 4));
-	const keeper = [DEFAULT_AVATAR, { ...DEFAULT_AVATAR, colors: { ...DEFAULT_AVATAR.colors, skin: 'deep', hair: 'silver', top: 'teal' } }];
-	writeFileSync('test-results/sprites/keeper.png', encodePng(sheet(keeper.map((a) => paintPreview(avatarFigure(a))[0]), 2, PAINT_AVATAR.w + 2, PAINT_AVATAR.h + 2)));
-
-	const icons = [
-		...Object.values(UI_ICONS).map((icon) => paintPreview(uiIconFigure(icon))[0]),
-		...CONSUMABLES.map((c) => paintPreview(uiIconFigure({ art: c.icon, palette: { ...ICON_PALETTE, primary: c.tint } }))[0]),
-		...messFigures.map((m) => paintPreview(m.figure)[0])
-	];
-	writeFileSync('test-results/sprites/icons.png', encodePng(sheet(icons, 10, 18, 18), 4));
-	writeFileSync('test-results/sprites/bed.png', encodePng(paintPreview(bed)[0], 4));
-	const paintedKeepers = OUTFITS.map((outfit) => paintPreview(paintedAvatarFigure({ ...DEFAULT_AVATAR, parts: { ...DEFAULT_AVATAR.parts, top: outfit.id } }))[0]);
-	writeFileSync('test-results/sprites/painted-keeper.png', encodePng(sheet(paintedKeepers, 4, PAINT_AVATAR.w + 2, PAINT_AVATAR.h + 2)));
-	const paintedPets = [undefined, ...accessories.map((a) => a.id)].flatMap((acc) => (['egg', 'baby', 'teen', 'adult'] as const).map((stage) => paintPreview(paintedPetFigure('emberkit', stage, acc))[0]));
-	writeFileSync('test-results/sprites/painted-brambleback.png', encodePng(sheet(paintedPets, 4, 514, 386)));
+	const avatars = PAINT_SKIN.flatMap((skin) => OUTFITS.flatMap((outfit) => PAINT_HAIR.map((hair) =>
+		paintPreview(avatarFigure({ ...DEFAULT_AVATAR, parts: { ...DEFAULT_AVATAR.parts, top: outfit.id }, colors: { ...DEFAULT_AVATAR.colors, skin: skin.id, hair: hair.id } }))[0]
+	)));
+	const pets = SPECIES.flatMap((species) => STAGES.map((stage) => paintPreview(petFigure(species.id, stage))[0]));
+	for (const [name, background] of [['light', [247, 238, 217, 255]], ['dark', [25, 35, 47, 255]]] as const) {
+		writeFileSync(`test-results/sprites/wayfarers-${name}.png`, encodePng(sheet(avatars, 5, PAINT_AVATAR.w + 16, PAINT_AVATAR.h + 16, [...background])));
+		writeFileSync(`test-results/sprites/familiars-${name}.png`, encodePng(sheet(pets, 4, PAINT_PET.w + 16, PAINT_PET.h + 16, [...background])));
+	}
 });

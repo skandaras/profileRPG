@@ -50,7 +50,7 @@
 	.pet {
 		position: absolute;
 		right: 16px;
-		bottom: 21px;
+		bottom: 24px;
 	}
 
 	.away {
