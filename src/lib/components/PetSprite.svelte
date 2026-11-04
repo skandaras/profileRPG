@@ -1,5 +1,5 @@
 <script lang="ts">
-	import type { PetStage } from '$lib/sprites/art/pets';
+	import type { PetStage } from '$lib/content/pets';
 	import { petFigure } from '$lib/sprites/layers';
 	import Figure from './Figure.svelte';
 

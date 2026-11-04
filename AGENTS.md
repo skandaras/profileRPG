@@ -1,6 +1,6 @@
 # Working in this repository
 
-LevelUp is a habit tracker played as a pixel-art pet RPG, served at
+LevelUp is a habit tracker played as an illustrated pet RPG, served at
 levelup.starbasehome.net behind Caddy and Authelia. SvelteKit 2 + Svelte 5 on Node 22,
 Drizzle + better-sqlite3, one Docker image. Claude and Codex both work here; this file is
 what both are expected to know.
@@ -110,6 +110,6 @@ Commit messages are prose: a sentence on what changed and why, then the reasonin
 
 ## Art
 
-`docs/ART.md` is the contract for replacement art: frame sizes, layer order, anchors, the
-reference palette PNGs are drawn in, and where files go. To see all current art,
+`docs/ART.md` is the contract for replacement art: atlas regions, colours, framing,
+saved-id mappings, and where files go. To see the current cast on light and dark surfaces,
 `SPRITE_PREVIEW=1 npx vitest run src/lib/sprites/preview` and open `test-results/sprites/`.

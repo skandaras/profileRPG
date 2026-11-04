@@ -5,6 +5,9 @@ import { Resvg } from '@resvg/resvg-js';
 import { svgDocument } from './svg';
 import { PNG } from 'pngjs';
 import { paintFigure, type Figure, type DecodedPngs } from './layers';
+import type { RgbaImage } from './compose';
+
+const decoded = new Map<string, RgbaImage>();
 
 export function paintPreview(figure: Figure, root = 'static') {
 	const pngs: DecodedPngs = new Map();
@@ -15,8 +18,14 @@ export function paintPreview(figure: Figure, root = 'static') {
 			pngs.set(svg, { w: rendered.width, h: rendered.height, data: new Uint8ClampedArray(rendered.pixels) });
 		}
 		if ('painted' in layer.art) {
-			const png = PNG.sync.read(readFileSync(join('art/painted/masters', layer.art.painted.split('/').pop()!.replace('.webp', '.png'))));
-			pngs.set(layer.art.painted, { w: png.width, h: png.height, data: new Uint8ClampedArray(png.data) });
+			const path = join(root, layer.art.painted);
+			let image = decoded.get(path);
+			if (!image) {
+				const png = PNG.sync.read(readFileSync(path));
+				image = { w: png.width, h: png.height, data: new Uint8ClampedArray(png.data) };
+				decoded.set(path, image);
+			}
+			pngs.set(layer.art.painted, image);
 		}
 		if ('png' in layer.art && !pngs.has(layer.art.png)) {
 			const png = PNG.sync.read(readFileSync(join(root, layer.art.png)));

@@ -1,15 +1,17 @@
 # LevelUp
 
-A habit tracker played as a storybook pet RPG. Log the things you do (a walk, a chapter, a
+A habit tracker played as an illustrated fantasy pet RPG. Log the things you do (a walk, a chapter, a
 glass of water) and your hero earns XP and coins, trains their stats, levels up, unlocks
 abilities, raises a pet, and goes on missions that bring back eggs, treats and
 new colour themes. Built for Starbase Home at **levelup.starbasehome.net**, behind Authelia.
 
-![Home, welcome-back, pet care, missions and party in Meadow](docs/screens.png)
+![Home with the Wayfarer and Brambleback in Night](docs/screens.png)
 
-A cel-shaded chibi keeper and painted Brambleback share midnight blue and gold tarot
-cards. The keeper has two skins, five bob colours and four complete outfits; remaining
-pets keep their pixel art while the painted catalogue grows. Headings use Cormorant
+A travelling keeper and six slightly strange familiars share an ink-and-gouache look:
+angular silhouettes, broad painted shadows, weathered cloth and muted jewel colours.
+The keeper has two skin tones, five hair colours and four outfits: Wayfarer, Archivist,
+Ranger and Lamplighter. Every pet has its own painted egg, baby, teen and adult stages.
+Headings use Cormorant
 Garamond; reading text and controls use DM Sans. Both fonts are self-hosted with OFL
 licences. Five other themes include the light Meadow dawn.
 
@@ -61,8 +63,9 @@ a missed habit, a hungry pet or a finished mission without waiting.
 | `SPRITE_PREVIEW=1 npx vitest run src/lib/sprites/preview` | Contact sheets of all art in `test-results/sprites/` |
 
 [AGENTS.md](./AGENTS.md) has the conventions and how to add content or features.
-[docs/ART.md](./docs/ART.md) covers the Garden style, frames, palettes and PNG replacements.
-`node scripts/generate-icons.mjs` rebuilds the app icons from their shared pixel grid.
+[docs/ART.md](./docs/ART.md) covers the cast, atlas regions, palettes and saved-id mappings.
+The direction sheet is in [art/wayfarer/direction.png](./art/wayfarer/direction.png).
+`node scripts/generate-icons.mjs` rebuilds the SVG-derived app icons.
 
 ## Deploy
 

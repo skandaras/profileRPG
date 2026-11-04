@@ -1,5 +1,5 @@
 /** Saved cosmetic ids are permanent; retired entries keep metadata but no artwork. */
-import * as P from '$lib/sprites/art/pets';
+import * as P from '$lib/sprites/art/pet-accessories';
 import type { Ramp } from '$lib/sprites/grid';
 import type { Art, AvatarConfig, AvatarSlot, Unlock } from './types';
 
@@ -33,18 +33,18 @@ export const COSMETICS: Cosmetic[] = [
 	{ id: 'feature.star', slot: 'feature', name: 'Star mark', unlock: level(4), retired: true },
 	{ id: 'hair.short', slot: 'hair', name: 'Short', unlock: starter, retired: true },
 	{ id: 'hair.spiky', slot: 'hair', name: 'Spiky', unlock: starter, retired: true },
-	{ id: 'hair.bob', slot: 'hair', name: 'Bob', unlock: starter },
+	{ id: 'hair.bob', slot: 'hair', name: 'Swept crop', unlock: starter },
 	{ id: 'hair.long', slot: 'hair', name: 'Long', unlock: starter, retired: true },
 	{ id: 'hair.twintails', slot: 'hair', name: 'Twin tails', unlock: starter, retired: true },
 	{ id: 'hair.ponytail', slot: 'hair', name: 'Ponytail', unlock: starter, retired: true },
 	{ id: 'hair.bun', slot: 'hair', name: 'Top bun', unlock: starter, retired: true },
 	{ id: 'hair.curly', slot: 'hair', name: 'Curly', unlock: starter, retired: true },
-	{ id: 'top.tee', slot: 'top', name: 'Collar and shorts', unlock: starter },
-	{ id: 'top.hoodie', slot: 'top', name: 'Hood-down jacket', unlock: starter },
+	{ id: 'top.tee', slot: 'top', name: 'Wayfarer', unlock: starter },
+	{ id: 'top.hoodie', slot: 'top', name: 'Ranger', unlock: starter },
 	{ id: 'top.tank', slot: 'top', name: 'Tank top', unlock: starter, retired: true },
-	{ id: 'top.sweater', slot: 'top', name: 'Jumper and skirt', unlock: starter },
+	{ id: 'top.sweater', slot: 'top', name: 'Archivist', unlock: starter },
 	{ id: 'top.sailor', slot: 'top', name: 'Sailor top', unlock: level(3), retired: true },
-	{ id: 'top.tunic', slot: 'top', name: 'Starry overall dress', unlock: starter },
+	{ id: 'top.tunic', slot: 'top', name: 'Lamplighter', unlock: starter },
 	{ id: 'top.kimono', slot: 'top', name: 'Kimono jacket', unlock: shop(120, 5), retired: true },
 	{ id: 'top.vest', slot: 'top', name: 'Explorer vest', unlock: level(6), retired: true },
 	{ id: 'bottom.shorts', slot: 'bottom', name: 'Shorts', unlock: starter, retired: true },
