@@ -1,0 +1,58 @@
+{
+  "batch": "K \u2014 simplified keeper B",
+  "method": "Built-in image_gen. Four successful calls, one rejected template call; no CLI fallback. Approved B base and bob values reused. New outfits painted on the unchanged B underlay. Shared original alpha bounds and affine registration for every source. Separate body/face paintings use the same alpha and light facial geometry; deep pigments calibrated from the generated deep skin painting. Fixed-colour whole outfits separated with source contours, cleaned of skin and detached islands, and fitted against independent coverage/seam bands. Immutable adjacent cloth pigment closes small extraction gaps; trousers resample their own row contours to the template calves. Eye cavities retain the original B whites, iris planes and pupils; skin tint never enters them.",
+  "successfulPrompts": [
+    {
+      "asset": "outfit-02",
+      "prompt": "Use case: precise-object-edit. Production game wardrobe layer. Reference 1 is the EXACT keeper pose and sizing underlay. Reference 2 shows three outfit designs, use only the LEFT outfit: ivory crescent jumper, navy pleated skirt, navy socks and ivory ankle boots. Paint that complete outfit onto reference 1's exact shoulders, outward arms, torso, hips, legs and feet. Preserve reference 1 head, face, hands, legs and pose EXACTLY. Do not move hands or feet. Clothing should be roomy and cover sides, wrist cuffs, neck and boot tops. Clean dark ink, cel shading matching B. No chest contours. One full front facing clothed keeper, no layout or labels. Transparent background. Do not draw extra characters. This is an outfit replacement of a fully clothed cartoon character.",
+      "raw": "handoff/k/raw/outfit-02.png"
+    },
+    {
+      "asset": "outfit-03",
+      "prompt": "Use case: precise-object-edit. Production game wardrobe layer. Reference 1 is the EXACT keeper pose and sizing underlay. Reference 2 shows three outfit designs; use only the MIDDLE outfit: navy hood-down jacket with gold clasp over ivory shirt, navy straight trousers, ivory boots. Paint that complete outfit onto reference 1's exact shoulders, outward arms, torso, hips, legs and feet. Preserve reference 1 head, face, hands and pose EXACTLY. Do not move hands or feet. The hood stays DOWN off the head; hair unobstructed. Clothing should be roomy and cover sides, cuffs, neckline and boot tops. Clean dark ink and two-tone cel shading matching B. One full front facing clothed keeper on transparent background, no shadows, text, extra characters or layout.",
+      "raw": "handoff/k/raw/outfit-03.png"
+    },
+    {
+      "asset": "outfit-04",
+      "prompt": "Use case: precise-object-edit. Production game wardrobe layer. Reference 1 is the EXACT keeper pose and sizing underlay. Reference 2 shows three outfit designs; use only the RIGHT outfit: modest navy overall dress with three small gold stars, ivory puff-sleeved collared blouse, ivory socks and navy Mary Jane shoes. Paint that complete outfit onto reference 1's exact shoulders, outward arms, torso, hips, legs and feet. Preserve reference 1 head, face, hands, legs and pose EXACTLY. Do not move hands or feet. Clothing should cover sides, sleeve hems, neck and shoe tops. Clean dark ink and two-tone cel shading matching B. One full front facing clothed keeper on transparent background. No extra characters, shadows, text or layout.",
+      "raw": "handoff/k/raw/outfit-04.png"
+    },
+    {
+      "asset": "keeper-deep",
+      "prompt": "Use case: identity-preserve. Edit the fully clothed keeper B from reference 1, changing ONLY the skin colour to the warm deep-brown skin in reference 2. Same canvas, original exact face outline, eyes, amber irises, bob, clothing, limbs, pose, hands and shoes unchanged. Keep the cel-shaded planes, subtle warm highlights and clear small smile and brows. Dark brown skin with good face contrast. One full front facing clothed cartoon character, transparent background, no text, no shadows. Reference 1 is the exact identity and placement; reference 2 is skin palette only, not pose or face.",
+      "raw": "handoff/k/raw/deep.png"
+    }
+  ],
+  "reused": [
+    {
+      "asset": "keeper-light/outfit-01",
+      "source": "handoff/keeper-b/source/02-b-base.png"
+    },
+    {
+      "asset": "keeper-bob",
+      "source": "handoff/keeper-b/b-hair-values.webp"
+    }
+  ],
+  "rejected": {
+    "asset": "template",
+    "prompt": "Use case: identity-preserve. Production chibi game template. Edit the reference keeper B. Keep EXACTLY the same huge head, face, big amber eyes, brown bob, short chibi proportions and relaxed outward arms, hands and stance. Replace the collar shirt, shorts and sneakers with a very simple fitted sleeveless ivory unitard ending at upper thighs and bare feet. Modest neutral doll fitting template, no anatomy or chest contours. Keep neck, arms, hands and legs visible. The feet must be the same place as the original soles. Clean dark ink, two-tone cel shading, original B face and silhouette. One full front-facing character, transparent background, no shadows, no floor, no text. This is the fixed template used under four whole outfit layers.",
+    "reason": "Output moderation rejected the request. No template output used."
+  },
+  "sources": {
+    "handoff/keeper-b/source/02-b-base.png": "8979cd51a15d786fc52af1104fe5cee2336569fa3a17481b4a28e99093e2340a",
+    "handoff/keeper-b/b-hair-values.webp": "5202e0e3a899897e01f8c2dd9ee49c8889c8486c877490cea04156384b3f8b2a",
+    "handoff/k/raw/outfit-02.png": "38fd1906f7750f902191162e7ef25d7e81e041b49a85b227c8cc78303eabf002",
+    "handoff/k/raw/outfit-03.png": "dd694781e3739cdad8de8f17ac8fa90485cdcf22c682c1701342acd797b2d12a",
+    "handoff/k/raw/deep.png": "7fdabec53aa713d6dc4ee5cad73737859bd9f768482fe9438372e25a250eceff",
+    "handoff/k/raw/outfit-04.png": "f4506a4d4ca84b84a943839112d01340b633b0ccfa27de5b39198d090e6f0736"
+  },
+  "masters": {
+    "outfit-02.png": "511d594313fce6afc85c43ea8ae77803fa220b03d201d6d7b41c115e660e499f",
+    "keeper-bob.png": "3815f1379b624a8427b5917b4771d8be32fbad37270f030a0741a666b3ddfd95",
+    "outfit-03.png": "545c4e74418ba00955f7cb624d4bda983d5aba349c57d7fe3196ee64fbf5b757",
+    "keeper-deep.png": "91f32842ddd0d39ce65a1d20ae070545a51c0e10e07ff8652fcacec898c75060",
+    "outfit-01.png": "aa171c76f90f3ef67f37f7ada5e173c3fdbe05772e3afab14a26f2d9a88be140",
+    "outfit-04.png": "3a0bb744525905664c6f8a5434b866f73f8c8d6ee7263ed188fb318c2e0f3cd2",
+    "keeper-light.png": "151354bf7c010ca662f051223e461f62c3a7d6f7bcca9274b0334390ec070970"
+  }
+}

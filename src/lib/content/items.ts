@@ -26,8 +26,8 @@ export const CONSUMABLES: Consumable[] = [
 		blurb: 'Foraged for free once a day. A small snack.',
 		kind: 'food',
 		unlock: { kind: 'drop' },
-		icon: { sprite: I.berry() },
-		tint: ['#5a2f8a', '#8450c0', '#b88ae6'],
+		icon: I.berry(),
+		tint: ['#70566f', '#a2809d', '#d4b1c4'],
 		effect: { fullness: 15, joy: 2, petXp: 2 }
 	},
 	{
@@ -36,8 +36,8 @@ export const CONSUMABLES: Consumable[] = [
 		blurb: 'A filling bowl of the good stuff.',
 		kind: 'food',
 		unlock: { kind: 'shop', price: 5 },
-		icon: { sprite: I.bowl() },
-		tint: ['#9c2939', '#d6455a', '#f2808d'],
+		icon: I.bowl(),
+		tint: ['#9d3f46', '#d9676c', '#f8b0a0'],
 		effect: { fullness: 30, petXp: 3 }
 	},
 	{
@@ -46,8 +46,8 @@ export const CONSUMABLES: Consumable[] = [
 		blurb: 'Grilled, golden, and very popular.',
 		kind: 'food',
 		unlock: { kind: 'shop', price: 12, level: 2 },
-		icon: { sprite: I.fish() },
-		tint: ['#2c4f9d', '#4a76d5', '#90b1f5'],
+		icon: I.fish(),
+		tint: ['#9b652d', '#d9a84e', '#f7d998'],
 		effect: { fullness: 45, joy: 5, petXp: 5 }
 	},
 	{
@@ -56,8 +56,8 @@ export const CONSUMABLES: Consumable[] = [
 		blurb: 'A sweet treat. Mostly joy, a little filling.',
 		kind: 'food',
 		unlock: { kind: 'shop', price: 15 },
-		icon: { sprite: I.cake() },
-		tint: ['#c0578a', '#ef8bb4', '#ffc4db'],
+		icon: I.cake(),
+		tint: ['#9d3f46', '#d9676c', '#f8b0a0'],
 		effect: { fullness: 10, joy: 30, petXp: 6 }
 	},
 	{
@@ -66,8 +66,8 @@ export const CONSUMABLES: Consumable[] = [
 		blurb: 'Found on adventures. Pure delight.',
 		kind: 'food',
 		unlock: { kind: 'drop' },
-		icon: { sprite: I.star() },
-		tint: ['#a2761a', '#e0b030', '#ffe48a'],
+		icon: I.star(),
+		tint: ['#9b652d', '#d9a84e', '#f7d998'],
 		effect: { joy: 50, petXp: 15 }
 	},
 	{
@@ -76,8 +76,8 @@ export const CONSUMABLES: Consumable[] = [
 		blurb: 'Makes playtime better. Kept forever.',
 		kind: 'toy',
 		unlock: { kind: 'shop', price: 40 },
-		icon: { sprite: I.ball() },
-		tint: ['#9c2939', '#d6455a', '#f2808d'],
+		icon: I.ball(),
+		tint: ['#9d3f46', '#d9676c', '#f8b0a0'],
 		effect: { joy: 10, petXp: 3 }
 	},
 	{
@@ -86,8 +86,8 @@ export const CONSUMABLES: Consumable[] = [
 		blurb: 'Endlessly fascinating. Kept forever.',
 		kind: 'toy',
 		unlock: { kind: 'shop', price: 60, level: 3 },
-		icon: { sprite: I.yarn() },
-		tint: ['#2d773d', '#4aa85a', '#8ad890'],
+		icon: I.yarn(),
+		tint: ['#426647', '#78915c', '#b2c98a'],
 		effect: { joy: 15, petXp: 5 }
 	},
 	{
@@ -96,8 +96,8 @@ export const CONSUMABLES: Consumable[] = [
 		blurb: 'A tiny friend for your friend. Found on adventures.',
 		kind: 'toy',
 		unlock: { kind: 'drop' },
-		icon: { sprite: I.plush() },
-		tint: ['#ad501e', '#e67a35', '#f9aa6a'],
+		icon: I.plush(),
+		tint: ['#9b5140', '#cd815b', '#efbc83'],
 		effect: { joy: 25, petXp: 8 }
 	}
 ];

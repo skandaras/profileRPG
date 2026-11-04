@@ -25,6 +25,7 @@ export interface ItemInfo {
 	tint?: Ramp;
 	/** Stackable items can be held in quantity; everything else is owned once. */
 	stackable: boolean;
+	retired?: boolean;
 }
 
 const index = <T extends { id: string }>(list: T[]) => new Map(list.map((x) => [x.id, x]));
@@ -51,11 +52,12 @@ const ITEMS: ItemInfo[] = [
 		tint: c.tint,
 		stackable: c.kind === 'food'
 	})),
-	...COSMETICS.map((c) => ({ id: c.id, name: c.name, kind: 'cosmetic' as const, unlock: c.unlock, slot: c.slot, stackable: false })),
+	...COSMETICS.map((c) => ({ id: c.id, name: c.name, kind: 'cosmetic' as const, unlock: c.unlock, slot: c.slot, retired: c.retired, stackable: false })),
 	...DYES.map((d: Dye) => ({
 		id: dyeItemId(d.id),
 		name: `${d.name} dye`,
 		kind: 'dye' as const,
+		retired: d.retired,
 		unlock: d.unlock,
 		tint: d.ramp,
 		blurb: 'A new colour for your clothes.',
@@ -76,3 +78,6 @@ export const getMission = (id: string): Mission | undefined => missions.get(id);
 export const getAbility = (id: string): Ability | undefined => abilities.get(id);
 export const getTemplate = (id: string): HabitTemplate | undefined => templates.get(id);
 export const getTheme = (id: string): Theme | undefined => themes.get(id);
+
+/** Only active items appear in shop and unlock surfaces. Inventory lookups include retired ids. */
+export const availableItems = () => ITEMS.filter((item) => !item.retired);

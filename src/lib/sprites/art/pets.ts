@@ -17,304 +17,212 @@ export interface PetArt {
 
 const frame = () => new Pix(PET.w, PET.h);
 
-function shade(p: Pix) {
-	p.rim('P', 'p', 1, 0);
-	p.rim('P', 'p', 0, 1);
-	p.rim('C', 'c', 1, 0);
-	p.rim('C', 'c', 0, 1);
-	return p;
-}
-
-/** Big glossy eyes, the single biggest factor in "cute" at this size. */
-function eyes(p: Pix, cx: number, y: number, gap: number, tall = 3) {
-	const rows = tall === 3 ? ['kk', 'kw', 'kk'] : ['kk', 'kw'];
-	p.stamp(Math.round(cx - gap / 2) - 2, y, rows);
-	p.stamp(Math.round(cx + gap / 2), y, rows);
-}
-
-function cheeks(p: Pix, cx: number, y: number, gap: number) {
-	p.set(Math.round(cx - gap / 2) - 3, y, 'r');
-	p.set(Math.round(cx + gap / 2) + 2, y, 'r');
-}
-
 function finish(p: Pix, head: [number, number], neck: [number, number]): PetArt {
 	return { sprite: p.outline().toSprite(), anchors: { head, neck } };
 }
 
-// ── Egg (shared shape, species colours) ─────────────────────────────────────
-
-export function egg(): PetArt {
-	const p = frame();
-	p.ellipse(15.5, 22, 6.5, 8, 'C');
-	p.ellipse(15.5, 25, 6.5, 5, 'C');
-	shade(p);
-	for (const [x, y] of [
-		[12, 18],
-		[18, 21],
-		[13, 25],
-		[19, 27],
-		[16, 15]
-	])
-		p.ellipse(x, y, 1.2, 1.2, 'P', true);
-	p.paint(12, 16, 'd').paint(11, 17, 'd').paint(12, 17, 'd');
-	return finish(p, [15.5, 14], [15.5, 20]);
+// ── Brambleback: a low, long-snouted dragon with folded leather wings ─────
+// A shared shell keeps every crest inside the same centred contour.
+function egg(mark: string[]): PetArt {
+	const p = frame().ellipse(15.5, 25, 7, 5, 'C').ellipse(15.5, 21, 5, 6, 'C');
+	p.rect(12, 28, 8, 2, 'c').rect(14, 17, 4, 2, 'd');
+	p.stamp((32 - mark[0].length) / 2, 22, mark);
+	return finish(p, [16, 15], [16, 26]);
 }
 
-// ── Emberkit: a fox kit with a flame for a tail ─────────────────────────────
-
-function flame(p: Pix, x: number, y: number, size: number) {
-	p.ellipse(x, y, size * 0.8, size, 'A');
-	p.ellipse(x - 0.5, y - size, size * 0.5, size * 0.7, 'A');
-	p.ellipse(x + size * 0.4, y - size * 0.4, size * 0.4, size * 0.6, 'A');
-	p.ellipse(x, y + size * 0.2, size * 0.45, size * 0.55, 'b', true);
-	p.rim('A', 'a', 1, 0);
-}
-
-function foxEars(p: Pix, cx: number, top: number, h: number, spread: number) {
-	for (let i = 0; i < h; i++) {
-		const w = Math.max(0, Math.round((i * 3) / h));
-		for (let dx = -w; dx <= w; dx++) {
-			p.set(Math.round(cx - spread) + dx, top + i, 'P');
-			p.set(Math.round(cx + spread) - 1 + dx, top + i, 'P');
-		}
-	}
-	p.set(Math.round(cx - spread), top + h - 2, 'r').set(Math.round(cx + spread) - 1, top + h - 2, 'r');
+export function bramblebackEgg(): PetArt {
+	return egg(['P....P', 'PP..PP', '.PPPP.', '..PP..']);
 }
 
 export function emberkit(stage: Exclude<PetStage, 'egg'>): PetArt {
+	const n = stage === 'baby' ? 0 : stage === 'teen' ? 1 : 2;
+	const top = [16, 12, 9][n];
 	const p = frame();
-	if (stage === 'baby') {
-		flame(p, 22, 22, 3);
-		p.ellipse(15.5, 25, 6, 5, 'P');
-		foxEars(p, 15.5, 11, 5, 4);
-		p.ellipse(15.5, 18, 6.5, 5.5, 'P');
-		p.ellipse(15.5, 21, 3, 2, 'C', true);
-		p.ellipse(15.5, 26, 3, 3, 'C', true);
-		p.rect(12, 29, 2, 2, 'P').rect(18, 29, 2, 2, 'P');
-		shade(p);
-		eyes(p, 15.5, 17, 5);
-		cheeks(p, 15.5, 20, 5);
-		p.set(15, 20, 'k').set(16, 20, 'k');
-		return finish(p, [15.5, 12], [15.5, 23]);
-	}
-	if (stage === 'teen') {
-		flame(p, 24, 19, 4);
-		p.ellipse(16, 24, 7, 5, 'P');
-		foxEars(p, 13, 6, 6, 4);
-		p.ellipse(13, 14, 6, 5, 'P');
-		p.ellipse(11, 17, 3, 2, 'C', true);
-		p.ellipse(15, 25, 4, 3, 'C', true);
-		p.rect(10, 28, 2, 3, 'P').rect(13, 28, 2, 3, 'P').rect(19, 28, 2, 3, 'P').rect(22, 28, 2, 3, 'P');
-		shade(p);
-		eyes(p, 13, 13, 4);
-		cheeks(p, 13, 16, 4);
-		p.set(10, 17, 'k');
-		return finish(p, [13, 8], [14, 19]);
-	}
-	flame(p, 25, 14, 5);
-	p.ellipse(18, 23, 8, 6, 'P');
-	p.rect(22, 18, 4, 6, 'P');
-	foxEars(p, 12, 2, 7, 4);
-	p.ellipse(12, 11, 6, 5, 'P');
-	p.rect(6, 13, 4, 3, 'P');
-	p.ellipse(10, 19, 4, 4, 'C', true);
-	p.ellipse(8, 14, 2, 1.5, 'C', true);
-	p.rect(10, 26, 2, 5, 'P').rect(14, 27, 2, 4, 'P').rect(20, 27, 2, 4, 'P').rect(24, 26, 2, 5, 'P');
-	shade(p);
-	eyes(p, 12, 9, 3);
-	p.set(6, 14, 'k');
-	p.rect(10, 15, 4, 1, 'A').set(12, 16, 'b');
-	return finish(p, [12, 5], [11, 16]);
+	// A rising tail makes room for the ridge without crowding the face.
+	p.stamp(22, 21 - n, ['.....PP', '.....PP', '....PPP', '...PPP.', '..PPPP.', 'PPPPP..', 'PPPP...']);
+	p.stamp(27, 17 - n, ['.AA', 'AAA', 'AAA', '.AA']);
+	for (let i = 0; i < 3; i++) p.stamp(22 + i * 2, 22 - n - i * 2, ['A.', 'AA']);
+	p.ellipse(17, 26, 7 + n, 4, 'P').rect(11, top + 7, 8, 25 - top - 7, 'P');
+	p.ellipse(15, 24, 4, 5, 'P');
+	p.rect(9, 28, 4, 3, 'P').rect(20, 28, 4, 3, 'P');
+	p.ellipse(13, 26, 4, 3, 'C');
+	p.rect(11, 25, 3, 2, 'd');
+	// The elbow projects beyond the shoulder; a dark folded finger reaches the tip.
+	const folded = frame().stamp(19, 21 - n, [
+		'.....PP.', 'PP..PPPP', 'PPPPPAAP', '.PAAAAP.', '.PAAAAP.', '..PAAAP.', '...PPPP.', '....PP..'
+	]);
+	p.over(folded.outline());
+	// Swept horns join the skull at a narrow root, with no ear lobes.
+	p.stamp(10, top - 3, ['A..', 'AA.', '.AA']);
+	p.stamp(18, top - 3, ['....AA', '...AA.', '..AA..', '.AA...', 'AA....']);
+	const face = frame().ellipse(13.5, top + 4, 6, 4.5, 'P');
+	face.rect(9, top + 1, 4, 2, 'q');
+	// The off-centre muzzle extends left of the skull: a clear reptile profile.
+	face.stamp(4, top + 6, [
+		'..PPPPPPPP', '.PPPPPPPPP', 'PPPPPPPPPP', 'PPPPPPPPPP', '.PPPPPPPP.'
+	]);
+	face.rect(9, top + 4, 2, 2, 'k').rect(15, top + 4, 2, 2, 'k');
+	face.set(9, top + 4, 'w').set(15, top + 4, 'w');
+	face.rect(7, top + 10, 5, 1, 'p');
+	p.over(face.outline());
+
+	return finish(p, [14, top], [14, top + 13]);
 }
 
-// ── Puddlefin: an axolotl-ish water sprite with frilly gills ────────────────
+// ── Brookbell: a river seal with a cream bib and broad swimming flippers ────
 
-function gills(p: Pix, cx: number, y: number, spread: number, n: number) {
-	for (let i = 0; i < n; i++) {
-		const yy = y + i * 2 - n;
-		p.line(Math.round(cx - spread), yy + 1, Math.round(cx - spread) - 2 - (i % 2), yy, 'A');
-		p.line(Math.round(cx + spread) - 1, yy + 1, Math.round(cx + spread) + 1 + (i % 2), yy, 'A');
-	}
+export function brookbellEgg(): PetArt {
+	return egg(['..PP..', '.PPPP.', 'PPPPPP', '.PPPP.', '..PP..', '.P..P.']);
 }
 
 export function puddlefin(stage: Exclude<PetStage, 'egg'>): PetArt {
+	const n = stage === 'baby' ? 0 : stage === 'teen' ? 1 : 2;
+	const top = [16, 12, 9][n];
 	const p = frame();
-	if (stage === 'baby') {
-		p.ellipse(22, 26, 4, 2, 'P');
-		p.ellipse(15.5, 25, 6, 4.5, 'P');
-		p.ellipse(15.5, 18, 7, 6, 'P');
-		gills(p, 15.5, 18, 7, 3);
-		p.ellipse(15.5, 26, 3.5, 2.5, 'C', true);
-		p.rect(11, 29, 2, 2, 'P').rect(19, 29, 2, 2, 'P');
-		shade(p);
-		eyes(p, 15.5, 17, 6);
-		cheeks(p, 15.5, 20, 6);
-		p.stamp(14, 21, ['k..k', '.kk.']);
-		return finish(p, [15.5, 12], [15.5, 23]);
-	}
-	if (stage === 'teen') {
-		p.ellipse(25, 22, 4, 4, 'P');
-		p.ellipse(27, 18, 2, 3, 'C');
-		p.ellipse(17, 23, 8, 5, 'P');
-		p.ellipse(12, 15, 6.5, 5.5, 'P');
-		gills(p, 12, 15, 6.5, 3);
-		p.ellipse(16, 25, 5, 2.5, 'C', true);
-		p.rect(10, 27, 2, 4, 'P').rect(21, 27, 2, 4, 'P');
-		shade(p);
-		eyes(p, 12, 14, 5);
-		cheeks(p, 12, 17, 5);
-		p.stamp(11, 18, ['k..k', '.kk.']);
-		return finish(p, [12, 9], [13, 20]);
-	}
-	p.ellipse(25, 16, 5, 7, 'C');
-	p.ellipse(25, 19, 4, 4, 'P');
-	p.ellipse(16, 22, 9, 6, 'P');
-	p.ellipse(11, 12, 7, 6, 'P');
-	gills(p, 11, 12, 7, 4);
-	p.stamp(14, 15, ['..CC', '.CCC', 'CCC.']);
-	p.ellipse(15, 24, 6, 3, 'C', true);
-	p.rect(9, 26, 3, 5, 'P').rect(21, 26, 3, 5, 'P');
-	shade(p);
-	eyes(p, 11, 11, 5);
-	cheeks(p, 11, 14, 5);
-	p.stamp(10, 15, ['k..k', '.kk.']);
-	return finish(p, [11, 7], [12, 18]);
+	// Paired rear flippers and a single broad foreflipper give a swimming profile.
+	p.stamp(24, 25 - n, ['....PPP', '..PPPPP', 'PPPPPP.', 'PPPP...', '..PPP..', '...PPP.']);
+	p.ellipse(18, 26, 7 + n, 4, 'P');
+	p.ellipse(13, 23, 5 + n, 6, 'P');
+	p.ellipse(12.5, top + 5, 6 + n / 2, 5.5, 'P');
+	p.ellipse(12, 26, 4, 4, 'C');
+	p.rect(10, 27, 3, 2, 'd');
+	p.over(frame().ellipse(19, 28, 4 + n / 2, 2, 'P').outline());
+	p.ellipse(9, top + 8, 5, 2, 'C').rect(7, top + 10, 5, 1, 'c');
+	p.rect(6, top + 6, 2, 1, 'k').set(6, top + 7, 'k');
+	// A level eye pair stays inside the brow and two rows above the snout.
+	p.rect(10, top + 4, 2, 2, 'k').rect(15, top + 4, 2, 2, 'k');
+	p.set(10, top + 4, 'w').set(15, top + 4, 'w');
+
+	p.rect(9, top + 1, 4, 1, 'q');
+	return finish(p, [13, top], [13, top + 13]);
 }
 
-// ── Mossling: a round sprout that grows a flower ────────────────────────────
+// ── Cloverruff: a floppy-eared pup with a soft moss saddle ─────────────────
 
-function leaf(p: Pix, x: number, y: number, len: number, dir: -1 | 1) {
-	for (let i = 0; i < len; i++) {
-		const w = Math.round(Math.sin((i / len) * Math.PI) * (len / 3));
-		for (let j = -w; j <= w; j++) p.set(x + dir * i, y - Math.round(i / 2) + j, 'C');
-	}
-	p.line(x, y, x + dir * (len - 1), y - Math.round((len - 1) / 2), 'c');
+export function cloverruffEgg(): PetArt {
+	return egg(['PP..PP', 'PPPPPP', '.PPPP.', '..PP..']);
 }
 
 export function mossling(stage: Exclude<PetStage, 'egg'>): PetArt {
+	const n = stage === 'baby' ? 0 : stage === 'teen' ? 1 : 2;
+	const top = [16, 12, 9][n];
 	const p = frame();
-	if (stage === 'baby') {
-		p.line(15, 13, 15, 10, 'c');
-		leaf(p, 15, 10, 5, -1);
-		leaf(p, 16, 10, 4, 1);
-		p.ellipse(15.5, 22, 7.5, 7, 'P');
-		p.ellipse(15.5, 25, 4, 3, 'd', true);
-		p.rect(11, 28, 3, 2, 'P').rect(18, 28, 3, 2, 'P');
-		shade(p);
-		eyes(p, 15.5, 19, 5);
-		cheeks(p, 15.5, 22, 5);
-		p.set(15, 23, 'k').set(16, 23, 'k');
-		return finish(p, [15.5, 14], [15.5, 25]);
-	}
-	if (stage === 'teen') {
-		p.line(15, 9, 15, 6, 'c');
-		leaf(p, 15, 6, 7, -1);
-		leaf(p, 16, 6, 6, 1);
-		p.ellipse(15.5, 20, 9, 8, 'P');
-		p.ellipse(15.5, 24, 5, 4, 'd', true);
-		p.rect(9, 27, 3, 4, 'P').rect(20, 27, 3, 4, 'P');
-		p.rect(5, 19, 2, 3, 'P').rect(25, 19, 2, 3, 'P');
-		shade(p);
-		eyes(p, 15.5, 17, 6);
-		cheeks(p, 15.5, 20, 6);
-		p.stamp(14, 21, ['k..k', '.kk.']);
-		return finish(p, [15.5, 11], [15.5, 24]);
-	}
-	p.ellipse(15.5, 5, 3, 2, 'A');
-	p.ellipse(12.5, 7, 2, 2, 'A');
-	p.ellipse(18.5, 7, 2, 2, 'A');
-	p.ellipse(15.5, 7, 1.5, 1.5, 'b');
-	leaf(p, 14, 11, 8, -1);
-	leaf(p, 17, 11, 8, 1);
-	p.ellipse(15.5, 19, 10, 9, 'P');
-	p.ellipse(15.5, 23, 6, 5, 'd', true);
-	p.rect(8, 26, 4, 5, 'P').rect(20, 26, 4, 5, 'P');
-	p.rect(3, 17, 3, 4, 'P').rect(26, 17, 3, 4, 'P');
-	shade(p);
-	eyes(p, 15.5, 16, 7);
-	cheeks(p, 15.5, 19, 7);
-	p.stamp(14, 20, ['k..k', '.kk.']);
-	return finish(p, [15.5, 9], [15.5, 24]);
+	// The tail rises from the rump; the long hanging ears stay separate from it.
+	p.stamp(24, 20 - n, ['..PP.', '.PPPP', 'PPPP.', 'PPP..', 'PP...', 'PP...']);
+	p.ellipse(18, 25, 7 + n, 4, 'P');
+	p.rect(10, 26, 3, 5, 'P').rect(21, 26, 3, 5, 'P');
+	p.rect(13, 28, 2, 3, 'P').rect(24, 28, 2, 3, 'P');
+	p.rect(10, 29, 4, 2, 'C').rect(21, 29, 4, 2, 'C');
+	p.ellipse(12, 23, 4, 5, 'P');
+	p.ellipse(20, 23, 4 + n, 2.5, 'q');
+	p.ellipse(13, top + 5, 6, 5.5, 'P');
+	p.ellipse(7, top + 5, 2, 4, 'P');
+	p.over(frame().ellipse(18, top + 6, 2.5, 4, 'p').outline());
+	p.ellipse(8, top + 9, 4.5, 2, 'C');
+	p.rect(4, top + 7, 2, 2, 'k').set(4, top + 7, 'w');
+	p.rect(10, top + 4, 2, 2, 'k').rect(14, top + 4, 2, 2, 'k');
+	p.set(10, top + 4, 'w').set(14, top + 4, 'w');
+	p.rect(10, top + 1, 4, 1, 'q');
+	return finish(p, [13, top], [13, top + 13]);
 }
 
-// ── Pebblet: a pebble with a crystal growing out of its back ────────────────
+// ── Cairnback: a stone tortoise carrying a single jade crystal ───────────
 
-function crystal(p: Pix, x: number, y: number, h: number) {
-	for (let i = 0; i < h; i++) {
-		const w = i < 2 ? i : Math.min(2, Math.floor(h / 3));
-		for (let dx = -w; dx <= w; dx++) p.set(x + dx, y + i, dx < 0 ? 'b' : 'A');
-	}
+export function cairnbackEgg(): PetArt {
+	return egg(['..AA..', '.AAAA.', 'AAAAAA', '.AAAA.', '..AA..']);
 }
 
 export function pebblet(stage: Exclude<PetStage, 'egg'>): PetArt {
+	const n = stage === 'baby' ? 0 : stage === 'teen' ? 1 : 2;
+	const top = [18, 15, 12][n];
 	const p = frame();
-	const s = stage === 'baby' ? 0 : stage === 'teen' ? 1 : 2;
-	const rx = 6 + s * 2.5;
-	const ry = 5 + s * 2;
-	const cy = 30 - ry;
-	crystal(p, 20 + s, Math.round(cy - ry - 3 - s * 2), 6 + s * 3);
-	if (s === 2) crystal(p, 11, Math.round(cy - ry - 1), 6);
-	p.ellipse(15.5, cy, rx, ry, 'P');
-	p.ellipse(15.5, cy + ry * 0.4, rx * 0.6, ry * 0.4, 'C', true);
-	shade(p);
-	p.paint(Math.round(15.5 - rx / 2), Math.round(cy - ry / 2), 'q');
-	const ey = Math.round(cy - 1);
-	eyes(p, 15.5, ey, 4 + s, 2);
-	cheeks(p, 15.5, ey + 2, 4 + s);
-	p.set(15, ey + 3, 'k').set(16, ey + 3, 'k');
-	return finish(p, [15.5, Math.round(cy - ry)], [15.5, Math.round(cy + 2)]);
+	p.stamp(26, 26, ['PP.', 'PPP', 'PP.']);
+	p.rect(10, 28, 4, 3, 'P').rect(22, 28, 4, 3, 'P');
+	// A separate dome keeps the shell's edge readable behind the long neck.
+	const shell = frame().ellipse(20, 24 - n, 7 + n, 5 + n, 'P');
+	shell.ellipse(18, 21 - n, 3, 2, 'q', true);
+	for (let x = 14; x <= 27; x++) shell.paint(x, 27, 'p');
+	p.over(shell.outline());
+	p.stamp(21, 15 - n * 3, ['..AA..', '.bbAA.', '.bbAA.', 'AAAAAA', '.AAAA.', '..AA..']);
+
+	p.ellipse(11, 25, 2.5, 4, 'P').rect(9, top + 6, 4, 25 - top - 6, 'P');
+	p.rect(9, top + 9, 2, 27 - top - 9, 'C');
+	const face = frame().ellipse(10, top + 4, 5, 4, 'P');
+	face.ellipse(6.5, top + 7, 3.5, 2, 'C');
+	face.rect(7, top + 1, 4, 1, 'q');
+	face.rect(7, top + 4, 2, 2, 'k').rect(12, top + 4, 2, 2, 'k');
+	face.set(7, top + 4, 'w').set(12, top + 4, 'w');
+
+	p.over(face.outline());
+	return finish(p, [10, top], [10, top + 11]);
 }
 
-// ── Fluffle: a cloud lamb with little curled horns ──────────────────────────
+// ── Cloudwool: a cream-fleeced lamb with round amber horns ─────────────────
+
+export function cloudwoolEgg(): PetArt {
+	return egg(['.AAAA.', 'AA..AA', 'A.AA.A', 'AAAAAA', '.AAAA.']);
+}
 
 export function fluffle(stage: Exclude<PetStage, 'egg'>): PetArt {
+	const n = stage === 'baby' ? 0 : stage === 'teen' ? 1 : 2;
+	const top = [16, 12, 9][n];
 	const p = frame();
-	const s = stage === 'baby' ? 0 : stage === 'teen' ? 1 : 2;
-	const r = 5 + s * 1.5;
-	const cy = 28 - r;
-	for (const [dx, dy] of [
-		[-r * 0.8, 0],
-		[r * 0.8, 0],
-		[0, -r * 0.6],
-		[-r * 0.4, r * 0.3],
-		[r * 0.4, r * 0.3],
-		[0, 0]
-	])
-		p.ellipse(15.5 + dx, cy + dy, r * 0.7, r * 0.7, 'C');
-	p.rect(Math.round(15.5 - r * 0.6), Math.round(cy + r * 0.5), 2, 4 - (s === 0 ? 1 : 0), 'n');
-	p.rect(Math.round(15.5 + r * 0.6) - 1, Math.round(cy + r * 0.5), 2, 4 - (s === 0 ? 1 : 0), 'n');
-	p.ellipse(15.5, cy + 1, r * 0.55, r * 0.5, 'P');
-	p.rim('C', 'c', 1, 0);
-	p.rim('C', 'c', 0, 1);
-	const hy = Math.round(cy - r * 0.6);
-	p.stamp(Math.round(15.5 - r * 0.6) - 2, hy, ['AA', 'A.', 'AA']);
-	p.stamp(Math.round(15.5 + r * 0.6), hy, ['AA', '.A', 'AA']);
-	const ey = Math.round(cy);
-	eyes(p, 15.5, ey, 3 + s, 2);
-	cheeks(p, 15.5, ey + 2, 3 + s);
-	return finish(p, [15.5, Math.round(cy - r * 1.2)], [15.5, Math.round(cy + r * 0.5)]);
+	p.ellipse(27, 23, 2, 2, 'C');
+	p.rect(11, 26, 3, 5, 'P').rect(22, 26, 3, 5, 'P');
+	p.rect(14, 28, 2, 3, 'P').rect(25, 28, 2, 3, 'P');
+	const fleece = frame().ellipse(19, 24, 7 + n, 5, 'C');
+	fleece.ellipse(16, 21, 4, 3, 'C').ellipse(22, 21, 4, 3, 'C').ellipse(25, 24, 3, 3, 'C');
+	fleece.ellipse(18, 21, 4, 2, 'd', true);
+	p.over(fleece.outline());
+	p.ellipse(12, 23, 4, 5, 'P');
+	const face = frame().ellipse(12, top + 5, 5.5, 5, 'P');
+	face.ellipse(7, top + 8, 4, 1.5, 'P');
+	face.rect(5, top + 9, 4, 1, 'p');
+	face.rect(8, top + 4, 2, 2, 'k').rect(13, top + 4, 2, 2, 'k');
+	face.set(8, top + 4, 'w').set(13, top + 4, 'w');
+	face.ellipse(10, top + 1, 4, 2, 'C');
+	p.over(face.outline());
+	// A broad inset keeps the curled horn readable beside the horizontal ear.
+	p.over(frame().stamp(16, top + 2, ['.AAAA.', 'AAAAAA', 'AAaaAA', 'AAaaAA', '.AAAA.']).outline());
+	p.stamp(17, top + 7, ['PPP', '.PP']);
+	return finish(p, [11, top], [12, top + 13]);
 }
 
-// ── Glimmerwing: a moth with lantern-bright wings ───────────────────────────
+// ── Lamplume: a dusk moth, its folded wings like warm paper lanterns ────────
+
+export function lamplumeEgg(): PetArt {
+	return egg(['PP....PP', 'PPP..PPP', '.PPPPPP.', '..PPPP..']);
+}
 
 export function glimmerwing(stage: Exclude<PetStage, 'egg'>): PetArt {
+	const n = stage === 'baby' ? 0 : stage === 'teen' ? 1 : 2;
+	const top = [16, 12, 9][n];
 	const p = frame();
-	const s = stage === 'baby' ? 0 : stage === 'teen' ? 1 : 2;
-	const wing = 4 + s * 2.5;
-	const cy = 22 - s;
-	p.ellipse(15.5 - wing * 0.8, cy - 2, wing * 0.75, wing, 'C');
-	p.ellipse(15.5 + wing * 0.8, cy - 2, wing * 0.75, wing, 'C');
-	p.ellipse(15.5 - wing * 0.8, cy - 2, wing * 0.3, wing * 0.35, 'A', true);
-	p.ellipse(15.5 + wing * 0.8, cy - 2, wing * 0.3, wing * 0.35, 'A', true);
-	p.ellipse(15.5, cy + 2, 3 + s * 0.5, 5 + s, 'P');
-	p.ellipse(15.5, cy - 4 - s, 4 + s * 0.5, 3.5 + s * 0.5, 'P');
-	p.line(13, cy - 7 - s, 11 - s, cy - 10 - s * 2, 'n').line(18, cy - 7 - s, 20 + s, cy - 10 - s * 2, 'n');
-	p.set(11 - s, cy - 11 - s * 2, 'A').set(20 + s, cy - 11 - s * 2, 'A');
-	for (let y = cy; y < cy + 5 + s; y += 2) p.paint(15, y, 'p').paint(16, y, 'p');
-	p.rim('C', 'c', 0, 1);
-	p.rim('P', 'p', 1, 0);
-	eyes(p, 15.5, cy - 5 - s, 3, 2);
-	return finish(p, [15.5, cy - 8 - s], [15.5, cy - 1]);
+	// Short feet leave the folded wing clear.
+	p.rect(10, 27, 3, 4, 'P').rect(21, 27, 3, 4, 'P');
+	p.ellipse(18, 26, 7 + n, 3, 'P');
+	p.ellipse(12, 23, 5, 5, 'C');
+	// The near wing folds diagonally over the far wing, leaving the head clear.
+	const far = frame().ellipse(23, 26, 5 + n, 3, 'P');
+	p.over(far.outline());
+	const wing = frame();
+	const folds = [
+		['.CCCC..', 'CCCCCC.', 'CCCCCCC', 'CCCAACC', 'CCAAAAC', 'CCAAAAC', '.CCCCCC', '..CCCC.'],
+		['.CCCC...', 'CCCCCC..', 'CCCCCCC.', 'CCCCCCCC', 'CCCCCCCC', 'CCCAAACC', 'CCAAAACC', 'CCAAAACC', '.CCAACCC', '.CCCCCCC', '..CCCCC.', '...CCC..'],
+		['.CCCCC....', 'CCCCCCC...', 'CCCCCCCC..', 'CCCCCCCCC.', 'CCCCCCCCCC', 'CCCCAAACCC', 'CCCAAAAACC', 'CCAAAAAACC', 'CCAAAAAACC', '.CCAAAACCC', '.CCCAACCCC', '..CCCCCCC.', '..CCCCCC..', '...CCCC...', '....CC....']
+	];
+	wing.stamp(17, top + 5, folds[n]);
+	p.over(wing.outline());
+	const face = frame().ellipse(11, top + 5, 5.5, 4.5, 'P');
+	face.ellipse(7, top + 8, 3, 2, 'C');
+	face.rect(7, top + 1, 4, 2, 'q');
+	face.rect(7, top + 4, 2, 2, 'k').rect(12, top + 4, 2, 2, 'k');
+	face.set(7, top + 4, 'w').set(12, top + 4, 'w');
+
+	p.over(face.outline());
+	p.stamp(5, top - 4, ['AA...', 'AAAA.', '..PP.', '...P.']);
+	p.stamp(15, top - 4, ['...AA', '.AAAA', '.PP..', '.P...']);
+	return finish(p, [11, top], [12, top + 13]);
 }
 
 // ── Pet accessories (12×8) ──────────────────────────────────────────────────
@@ -328,25 +236,34 @@ function acc() {
 }
 
 export function petBow(): Sprite {
-	return acc().stamp(3, 4, ['PP.PP', 'PPAPP', 'PP.PP']).outline().toSprite();
+	// Low, wide loops spread beside the knot, above the short tails.
+	return acc().stamp(0, 0, [
+		'............', '............', '.oooo..oooo.', 'oPPPPooPPPPo',
+		'oP.PPAAPP.Po', '.oPPPAAPPPo.', '..ooPAAPoo..', '...oPooPo...'
+	]).toSprite();
 }
 
 export function petTopHat(): Sprite {
-	return acc().stamp(3, 2, ['.PPPP.', '.PPPP.', '.AAAA.', 'PPPPPP']).outline().toSprite();
+	return acc().stamp(2, 1, ['..PPPP..', '..PPPP..', '..PPPP..', '..AAAA..', 'PPPPPPPP'])
+		.outline().toSprite();
 }
 
 export function petFlower(): Sprite {
-	return acc().stamp(4, 4, ['.P.', 'PAP', '.P.']).outline().toSprite();
+	return acc().stamp(3, 1, ['..PP..', '..PP..', 'PPAAPP', 'PPAAPP', '..PP..', '..PP..'])
+		.outline().toSprite();
 }
 
 export function petCrown(): Sprite {
-	return acc().stamp(3, 4, ['A.A.A.', 'AAAAAA', 'AbArAA']).outline().toSprite();
+	return acc().stamp(2, 2, ['A..AA..A', 'AA.AA.AA', 'AAAAAAAA', '.AAAAAA.'])
+		.outline().toSprite();
 }
 
 export function petBandana(): Sprite {
-	return acc().stamp(2, 2, ['PPPPPPPP', '.PPPPPP.', '..PPPP..', '...PP...']).outline().toSprite();
+	return acc().stamp(3, 1, ['PPPPPP', '.PPPP.', '..PP..'])
+		.outline().toSprite();
 }
 
 export function petBell(): Sprite {
-	return acc().stamp(2, 2, ['PPPPPPPP', '...AA...', '...Ab...']).outline().toSprite();
+	return acc().stamp(2, 1, ['PPPPPPPP', '...AA...', '..AbbA..', '..AAAA..'])
+		.outline().toSprite();
 }

@@ -5,6 +5,7 @@ import { eq } from 'drizzle-orm';
 import { dyeItemId, getCosmetic, getTheme, themeItemId } from '$lib/content';
 import { DEFAULT_AVATAR, OPTIONAL_SLOTS, SLOT_ORDER } from '$lib/content/cosmetics';
 import { getDye, isEye, isHair, isSkin } from '$lib/content/palettes';
+import { DEFAULT_THEME } from '$lib/content/themes';
 import { zeroStats } from '$lib/content/stats';
 import type { AvatarConfig, AvatarSlot, ColorSlot } from '$lib/content/types';
 import { gameDay, isValidTimeZone } from '$lib/game/schedule';
@@ -76,6 +77,7 @@ export function createPlayer(ctx: Ctx, input: Onboarding) {
 			statXp: zeroStats(),
 			timezone,
 			gp: 20,
+			themeId: DEFAULT_THEME,
 			lastVisitDay: today,
 			returnStreak: 1,
 			welcomeDay: today,

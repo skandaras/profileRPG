@@ -1,0 +1,126 @@
+{
+  "tool": "Built-in image_gen (concept sources reused)",
+  "newCallsInD1": 0,
+  "rawGenerations": "handoff/concept-d/source (outside repository)",
+  "prompts": [
+    {
+      "id": "d-dragon-young",
+      "prompt": "Use case: stylized-concept. Transparent wide landscape sheet two original collectible monster illustrations EGG on LEFT half and BABY dragon on RIGHT half. MIDNIGHT TAROT style: deep midnight indigo watercolor, fine old gold ink outline, ivory highlights and broad clean cel-like shadow planes, few strong rounded shapes, not detailed realistic scales. Brambleback little dragon signature: a pair of crescent-shaped rounded golden horns that will grow into a halo arch, indigo blue body, warm ivory belly and long soft muzzle, enormous gentle amber eyes, rounded paws, curled broad diamond tail. Left egg ivory shell with gold crescent cap, indigo lower shell, no symbols or text. Right wingless seated hatchling head 55 percent body height, tiny crescent horn buds, very round plump body, warm smile. Never cat-like, no pointed ears. Original design no existing franchise creature. Entire subjects isolated clean alpha with generous margins and clear central gutter, no tarot cards or UI, no labels, no background or ground shadows.",
+      "source": "source/d-dragon-young.webp",
+      "mode": "built-in image_gen",
+      "transparent_background": true
+    },
+    {
+      "id": "d-dragon-grown",
+      "reference": "source/d-dragon-young.webp",
+      "prompt": "Use case: stylized-concept. EDIT/DERIVE from the reference egg and baby: paint ONLY TWO NEW stages of the SAME original dragon Brambleback, retaining palette, face language and signature feature. Landscape transparent sheet, TEEN on LEFT half and ADULT on RIGHT half, equal separate cells, generous 6% margin around each subject with no touching canvas edge, clear central gutter. MIDNIGHT TAROT: indigo and ivory watercolor, gold ink edges, gentle golden eyes. Signature crescent horns grow into a near-complete arch on adult with space between tips. TEEN LEFT upright BIPED standing on two longer hind legs, big round head, little crescent horns, small folded bat membrane wings, babyish smile. ADULT RIGHT low sturdy QUADRUPED, extra wide TWO opened strut-supported BAT MEMBRANE wings indigo with gold borders, TWO curved gold horns framing head as open halo, long diamond-tipped tail curves upward. Head remains 45 percent torso, broad rounded muzzle, round body, big eyes, smiling. No long scary neck. Clean cel-like shading under watercolor, bold readable silhouettes at 128 by 96 pixels, no cat anatomy, no existing franchise designs, gentle eerie-cute. True transparent alpha, NO text labels, no background, no ground shadow, NO eggs or baby on output.",
+      "source": "source/d-dragon-grown.webp",
+      "mode": "built-in image_gen",
+      "transparent_background": true
+    }
+  ],
+  "preparation": "handoff/d1/prepare-art.py",
+  "contract": "512 \u00d7 384; lowest visible row y=350; teen mirrored to face left; transparent RGB and alpha <=8 cleared; proportional resampling only",
+  "stages": {
+    "egg": {
+      "input": "concept-d/egg.webp",
+      "sha256": "f061bfc64ae389c6b1591d2f1144c927c331c0c828ec6a6936be061c53d1b6d6",
+      "crop": [
+        115,
+        16,
+        397,
+        368
+      ],
+      "mirror": false,
+      "size": [
+        261,
+        326
+      ],
+      "origin": [
+        125,
+        25
+      ],
+      "bounds": [
+        125,
+        25,
+        386,
+        351
+      ]
+    },
+    "baby": {
+      "input": "concept-d/baby.webp",
+      "sha256": "510085f62aa37e475730858cc3e902ffd500fd1e0297790a142232834ac8c892",
+      "crop": [
+        84,
+        16,
+        428,
+        368
+      ],
+      "mirror": false,
+      "size": [
+        319,
+        326
+      ],
+      "origin": [
+        96,
+        25
+      ],
+      "bounds": [
+        96,
+        25,
+        415,
+        351
+      ]
+    },
+    "teen": {
+      "input": "concept-d/teen.webp",
+      "sha256": "03339e1f7d9fbc1fcb353c3bb415b565a6c56a89040f60427f557e03dfdb314b",
+      "crop": [
+        129,
+        16,
+        383,
+        368
+      ],
+      "mirror": true,
+      "size": [
+        235,
+        326
+      ],
+      "origin": [
+        138,
+        25
+      ],
+      "bounds": [
+        138,
+        25,
+        373,
+        351
+      ]
+    },
+    "adult": {
+      "input": "concept-d/adult.webp",
+      "sha256": "c9fe4ad2ddff8914d98d5b29139a162931f39b9f56ece9f98361646b45869e86",
+      "crop": [
+        16,
+        22,
+        496,
+        361
+      ],
+      "mirror": false,
+      "size": [
+        462,
+        326
+      ],
+      "origin": [
+        25,
+        25
+      ],
+      "bounds": [
+        25,
+        25,
+        487,
+        351
+      ]
+    }
+  }
+}

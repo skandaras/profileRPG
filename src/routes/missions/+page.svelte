@@ -1,4 +1,6 @@
 <script lang="ts">
+	import PixelIcon from '$lib/components/PixelIcon.svelte';
+	import DisplayIcon from '$lib/components/DisplayIcon.svelte';
 	import { enhance } from '$app/forms';
 	import { withNotices } from '$lib/act';
 	import { countdown, duration, ticker } from '$lib/clock.svelte';
@@ -10,7 +12,7 @@
 	let bringPet = $state(true);
 
 	const free = $derived(data.board.slots - data.board.runs.length);
-	const TIER = { great: '🌟 Triumph', success: '✅ Success', partial: '🩹 Bumpy trip' } as const;
+	const TIER = { great: 'Triumph', success: 'Success', partial: 'Bumpy trip' } as const;
 </script>
 
 <svelte:head><title>Quests · LevelUp</title></svelte:head>
@@ -26,10 +28,10 @@
 		{#each data.board.runs as r (r.id)}
 			{@const left = r.endsAt - clock.now}
 			<div class="run">
-				<span class="big" aria-hidden="true">{r.icon}</span>
+				<DisplayIcon value={r.icon} scale={2} />
 				<div class="grow">
 					<strong>{r.name}</strong>
-					<div class="bar" role="progressbar" aria-label="Journey" aria-valuenow={Math.min(100, Math.round(((clock.now - r.startedAt) / (r.endsAt - r.startedAt)) * 100))}>
+					<div class="bar" role="progressbar" aria-label={`${r.name} progress`} aria-valuemin={0} aria-valuemax={100} aria-valuetext={left <= 0 ? 'Ready to claim' : `${countdown(left)} remaining`} aria-valuenow={Math.min(100, Math.round(((clock.now - r.startedAt) / (r.endsAt - r.startedAt)) * 100))}>
 						<span style:width="{Math.min(100, ((clock.now - r.startedAt) / (r.endsAt - r.startedAt)) * 100)}%"></span>
 					</div>
 				</div>
@@ -39,7 +41,7 @@
 						<button class="btn small">Claim</button>
 					</form>
 				{:else}
-					<span class="chip">⏳ {countdown(left)}</span>
+					<span class="chip"><PixelIcon name="hourglass" scale={1} /> {countdown(left)}</span>
 				{/if}
 			</div>
 		{/each}
@@ -58,31 +60,32 @@
 		</label>
 	{/if}
 	{#each data.board.missions as m (m.id)}
-		<form method="POST" action="?/start" use:enhance={withNotices()} class="mission" class:locked={m.locked}>
+		<form method="POST" action="?/start" use:enhance={withNotices()} class="mission">
 			<input type="hidden" name="mission" value={m.id} />
 			{#if bringPet && data.board.companion}<input type="hidden" name="pet" value="on" />{/if}
 			<div class="head">
-				<span class="big" aria-hidden="true">{m.icon}</span>
+				<DisplayIcon value={m.icon} scale={2} />
 				<div class="grow">
 					<strong>{m.name}</strong>
 					<div class="small soft">{m.region} · {duration(m.durationMs)}</div>
 				</div>
 				{#if m.locked}
-					<span class="chip">🔒 Lv {m.minLevel}</span>
+					<span class="chip"><PixelIcon name="lock" scale={1} /> Lv {m.minLevel}</span>
 				{:else}
-					<span class="chip" title="Chance of success">{bringPet && data.board.companion ? m.chance : m.chanceAlone}%</span>
+					<span class="chip" aria-label={`Success chance ${bringPet && data.board.companion ? m.chance : m.chanceAlone}%`}>{bringPet && data.board.companion ? m.chance : m.chanceAlone}%</span>
 				{/if}
 			</div>
 			<p class="small">{m.blurb}</p>
 			<div class="row wrap small">
 				{#each Object.entries(m.recommended) as [s, v] (s)}
 					{@const have = data.stats[s as StatId]}
-					<span class="chip" class:good={have >= v} style:border-color={STATS[s as StatId].color}>{STATS[s as StatId].short} {have}/{v}</span>
+					<span class="chip" class:good={have >= v} style:border-color={STATS[s as StatId].color}>{STATS[s as StatId].short} {have}/{v} {#if have >= v}<PixelIcon name="check" scale={1} /><span class="sr-only">recommended stat met</span>{:else}(below){/if}</span>
 				{/each}
-				<span class="chip">⭐ {m.xp}</span>
-				<span class="chip">🪙 {m.gp}</span>
-				{#if m.loot.some((l) => 'egg' in l)}<span class="chip">🥚 eggs</span>{/if}
+				<span class="chip"><PixelIcon name="xp" scale={1} /> {m.xp} XP</span>
+				<span class="chip"><PixelIcon name="gp" scale={1} /> {m.gp} GP</span>
+				{#if m.loot.some((l) => 'egg' in l)}<span class="chip"><PixelIcon name="egg" scale={1} /> eggs</span>{/if}
 			</div>
+			{#if free <= 0 && !m.running && !m.locked}<p class="small soft">Claim a finished trip to free a slot.</p>{/if}
 			{#if !m.locked}
 				<button class="btn small go" disabled={free <= 0 || m.running}>{m.running ? 'Underway' : 'Set off'}</button>
 			{/if}
@@ -92,10 +95,10 @@
 
 {#if data.recent.length}
 	<section class="box">
-		<h3>Recent trips</h3>
+		<h2>Recent trips</h2>
 		{#each data.recent as r (r.id)}
 			<p class="small">
-				{r.icon} <strong>{r.name}</strong>: {r.tier ? TIER[r.tier] : ''}, {r.xp} XP, {r.gp} GP{r.finds.length ? `, found ${r.finds.join(', ')}` : ''}
+				<DisplayIcon value={r.icon} scale={2} /> <strong>{r.name}</strong>: {r.tier ? TIER[r.tier] : ''}, {r.xp} XP, {r.gp} GP{r.finds.length ? `, found ${r.finds.join(', ')}` : ''}
 			</p>
 		{/each}
 	</section>
@@ -106,54 +109,26 @@
 	.head {
 		display: flex;
 		align-items: center;
-		gap: 10px;
+		gap: 12px;
 	}
 
 	.run {
-		padding: 6px 0;
-	}
-
-	.grow {
-		flex: 1;
-		min-width: 0;
-	}
-
-	.big {
-		font-size: 1.8rem;
+		padding: 8px 0;
 	}
 
 	.mission {
-		padding: 12px 0;
-		border-bottom: 2px dashed var(--bg-3);
-	}
-
-	.mission:last-child {
-		border-bottom: 0;
+		padding: 14px;
+		margin-top: 14px;
+		border: 1px solid var(--line);
+		background: var(--bg-3);
 	}
 
 	.mission p {
-		margin: 6px 0;
-	}
-
-	.locked {
-		opacity: 0.6;
+		margin: 8px 0;
 	}
 
 	.go {
 		margin-top: 8px;
 	}
 
-	.pick {
-		display: flex;
-		gap: 8px;
-		align-items: center;
-		font-weight: 400;
-		margin: 6px 0 10px;
-	}
-
-	.pick input {
-		width: auto;
-		min-height: 0;
-		accent-color: var(--accent);
-	}
 </style>

@@ -1,145 +1,49 @@
 <script lang="ts">
-	import { COSMETICS, OPTIONAL_SLOTS, SLOT_NAMES, SLOT_ORDER } from '$lib/content/cosmetics';
-	import { DYES, EYE_COLORS, HAIR_COLORS, SKIN_TONES, type Swatch } from '$lib/content/palettes';
-	import { dyeItemId } from '$lib/content';
-	import type { AvatarConfig, AvatarSlot, ColorSlot } from '$lib/content/types';
-	import { isUnlocked } from '$lib/game/ownership';
-	import { unlockHint } from '$lib/unlocks';
+	import PixelIcon from '$lib/components/PixelIcon.svelte';
+	import { OUTFITS } from '$lib/content/cosmetics';
+	import { keeperLook } from '$lib/content/keeper';
+	import { PAINT_HAIR, PAINT_SKIN, paintSwatch } from '$lib/content/painted-palettes';
+	import type { AvatarConfig } from '$lib/content/types';
 	import Avatar from './Avatar.svelte';
 
-	let {
-		avatar = $bindable(),
-		level = 1,
-		owned = [],
-		starterOnly = false
-	}: { avatar: AvatarConfig; level?: number; owned?: string[]; starterOnly?: boolean } = $props();
+	let { avatar = $bindable() }: { avatar: AvatarConfig } = $props();
+	const look = $derived(keeperLook(avatar));
+	const groups = [{ slot: 'skin', name: 'Skin tone', swatches: PAINT_SKIN }, { slot: 'hair', name: 'Hair colour', swatches: PAINT_HAIR }] as const;
 
-	const ownedSet = $derived(new Set(owned));
-	const has = (id: string, unlock: (typeof COSMETICS)[number]['unlock']) =>
-		starterOnly ? unlock.kind === 'starter' : isUnlocked(unlock, level, ownedSet.has(id));
-
-	let slot = $state<AvatarSlot>('body');
-
-	const COLOR_FOR: Partial<Record<AvatarSlot, ColorSlot>> = {
-		body: 'skin',
-		face: 'eyes',
-		hair: 'hair',
-		top: 'top',
-		bottom: 'bottom',
-		shoes: 'shoes',
-		headwear: 'headwear',
-		accessory: 'accessory'
-	};
-	const COLOR_LABEL: Record<ColorSlot, string> = {
-		skin: 'Skin tone',
-		eyes: 'Eye colour',
-		hair: 'Hair colour',
-		top: 'Dye',
-		bottom: 'Dye',
-		shoes: 'Dye',
-		headwear: 'Dye',
-		accessory: 'Dye'
-	};
-
-	const options = $derived(COSMETICS.filter((c) => c.slot === slot));
-	const colorSlot = $derived(COLOR_FOR[slot]);
-	const swatches = $derived.by((): (Swatch & { locked: boolean; hint: string })[] => {
-		const free = (s: Swatch) => ({ ...s, locked: false, hint: '' });
-		if (colorSlot === 'skin') return SKIN_TONES.map(free);
-		if (colorSlot === 'hair') return HAIR_COLORS.map(free);
-		if (colorSlot === 'eyes') return EYE_COLORS.map(free);
-		if (!colorSlot) return [];
-		return DYES.map((d) => {
-			const locked = starterOnly ? d.unlock.kind !== 'starter' : !isUnlocked(d.unlock, level, ownedSet.has(dyeItemId(d.id)));
-			return { ...d, locked, hint: unlockHint(d.unlock) };
-		}).filter((d) => !(starterOnly && d.locked));
-	});
-
-	function wear(id: string | null) {
-		const parts = { ...avatar.parts };
-		if (id) parts[slot] = id;
-		else delete parts[slot];
-		avatar = { ...avatar, parts };
+	function tint(slot: 'skin' | 'hair', id: string) {
+		avatar = { ...avatar, colors: { ...avatar.colors, [slot]: id } };
 	}
-
-	function tint(id: string) {
-		if (!colorSlot) return;
-		avatar = { ...avatar, colors: { ...avatar.colors, [colorSlot]: id } };
+	function wear(id: string) {
+		avatar = { ...avatar, parts: { ...avatar.parts, top: id } };
 	}
-
-	const preview = (id: string | null): AvatarConfig => {
-		const parts = { ...avatar.parts };
-		if (id) parts[slot] = id;
-		else delete parts[slot];
-		return { ...avatar, parts };
-	};
 </script>
 
 <div class="editor">
-	<div class="stage">
-		<Avatar {avatar} scale={5} label="Your hero" />
-	</div>
-
-	<div class="tabs" role="tablist" aria-label="Avatar parts">
-		{#each SLOT_ORDER as s (s)}
-			<button
-				type="button"
-				role="tab"
-				class="btn small"
-				class:ghost={slot !== s}
-				aria-selected={slot === s}
-				onclick={() => (slot = s)}>{SLOT_NAMES[s]}</button
-			>
-		{/each}
-	</div>
-
-	<div class="grid parts" role="group" aria-label={SLOT_NAMES[slot]}>
-		{#if OPTIONAL_SLOTS.includes(slot)}
-			<button type="button" class="tile" aria-pressed={!avatar.parts[slot]} onclick={() => wear(null)}>
-				<Avatar avatar={preview(null)} scale={2} animate={false} label="" />
-				<span class="small">None</span>
-			</button>
-		{/if}
-		{#each options as o (o.id)}
-			{@const ok = has(o.id, o.unlock)}
-			{#if ok || !starterOnly}
-				<button
-					type="button"
-					class="tile"
-					aria-pressed={avatar.parts[slot] === o.id}
-					disabled={!ok}
-					title={ok ? o.name : unlockHint(o.unlock)}
-					onclick={() => wear(o.id)}
-				>
-					<Avatar avatar={preview(o.id)} scale={2} animate={false} label="" />
-					<span class="small">{o.name}</span>
-					{#if !ok}<span class="lock small soft">🔒 {unlockHint(o.unlock)}</span>{/if}
-				</button>
-			{/if}
-		{/each}
-	</div>
-
-	{#if colorSlot}
-		<h3 class="sw-title">{COLOR_LABEL[colorSlot]}</h3>
-		<div class="swatches" role="group" aria-label={COLOR_LABEL[colorSlot]}>
-			{#each swatches as s (s.id)}
-				<button
-					type="button"
-					class="swatch"
-					aria-pressed={avatar.colors[colorSlot] === s.id}
-					aria-label={s.locked ? `${s.name} (locked: ${s.hint})` : s.name}
-					title={s.locked ? `${s.name}: ${s.hint}` : s.name}
-					disabled={s.locked}
-					style:--c0={s.ramp[0]}
-					style:--c1={s.ramp[1]}
-					style:--c2={s.ramp[2]}
-					onclick={() => tint(s.id)}
-				>
-					{#if s.locked}<span aria-hidden="true">🔒</span>{/if}
+	<div class="stage"><Avatar {avatar} scale={4} label="Your hero" /></div>
+	{#each groups as group (group.slot)}
+		<fieldset class="mt"><legend>{group.name}</legend>
+			<div class="swatches" role="group" aria-label={group.name}>
+				{#each group.swatches as s (s.id)}
+					{@const selected = paintSwatch(group.slot, avatar.colors[group.slot]).id === s.id}
+					<button type="button" class="swatch" aria-pressed={selected} aria-label={s.name} title={s.name}
+						style:--c0={s.ramp[0]} style:--c1={s.ramp[1]} style:--c2={s.ramp[2]}
+						onclick={() => tint(group.slot, s.id)}>
+						{#if selected}<span class="swatch-mark"><PixelIcon name="check" scale={1} /></span>{/if}
+					</button>
+				{/each}
+			</div>
+		</fieldset>
+	{/each}
+	<fieldset class="mt"><legend>Outfit</legend>
+		<div class="grid parts" role="group" aria-label="Outfit">
+			{#each OUTFITS as o (o.id)}
+				<button type="button" class="tile" aria-pressed={look.parts.top === o.id} onclick={() => wear(o.id)}>
+					<Avatar avatar={{ ...avatar, parts: { ...avatar.parts, top: o.id } }} scale={2} animate={false} label="" />
+					<span class="small">{o.name}{#if look.parts.top === o.id} <PixelIcon name="check" scale={1} />{/if}</span>
 				</button>
 			{/each}
 		</div>
-	{/if}
+	</fieldset>
 </div>
 
 <style>
@@ -147,26 +51,16 @@
 		display: flex;
 		justify-content: center;
 		padding: 12px 0 16px;
-		background: linear-gradient(var(--sky) 0 72%, var(--floor) 72%);
-		border: 3px solid var(--line);
-		border-radius: 8px;
-		margin-bottom: 12px;
+		background: var(--window);
+		border: 1px solid var(--line);
+		border-radius: 50% 50% 2px 2px / 65px 65px 2px 2px;
+		margin: 0 auto 12px;
+		max-width: 260px;
 	}
 
 	.parts {
-		grid-template-columns: repeat(auto-fill, minmax(84px, 1fr));
-		max-height: 340px;
-		overflow-y: auto;
-		padding: 4px;
-	}
-
-	.lock {
-		font-size: 0.7rem;
-		line-height: 1.2;
-	}
-
-	.sw-title {
-		margin-top: 14px;
+		grid-template-columns: repeat(2, minmax(0, 1fr));
+		padding: 8px;
 	}
 
 	.swatches {
@@ -178,13 +72,12 @@
 	.swatch {
 		width: 44px;
 		height: 44px;
-		border: 3px solid var(--line);
-		border-radius: 6px;
+		border: 1px solid var(--line);
 		background: linear-gradient(135deg, var(--c2) 0 30%, var(--c1) 30% 70%, var(--c0) 70%);
 		cursor: pointer;
 		display: grid;
 		place-items: center;
-		font-size: 0.9rem;
+		font-size: 14px;
 	}
 
 	.swatch[aria-pressed='true'] {
@@ -193,7 +86,16 @@
 	}
 
 	.swatch:disabled {
-		opacity: 0.45;
 		cursor: not-allowed;
+	}
+	.swatch-mark {
+		background: var(--bg-2);
+		color: var(--ink);
+		padding: 0 3px;
+		font-size: 16px;
+	}
+	.swatch[aria-pressed='true']:focus-visible {
+		outline: 3px solid var(--focus);
+		outline-offset: 3px;
 	}
 </style>

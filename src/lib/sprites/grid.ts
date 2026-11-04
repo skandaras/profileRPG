@@ -1,11 +1,4 @@
-/**
- * Palette-indexed sprites, drawn in code.
- *
- * A sprite stores one character per pixel. Most characters name a colour
- * channel and a shade (see CHANNEL_CHARS), so the same hair drawing renders in
- * any hair colour and a shirt takes whichever dye the player picks. The
- * colours themselves live in content/palettes.ts.
- */
+/** Palette-indexed grids for pixel pets, accessories and props. */
 export interface Sprite {
 	w: number;
 	h: number;
@@ -50,12 +43,9 @@ export const CHANNEL_CHARS: Record<string, [Channel, 0 | 1 | 2]> = {
 export const FIXED_COLORS: Record<string, string> = {
 	o: '#2b1f33',
 	k: '#1a1322',
-	w: '#ffffff',
-	r: '#f59bb0',
-	m: '#a33d55',
-	g: '#9a93a8',
-	G: '#cfc9d9',
-	n: '#5b4a66'
+	// Keep fixed white distinct from the secondary highlight in PNG exports.
+	w: '#fffefd',
+	r: '#f59bb0'
 };
 
 export const TRANSPARENT = '.';

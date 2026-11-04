@@ -3,14 +3,18 @@
  * palette it should be painted in. Pure, so the server, the browser and the
  * tests all agree on what a character looks like.
  */
-import { getCosmetic, getPetAccessory, getSpecies } from '$lib/content';
-import { ACCENT_GOLD, dyeRamp, eyeRamp, hairRamp, REFERENCE_PALETTE, skinRamp, WHITE_RAMP } from '$lib/content/palettes';
+import { getPetAccessory, getSpecies } from '$lib/content';
+import { ACCENT_GOLD, REFERENCE_PALETTE } from '$lib/content/palettes';
 import { speciesPalette } from '$lib/content/pets';
-import { SLOT_ORDER } from '$lib/content/cosmetics';
-import type { Art, AvatarConfig, ColorSlot } from '$lib/content/types';
+import { PET_ACCESSORIES_ENABLED } from '$lib/content/cosmetics';
+import type { Art, AvatarConfig } from '$lib/content/types';
 import type { PetStage } from './art/pets';
 import { PET_ACC } from './art/pets';
-import { AVATAR, PET } from './frames';
+import { PET } from './frames';
+import { svgDocument } from './svg';
+import { clipCoverage, type Point } from './fit';
+import { tintPaint } from './painted';
+import { paintedAvatar, paintedPet } from './painted-figures';
 import type { PaletteSet } from './grid';
 import { blank, bob, drawOver, recolor, renderSprite, type RgbaImage } from './compose';
 
@@ -18,6 +22,11 @@ export interface LayerSpec {
 	z: number;
 	art: Art;
 	palette: PaletteSet;
+	/** Pet PNGs carry final colours; avatar and accessory PNGs use reference channels. */
+	fixedColors?: boolean;
+	paintColor?: string;
+	body?: boolean;
+	occludesBody?: readonly (readonly Point[])[];
 	dx?: number;
 	dy?: number;
 }
@@ -26,41 +35,19 @@ export interface Figure {
 	w: number;
 	h: number;
 	pivot: number;
+	painted?: boolean;
+	/** Height in the original scale API; native painted pixels stay separate. */
+	displayHeight?: number;
 	layers: LayerSpec[];
 }
 
-const TINTED_SLOTS: ColorSlot[] = ['top', 'bottom', 'shoes', 'headwear', 'accessory'];
-
-export function avatarFigure(avatar: AvatarConfig): Figure {
-	const c = avatar.colors;
-	const layers: LayerSpec[] = [];
-	for (const slot of SLOT_ORDER) {
-		const id = avatar.parts[slot];
-		const part = id ? getCosmetic(id) : undefined;
-		if (!part) continue;
-		const tint = (TINTED_SLOTS as string[]).includes(slot) ? c[slot as ColorSlot] : c.top;
-		const palette: PaletteSet = {
-			skin: skinRamp(c.skin),
-			hair: hairRamp(c.hair),
-			eye: eyeRamp(c.eyes),
-			primary: dyeRamp(tint),
-			secondary: part.secondary ?? WHITE_RAMP,
-			accent: part.accent ?? ACCENT_GOLD
-		};
-		for (const l of part.layers) layers.push({ z: l.z, art: l.art, palette });
-	}
-	// Stable: parts at the same depth keep slot order.
-	layers.sort((a, b) => a.z - b.z);
-	return { w: AVATAR.w, h: AVATAR.h, pivot: AVATAR.pivot, layers };
-}
-
-export function petFigure(speciesId: string, stage: PetStage, accessoryId?: string | null): Figure {
+export function pixelPetFigure(speciesId: string, stage: PetStage, accessoryId?: string | null): Figure {
 	const species = getSpecies(speciesId);
 	if (!species) return { w: PET.w, h: PET.h, pivot: PET.pivot, layers: [] };
 	const art = species.art[stage];
 	const palette = speciesPalette(species);
 	const layers: LayerSpec[] = [
-		{ z: 0, art: 'sprite' in art ? { sprite: art.sprite } : { png: art.png, w: PET.w, h: PET.h }, palette }
+		{ z: 0, art: 'sprite' in art ? { sprite: art.sprite } : { png: art.png, w: PET.w, h: PET.h, frames: art.frames }, palette, fixedColors: true }
 	];
 	const acc = accessoryId && stage !== 'egg' ? getPetAccessory(accessoryId) : undefined;
 	if (acc) {
@@ -76,11 +63,20 @@ export function petFigure(speciesId: string, stage: PetStage, accessoryId?: stri
 	return { w: PET.w, h: PET.h, pivot: PET.pivot, layers };
 }
 
+export function avatarFigure(avatar: AvatarConfig): Figure {
+	return paintedAvatar(avatar);
+}
+
+export function petFigure(speciesId: string, stage: PetStage, accessoryId?: string | null): Figure {
+	if (!PET_ACCESSORIES_ENABLED) accessoryId = null;
+	return paintedPet(speciesId, stage, accessoryId) ?? pixelPetFigure(speciesId, stage, accessoryId);
+}
+
 /** PNG layers arrive already decoded (the browser does that); sprites are painted here. */
 export type DecodedPngs = Map<string, RgbaImage>;
 
 export function layerFrames(l: LayerSpec): number {
-	return 'sprite' in l.art ? l.art.sprite.frames : (l.art.frames ?? 1);
+	return 'sprite' in l.art ? l.art.sprite.frames : 'png' in l.art ? (l.art.frames ?? 1) : 1;
 }
 
 /**
@@ -89,22 +85,34 @@ export function layerFrames(l: LayerSpec): number {
  */
 export function paintFigure(fig: Figure, pngs: DecodedPngs = new Map()): RgbaImage[] {
 	const frames = Math.max(1, ...fig.layers.map(layerFrames));
+	const coverage = fig.layers.flatMap((l) => l.occludesBody ?? []);
 	const paint = (frame: number) => {
 		const img = blank(fig.w, fig.h);
 		for (const l of fig.layers) {
 			let src: RgbaImage | undefined;
 			if ('sprite' in l.art) src = renderSprite(l.art.sprite, l.palette, frame);
+			else if ('svg' in l.art) src = pngs.get(svgDocument(l.art, l.palette));
+			else if ('painted' in l.art) {
+				src = pngs.get(l.art.painted);
+				if (src && l.paintColor) src = tintPaint(src, l.paintColor);
+			}
 			else {
 				const png = pngs.get(l.art.png);
-				if (png) src = recolor(pngFrame(png, l.art.w, frame), REFERENCE_PALETTE, l.palette);
+				if (png) {
+					src = pngFrame(png, l.art.w, frame);
+					if (!l.fixedColors) src = recolor(src, REFERENCE_PALETTE, l.palette);
+				}
 			}
-			if (src) drawOver(img, src, l.dx ?? 0, l.dy ?? 0);
+			if (src) {
+				if (l.body && coverage.length) src = clipCoverage(src, coverage);
+				drawOver(img, src, l.dx ?? 0, l.dy ?? 0);
+			}
 		}
 		return img;
 	};
 	if (frames > 1) return Array.from({ length: frames }, (_, f) => paint(f));
 	const pose = paint(0);
-	return [pose, bob(pose, fig.pivot)];
+	return fig.painted ? [pose] : [pose, bob(pose, fig.pivot)];
 }
 
 function pngFrame(sheet: RgbaImage, w: number, frame: number): RgbaImage {

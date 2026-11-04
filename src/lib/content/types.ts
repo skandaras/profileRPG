@@ -6,6 +6,8 @@
  * with no migration. An id, once shipped, is forever: a player's inventory row
  * points at it.
  */
+import type { PaintedArt } from '$lib/sprites/painted';
+import type { SvgArt } from '$lib/sprites/svg';
 import type { Sprite } from '$lib/sprites/grid';
 
 export type StatId = 'str' | 'dex' | 'int' | 'kno';
@@ -25,11 +27,11 @@ export type Unlock =
 	| { kind: 'drop' };
 
 /**
- * Art for a catalogue entry: a sprite drawn in code, or a PNG under static/.
+ * Art for a catalogue entry: a grid, a PNG under static/, or a trusted SVG fragment.
  * A PNG is drawn with the reference palettes in content/palettes.ts and is
  * recoloured by swapping those exact colours. See docs/ART.md.
  */
-export type Art = { sprite: Sprite } | { png: string; w: number; h: number; frames?: number };
+export type Art = PaintedArt | SvgArt | { sprite: Sprite } | { png: string; w: number; h: number; frames?: number };
 
 export type ModifierKey =
 	| 'xp.str'
@@ -64,7 +66,7 @@ export type AvatarSlot =
 	| 'headwear'
 	| 'accessory';
 
-/** Which colour choice tints which part. Clothing slots tint their primary channel. */
+/** Saved colour slots. The keeper editor offers skin and hair; outfit colours are fixed. */
 export type ColorSlot = 'skin' | 'hair' | 'eyes' | 'top' | 'bottom' | 'shoes' | 'headwear' | 'accessory';
 
 export interface AvatarConfig {

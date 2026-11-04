@@ -1,5 +1,5 @@
 import { act, read, str } from '$lib/server/api';
-import { PET_ACCESSORIES } from '$lib/content/cosmetics';
+import { PET_ACCESSORIES, PET_ACCESSORIES_ENABLED } from '$lib/content/cosmetics';
 import { owns } from '$lib/server/modules/inventory';
 import { canForage, feed, foodStock, forage, hatch, listPets, pat, play, rename, setAccessory, setActive, tidy } from '$lib/server/modules/pets';
 import { playerRow } from '$lib/server/modules/progression';
@@ -10,7 +10,7 @@ export const load = ({ locals }) =>
 		return {
 			pets: listPets(ctx.tx, ctx.userId, ctx.now),
 			food: foodStock(ctx.tx, ctx.userId),
-			accessories: PET_ACCESSORIES.filter((a) => owns(ctx.tx, ctx.userId, p.level, a.id)).map((a) => ({ id: a.id, name: a.name })),
+			accessories: (PET_ACCESSORIES_ENABLED ? PET_ACCESSORIES : []).filter((a) => owns(ctx.tx, ctx.userId, p.level, a.id)).map((a) => ({ id: a.id, name: a.name })),
 			canForage: canForage(ctx.tx, ctx.userId, ctx.today),
 			now: ctx.now
 		};

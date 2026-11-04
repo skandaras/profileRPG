@@ -1,3 +1,4 @@
+import { PET_ACCESSORIES_ENABLED } from '$lib/content/cosmetics';
 import { act, read, str } from '$lib/server/api';
 import { claimMission, missionBoard, recentRuns, startMission } from '$lib/server/modules/missions';
 import { playerRow, playerStats } from '$lib/server/modules/progression';
@@ -17,7 +18,7 @@ export const load = ({ locals }) =>
 				tier: r.outcome?.tier,
 				xp: r.outcome?.xp ?? 0,
 				gp: r.outcome?.gp ?? 0,
-				finds: (r.outcome?.drops ?? []).map((d) =>
+				finds: (r.outcome?.drops ?? []).filter((d) => PET_ACCESSORIES_ENABLED || !('item' in d) || getItem(d.item)?.kind !== 'petacc').map((d) =>
 					'egg' in d ? `${getSpecies(d.egg)?.rarity ?? ''} egg` : 'gp' in d ? `${d.gp} GP` : `${getItem(d.item)?.name ?? d.item}${d.qty > 1 ? ` ×${d.qty}` : ''}`
 				)
 			})),

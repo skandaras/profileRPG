@@ -3,6 +3,7 @@
  * and hand back a data URL for a CSS sprite strip. Results are cached by a
  * key the caller picks, so a list of twenty party members paints each once.
  */
+import { svgDocument } from './svg';
 import { hstack, type RgbaImage } from './compose';
 import { paintFigure, type DecodedPngs, type Figure } from './layers';
 
@@ -39,9 +40,15 @@ export function renderFigure(fig: Figure, key: string): Promise<{ url: string; f
 		p = (async () => {
 			const pngs: DecodedPngs = new Map();
 			for (const l of fig.layers) {
-				if ('png' in l.art) {
-					const img = await decode(l.art.png);
-					if (img) pngs.set(l.art.png, img);
+				if ('svg' in l.art) {
+					const svg = svgDocument(l.art, l.palette);
+					const img = await decode(`data:image/svg+xml,${encodeURIComponent(svg.replace('viewBox=', `width="${fig.w}" height="${fig.h}" viewBox=`))}`);
+					if (img) pngs.set(svg, img);
+				}
+				if ('png' in l.art || 'painted' in l.art) {
+					const path = 'painted' in l.art ? l.art.painted : l.art.png;
+					const img = await decode(path);
+					if (img) pngs.set(path, img);
 				}
 			}
 			const frames = paintFigure(fig, pngs);

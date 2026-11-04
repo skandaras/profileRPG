@@ -70,7 +70,7 @@ export function recolor(img: RgbaImage, from: PaletteSet, to: PaletteSet): RgbaI
 	return out;
 }
 
-/** Draw `top` over `base` at an offset. Pixel art has no partial alpha worth blending. */
+/** Draw `top` over `base` at an offset. Opaque grids copy exactly; SVG edges retain their coverage. */
 export function drawOver(base: RgbaImage, top: RgbaImage, ox = 0, oy = 0): RgbaImage {
 	for (let y = 0; y < top.h; y++) {
 		for (let x = 0; x < top.w; x++) {
@@ -78,12 +78,13 @@ export function drawOver(base: RgbaImage, top: RgbaImage, ox = 0, oy = 0): RgbaI
 			const ty = y + oy;
 			if (tx < 0 || ty < 0 || tx >= base.w || ty >= base.h) continue;
 			const s = (y * top.w + x) * 4;
-			if (top.data[s + 3] < 128) continue;
+			if (top.data[s + 3] === 0) continue;
 			const d = (ty * base.w + tx) * 4;
-			base.data[d] = top.data[s];
-			base.data[d + 1] = top.data[s + 1];
-			base.data[d + 2] = top.data[s + 2];
-			base.data[d + 3] = 255;
+			const alpha = top.data[s + 3] / 255;
+			const under = base.data[d + 3] / 255 * (1 - alpha);
+			const coverage = alpha + under;
+			for (let c = 0; c < 3; c++) base.data[d + c] = Math.round((top.data[s + c] * alpha + base.data[d + c] * under) / coverage);
+			base.data[d + 3] = Math.round(coverage * 255);
 		}
 	}
 	return base;

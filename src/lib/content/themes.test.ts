@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { THEMES, type ThemeTokens } from './themes';
+import { DEFAULT_THEME, THEMES, type ThemeTokens } from './themes';
 
 function luminance(hex: string): number {
 	const n = parseInt(hex.slice(1), 16);
@@ -16,19 +16,27 @@ export function contrast(a: string, b: string): number {
 }
 
 // Every pair the UI actually puts text on.
+const SURFACES = ['bg', 'bg2', 'bg3', 'wash', 'wash2', 'paper'] as const;
 const TEXT_PAIRS: [keyof ThemeTokens, keyof ThemeTokens][] = [
-	['ink', 'bg'],
-	['ink', 'bg2'],
-	['ink', 'bg3'],
-	['inkSoft', 'bg2'],
-	['inkSoft', 'bg'],
 	['accentInk', 'accent'],
-	['good', 'bg2'],
-	['bad', 'bg2']
+	...SURFACES.flatMap((bg) => (['ink', 'inkSoft', 'accent', 'good', 'bad', 'statStr', 'statDex', 'statInt', 'statKno'] as const).map((fg): [keyof ThemeTokens, keyof ThemeTokens] => [fg, bg]))
 ];
 
 describe('themes', () => {
+	it('keeps every saved theme id, a light choice and the midnight starter', () => {
+		expect(THEMES.map((t) => t.id)).toEqual(['meadow', 'night', 'sakura', 'ocean', 'ember', 'crystal']);
+		expect(THEMES.some((t) => !t.dark && t.unlock.kind === 'starter')).toBe(true);
+		expect(DEFAULT_THEME).toBe('night');
+		expect(THEMES.find((t) => t.id === DEFAULT_THEME)?.unlock.kind).toBe('starter');
+	});
 	for (const t of THEMES) {
+		it(`${t.id} has visible focus, controls and progress`, () => {
+			for (const bg of SURFACES) {
+				for (const fg of ['focus', 'line', 'accent', 'good', 'bad', 'xp', 'gp', 'statStr', 'statDex', 'statInt', 'statKno'] as const) {
+					expect(contrast(t.tokens[fg], t.tokens[bg]), `${t.id}: ${fg} on ${bg}`).toBeGreaterThanOrEqual(3);
+				}
+			}
+		});
 		it(`${t.id} meets WCAG AA for text`, () => {
 			for (const [fg, bg] of TEXT_PAIRS) {
 				expect(contrast(t.tokens[fg], t.tokens[bg]), `${t.id}: ${fg} on ${bg}`).toBeGreaterThanOrEqual(4.5);

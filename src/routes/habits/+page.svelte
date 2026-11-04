@@ -1,4 +1,5 @@
 <script lang="ts">
+	import DisplayIcon from '$lib/components/DisplayIcon.svelte';
 	import { enhance } from '$app/forms';
 	import { withNotices } from '$lib/act';
 	import HabitRow from '$lib/components/HabitRow.svelte';
@@ -10,7 +11,7 @@
 
 <svelte:head><title>Habits · LevelUp</title></svelte:head>
 
-<div class="spread" style="margin-bottom:12px">
+<div class="page-heading">
 	<h1>Habits</h1>
 	<a class="btn" href="/habits/new">+ New</a>
 </div>
@@ -30,7 +31,7 @@
 		<h2>Archived</h2>
 		{#each data.archived as h (h.id)}
 			<div class="spread arch">
-				<span>{h.icon} {h.title}</span>
+				<span><DisplayIcon value={h.icon} /> {h.title}</span>
 				<form method="POST" action="?/restore" use:enhance={withNotices()}>
 					<input type="hidden" name="id" value={h.id} />
 					<button class="btn ghost small">Restore</button>
@@ -42,6 +43,6 @@
 
 <style>
 	.arch {
-		padding: 6px 0;
+		padding: 8px 0;
 	}
 </style>

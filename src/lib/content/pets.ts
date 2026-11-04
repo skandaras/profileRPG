@@ -1,7 +1,6 @@
 /**
- * Pet species. The three starters are placeholders until the real designs
- * exist: change names, blurbs and art freely, but keep the ids, which are
- * stored on every pet row.
+ * Pet species. Names and drawings can change; ids are permanent because saved
+ * pets and inventory entries refer to them.
  */
 import * as P from '$lib/sprites/art/pets';
 import type { PetArt, PetStage } from '$lib/sprites/art/pets';
@@ -20,7 +19,7 @@ export interface Species {
 	rarity: Rarity;
 	palette: { primary: Ramp; secondary: Ramp; accent: Ramp };
 	/** Art per stage, or a PNG per stage with the same anchors. See docs/ART.md. */
-	art: Record<PetStage, PetArt | { png: string; anchors: PetArt['anchors'] }>;
+	art: Record<PetStage, PetArt | { png: string; frames?: number; anchors: PetArt['anchors'] }>;
 }
 
 const NONE: Ramp = ['#000000', '#000000', '#000000'];
@@ -29,8 +28,8 @@ export function speciesPalette(s: Species): PaletteSet {
 	return { ...s.palette, skin: NONE, hair: NONE, eye: NONE };
 }
 
-const stages = (draw: (stage: 'baby' | 'teen' | 'adult') => PetArt): Species['art'] => ({
-	egg: P.egg(),
+const stages = (draw: (stage: 'baby' | 'teen' | 'adult') => PetArt, egg: PetArt): Species['art'] => ({
+	egg,
 	baby: draw('baby'),
 	teen: draw('teen'),
 	adult: draw('adult')
@@ -39,87 +38,87 @@ const stages = (draw: (stage: 'baby' | 'teen' | 'adult') => PetArt): Species['ar
 export const SPECIES: Species[] = [
 	{
 		id: 'emberkit',
-		name: 'Emberkit',
-		blurb: 'A fox kit with a flame for a tail. Burns brighter the more you move.',
+		name: 'Brambleback',
+		blurb: 'An indigo dragon with golden crescent horns. Grows from a round little sitter into a wide-winged friend.',
 		affinity: ['str'],
 		starter: true,
 		rarity: 'common',
 		palette: {
-			primary: ['#c1532a', '#ee8238', '#ffb46a'],
-			secondary: ['#e6cfa8', '#fff1d6', '#ffffff'],
-			accent: ['#d0451f', '#f5a524', '#ffe27a']
+			primary: ['#9b5140', '#cd815b', '#efbc83'],
+			secondary: ['#b2a77e', '#e5d9ae', '#fff2d3'],
+			accent: ['#9b652d', '#d9a84e', '#f7d998']
 		},
-		art: stages(P.emberkit)
+		art: stages(P.emberkit, P.bramblebackEgg())
 	},
 	{
 		id: 'puddlefin',
-		name: 'Puddlefin',
-		blurb: 'A water sprite with frilly gills. Nimble, playful, always splashing.',
+		name: 'Brookbell',
+		blurb: 'A soft river seal with a cream bib and broad little flippers. Turns every puddle into a place to play.',
 		affinity: ['dex'],
 		starter: true,
 		rarity: 'common',
 		palette: {
-			primary: ['#4d86c9', '#7fb6ef', '#bfe0ff'],
-			secondary: ['#bcd6ef', '#e8f4ff', '#ffffff'],
-			accent: ['#c9507a', '#f285a8', '#ffc2d6']
+			primary: ['#536e76', '#8aafb1', '#c0d8cf'],
+			secondary: ['#b2a77e', '#e5d9ae', '#fff2d3'],
+			accent: ['#9b652d', '#d9a84e', '#f7d998']
 		},
-		art: stages(P.puddlefin)
+		art: stages(P.puddlefin, P.brookbellEgg())
 	},
 	{
 		id: 'mossling',
-		name: 'Mossling',
-		blurb: 'A round little sprout that blooms as it learns. Loves a good book.',
+		name: 'Cloverruff',
+		blurb: 'A floppy-eared moss pup who noses through clover and naps beside your books.',
 		affinity: ['int', 'kno'],
 		starter: true,
 		rarity: 'common',
 		palette: {
-			primary: ['#3f8a46', '#6cbf5c', '#a9e48c'],
-			secondary: ['#2d6b33', '#5aa84e', '#8cd07a'],
-			accent: ['#d0577f', '#f58fb0', '#ffd0e0']
+			primary: ['#426647', '#78915c', '#b2c98a'],
+			secondary: ['#b2a77e', '#e5d9ae', '#fff2d3'],
+			accent: ['#9b652d', '#d9a84e', '#f7d998']
 		},
-		art: stages(P.mossling)
+		art: stages(P.mossling, P.cloverruffEgg())
 	},
 	{
 		id: 'pebblet',
-		name: 'Pebblet',
-		blurb: 'A pebble that grew a crystal. Sturdy, patient and surprisingly heavy.',
+		name: 'Cairnback',
+		blurb: 'A patient stone tortoise with jade growing from its shell. Stops to warm its feet on sunny paths.',
 		affinity: ['str', 'kno'],
 		starter: false,
 		rarity: 'common',
 		palette: {
-			primary: ['#6f6a7d', '#9a95a8', '#c8c4d4'],
-			secondary: ['#8a8598', '#b5b1c2', '#e0ddea'],
-			accent: ['#2a8fa8', '#4fd0e0', '#b5f5ff']
+			primary: ['#666875', '#96999f', '#c4c9c4'],
+			secondary: ['#b2a77e', '#e5d9ae', '#fff2d3'],
+			accent: ['#42736b', '#7faf96', '#cee0b5']
 		},
-		art: stages(P.pebblet)
+		art: stages(P.pebblet, P.cairnbackEgg())
 	},
 	{
 		id: 'fluffle',
-		name: 'Fluffle',
-		blurb: 'A lamb made of cloud. Floats when it is very happy.',
+		name: 'Cloudwool',
+		blurb: 'A small lamb with amber curls and a fleece like piled cream. Keeps close when the garden mist rolls in.',
 		affinity: ['dex', 'kno'],
 		starter: false,
 		rarity: 'uncommon',
 		palette: {
-			primary: ['#d9a98a', '#f2c8a8', '#ffe4cc'],
-			secondary: ['#c9cde0', '#f4f6ff', '#ffffff'],
-			accent: ['#b07a3a', '#d8a55a', '#f5d08a']
+			primary: ['#a56b58', '#d5a07e', '#f1c7a0'],
+			secondary: ['#b2a77e', '#e5d9ae', '#fff2d3'],
+			accent: ['#9b652d', '#d9a84e', '#f7d998']
 		},
-		art: stages(P.fluffle)
+		art: stages(P.fluffle, P.cloudwoolEgg())
 	},
 	{
 		id: 'glimmerwing',
-		name: 'Glimmerwing',
-		blurb: 'A moth whose wings glow like lanterns. Drawn to bright ideas.',
+		name: 'Lamplume',
+		blurb: 'A velvet moth with lantern marks on its folded wings. Settles beside you for one more page.',
 		affinity: ['int'],
 		starter: false,
 		rarity: 'rare',
 		palette: {
-			primary: ['#6b4a9a', '#9a74cf', '#c9a8f5'],
-			secondary: ['#c8a8e8', '#ecdcff', '#ffffff'],
-			accent: ['#d0a020', '#ffd84a', '#fff2a8']
+			primary: ['#675064', '#9c7b8c', '#ceb0bc'],
+			secondary: ['#b2a77e', '#e5d9ae', '#fff2d3'],
+			accent: ['#9b652d', '#d9a84e', '#f7d998']
 		},
-		art: stages(P.glimmerwing)
+		art: stages(P.glimmerwing, P.lamplumeEgg())
 	}
 ];
 

@@ -1,5 +1,7 @@
 import { beforeAll, beforeEach, describe, expect, it } from 'vitest';
 import { eq } from 'drizzle-orm';
+import { load as petPage } from '../../routes/pet/+page.server';
+import { load as shopPage } from '../../routes/shop/+page.server';
 import { DEFAULT_AVATAR } from '$lib/content/cosmetics';
 import { advanceClock, setClock } from './clock';
 import { db, runMigrations } from './db';
@@ -11,7 +13,7 @@ import { buy, inventoryOf } from './modules/inventory';
 import { claimMission, missionBoard, startMission } from './modules/missions';
 import { partyCards } from './modules/party';
 import { feed, hatch, listPets, addEgg } from './modules/pets';
-import { createPlayer, saveAvatar } from './modules/player';
+import { createPlayer, saveAvatar, saveSettings } from './modules/player';
 import { learnAbility, playerRow } from './modules/progression';
 import { cleanMess, greet, welcomeState } from './modules/welcome';
 import { provisionUser } from './users';
@@ -40,6 +42,16 @@ describe('onboarding', () => {
 		expect(result.pets).toHaveLength(1);
 		expect(result.pets[0]).toMatchObject({ name: 'Sprout', stage: 'baby', active: true });
 		expect(playerRow(db, id).gp).toBe(20);
+		expect(playerRow(db, id).themeId).toBe('night');
+	});
+
+	it('keeps a saved dawn theme through play and new player creation', () => {
+		const id = newHero();
+		play(id, (ctx) => saveSettings(ctx, { themeId: 'meadow' }));
+		newHero();
+		advanceClock(24 * H);
+		play(id, () => null);
+		expect(playerRow(db, id).themeId).toBe('meadow');
 	});
 
 	it('will not make a second hero', () => {
@@ -47,6 +59,20 @@ describe('onboarding', () => {
 		expect(() =>
 			play(id, (ctx) => createPlayer(ctx, { heroName: 'X', avatar: DEFAULT_AVATAR, starter: 'emberkit', petName: '', timezone: 'UTC', templates: [] }))
 		).toThrow(GameError);
+	});
+
+	it('reads a saved legacy look through its mapped figure without changing the stored ids', async () => {
+		const { avatarFigure } = await import('$lib/sprites/layers');
+		const id = newHero();
+		const legacy = {
+			parts: { body: 'body.elf', face: 'face.calm', feature: 'feature.glasses', headwear: 'hat.crown', accessory: 'acc.cape', hair: 'hair.curly', top: 'top.tank', bottom: 'bottom.overalls', shoes: 'shoes.boots' },
+			colors: { skin: 'porcelain', hair: 'seafoam', eyes: 'rose', top: 'starlight' }
+		};
+		play(id, (ctx) => ctx.tx.update(players).set({ avatar: legacy }).where(eq(players.userId, ctx.userId)).run());
+		const saved = play(id, (ctx) => playerRow(ctx.tx, ctx.userId).avatar).result;
+		expect(saved).toEqual(legacy);
+		expect(avatarFigure(saved)).toEqual(avatarFigure({ ...DEFAULT_AVATAR, colors: { ...DEFAULT_AVATAR.colors, hair: 'honey' } }));
+		expect(playerRow(db, id).avatar).toEqual(legacy);
 	});
 
 	it('quietly drops cosmetics nobody has unlocked', () => {
@@ -182,6 +208,36 @@ describe('missions', () => {
 });
 
 describe('eggs and the shop', () => {
+	it('keeps retired ownership but excludes retired items from the actual shop and purchases', () => {
+		const id = newHero();
+		for (const itemId of ['bottom.overalls', 'hat.crown', 'dye.teal']) {
+			db.insert(inventory).values({ userId: id, itemId, qty: 1, acquiredAt: START }).run();
+		}
+		const event = { locals: { user: { id } } };
+		const stock = shopPage(event as unknown as Parameters<typeof shopPage>[0]).stock;
+		for (const itemId of ['bottom.overalls', 'hat.crown', 'dye.teal']) {
+			expect(stock.some((i) => i.id === itemId)).toBe(false);
+			expect(inventoryOf(db, id).get(itemId)).toBe(1);
+			expect(() => play(id, (ctx) => buy(ctx, itemId))).toThrow('That is not in the shop');
+		}
+	});
+
+	it('keeps saved accessories and ownership while pet care and shop offer none', () => {
+		const id = newHero();
+		const pet = listPets(db, id, START)[0];
+		db.update(pets).set({ accessoryId: 'petacc.bow' }).where(eq(pets.id, pet.id)).run();
+		db.insert(inventory).values({ userId: id, itemId: 'petacc.bow', qty: 1, acquiredAt: START }).run();
+		const event = { locals: { user: { id, username: 'test', email: null, displayName: null, groups: [] } } };
+		const care = petPage(event as unknown as Parameters<typeof petPage>[0]);
+		expect(care.accessories).toEqual([]);
+		expect(care.pets.find((p) => p.id === pet.id)?.accessoryId).toBe('petacc.bow');
+		expect(shopPage(event as unknown as Parameters<typeof shopPage>[0]).stock.some((i) => i.kind === 'petacc')).toBe(false);
+		expect(inventoryOf(db, id).get('petacc.bow')).toBe(1);
+		db.update(players).set({ gp: 500 }).where(eq(players.userId, id)).run();
+		expect(() => play(id, (ctx) => buy(ctx, 'petacc.bandana'))).toThrow('That is not in the shop');
+		expect(inventoryOf(db, id).get('petacc.bandana')).toBeUndefined();
+	});
+
 	it('warms an egg with activity until it hatches', () => {
 		const id = newHero(['read']);
 		play(id, (ctx) => addEgg(ctx, 'pebblet', 'test'));
@@ -203,7 +259,7 @@ describe('eggs and the shop', () => {
 		play(id, (ctx) => feed(ctx, pet.id, 'food.kibble'));
 		expect(inventoryOf(db, id).get('food.kibble')).toBe(1);
 		expect(() => play(id, (ctx) => buy(ctx, 'toy.ball'))).toThrow('Not enough GP');
-		expect(() => play(id, (ctx) => buy(ctx, 'hat.crown'))).toThrow('Not for sale');
+		expect(() => play(id, (ctx) => buy(ctx, 'hat.crown'))).toThrow('That is not in the shop');
 		db.delete(inventory).where(eq(inventory.userId, id)).run();
 		expect(() => play(id, (ctx) => feed(ctx, pet.id, 'food.kibble'))).toThrow('no Crunchy kibble');
 	});

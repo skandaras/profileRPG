@@ -1,16 +1,22 @@
 # LevelUp
 
-A habit tracker played as a pixel-art pet RPG. Log the things you do (a walk, a chapter, a
+A habit tracker played as a storybook pet RPG. Log the things you do (a walk, a chapter, a
 glass of water) and your hero earns XP and coins, trains their stats, levels up, unlocks
-abilities and clothes, raises a pet, and goes on missions that bring back eggs, outfits and
+abilities, raises a pet, and goes on missions that bring back eggs, treats and
 new colour themes. Built for Starbase Home at **levelup.starbasehome.net**, behind Authelia.
 
-![What it looks like](docs/screens.png)
+![Home, welcome-back, pet care, missions and party in Meadow](docs/screens.png)
+
+A cel-shaded chibi keeper and painted Brambleback share midnight blue and gold tarot
+cards. The keeper has two skins, five bob colours and four complete outfits; remaining
+pets keep their pixel art while the painted catalogue grows. Headings use Cormorant
+Garamond; reading text and controls use DM Sans. Both fonts are self-hosted with OFL
+licences. Five other themes include the light Meadow dawn.
 
 ## What's in it
 
-- **Onboarding**: name your hero, build their look (body, face, features, hair, clothes and
-  colours), choose one of three starter partners, pick a few habits.
+- **Onboarding**: name your hero, choose skin tone, hair colour and a complete outfit, choose a Brambleback hedge dragon, Brookbell river seal or Cloverruff moss
+  pup, and pick a few habits.
 - **Habits and tasks**: sixteen ready-made habits or build your own: daily, chosen weekdays,
   N times a week or every N days, with a difficulty, the stats it trains, and an optional
   amount (log more, earn more, up to double). One-off tasks too.
@@ -20,15 +26,16 @@ new colour themes. Built for Starbase Home at **levelup.starbasehome.net**, behi
   shields, shorter missions, a second mission slot…).
 - **Pets**: feed, pat, play and tidy. Needs drift down over time; a happy pet gives +5% XP.
   Pets grow from baby to teen to adult. Eggs from missions hatch from the warmth of your
-  activity. Pets never die or run away.
+  activity. Missions can bring home Cairnback the stone tortoise, Cloudwool the lamb and
+  Lamplume the lantern moth. Pets never die or run away.
 - **Welcome back**: the first visit each day finds a little mess in the pet's room. Tidy it
   for coins, give your partner a pat for XP, and keep a daily return streak with gifts.
   Missed habits break their streak and cost a few GP (capped, never below zero), and the
   home page tells you what happened while you were away.
 - **Rest mode**: for illness or travel. No fines, no broken streaks, no hungry pets.
 - **Missions**: eight timed trips, gated by level, with success odds from your stats
-  (and your partner's help). They pay XP, GP and loot: eggs, clothes, dyes, treats, themes.
-- **Shop, wardrobe, themes**: spend GP, dress up, recolour, and switch between six UI
+  (and your partner's help). They pay XP, GP and loot: eggs, treats, toys, themes.
+- **Shop, wardrobe, themes**: spend GP, choose an outfit and hair colour, and switch between six UI
   themes as you unlock them.
 - **Party**: everyone on the server, their hero, level, stats and partner, plus a feed of
   level-ups, hatches and mission triumphs. Habit names stay private.
@@ -54,7 +61,8 @@ a missed habit, a hungry pet or a finished mission without waiting.
 | `SPRITE_PREVIEW=1 npx vitest run src/lib/sprites/preview` | Contact sheets of all art in `test-results/sprites/` |
 
 [AGENTS.md](./AGENTS.md) has the conventions and how to add content or features.
-[docs/ART.md](./docs/ART.md) is the contract for replacing the code-drawn art with PNGs.
+[docs/ART.md](./docs/ART.md) covers the Garden style, frames, palettes and PNG replacements.
+`node scripts/generate-icons.mjs` rebuilds the app icons from their shared pixel grid.
 
 ## Deploy
 
