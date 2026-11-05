@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { addXp, MAX_LEVEL, removeXp, xpToNext } from './levels';
+import { addXp, MAX_LEVEL, progressFromTotal, xpToNext } from './levels';
 import { activityReward } from './rewards';
 
 describe('levels', () => {
@@ -18,9 +18,12 @@ describe('levels', () => {
 		expect(r.xp).toBeLessThan(xpToNext(MAX_LEVEL));
 	});
 
-	it('refuses to take back XP a level-up already used', () => {
-		expect(removeXp(30, 20)).toBe(10);
-		expect(removeXp(10, 20)).toBeNull();
+	it('allows corrected totals below an earned level without re-awarding that level', () => {
+		expect(progressFromTotal(2, 54)).toEqual({ level: 2, xp: 0, levelsGained: 0 });
+		expect(progressFromTotal(2, 75)).toEqual({ level: 2, xp: 5, levelsGained: 0 });
+		expect(progressFromTotal(2, xpToNext(1) + xpToNext(2))).toEqual({ level: 3, xp: 0, levelsGained: 1 });
+		expect(progressFromTotal(1, 30)).toEqual({ level: 1, xp: 30, levelsGained: 0 });
+		expect(progressFromTotal(MAX_LEVEL, 1e9).xp).toBeLessThan(xpToNext(MAX_LEVEL));
 	});
 
 	it('paces about as intended for three medium habits a day', () => {

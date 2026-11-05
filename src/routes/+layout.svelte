@@ -22,6 +22,7 @@
 	const TABS = [
 		{ href: '/', label: 'Today', icon: 'house' },
 		{ href: '/habits', label: 'Habits', icon: 'clipboard' },
+		{ href: '/history', label: 'History', icon: 'undo' },
 		{ href: '/pet', label: 'Pet', icon: 'paw' },
 		{ href: '/missions', label: 'Quests', icon: 'map' },
 		{ href: '/me', label: 'Me', icon: 'xp' }
@@ -197,7 +198,7 @@
 		flex-direction: column;
 		gap: 5px;
 		flex: 1;
-		max-width: 140px;
+		max-width: 120px;
 		display: flex;
 		align-items: center;
 		justify-content: center;

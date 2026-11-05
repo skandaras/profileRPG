@@ -24,11 +24,9 @@ export function addXp(level: number, xp: number, gained: number): { level: numbe
 	return { level: l, xp: x, levelsGained };
 }
 
-/**
- * Take XP back, for an undone activity. Refuses rather than de-levelling: the
- * points a level-up granted may already be spent, and unpicking that is worse
- * than leaving a tick in place.
- */
-export function removeXp(xp: number, lost: number): number | null {
-	return xp >= lost ? xp - lost : null;
+/** Corrected totals determine progress; earned levels remain unlocked. */
+export function progressFromTotal(level: number, totalXp: number) {
+	let floor = 0;
+	for (let l = 1; l < level; l++) floor += xpToNext(l);
+	return addXp(level, 0, Math.max(0, totalXp - floor));
 }

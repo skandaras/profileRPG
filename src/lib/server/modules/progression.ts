@@ -6,7 +6,7 @@ import { ABILITIES } from '$lib/content/abilities';
 import { getAbility } from '$lib/content';
 import { STAT_IDS } from '$lib/content/stats';
 import type { StatBlock, StatId } from '$lib/content/types';
-import { ABILITY_POINTS_PER_LEVEL, addXp, ATTR_POINTS_PER_LEVEL, removeXp } from '$lib/game/levels';
+import { ABILITY_POINTS_PER_LEVEL, ATTR_POINTS_PER_LEVEL, progressFromTotal } from '$lib/game/levels';
 import { collectModifiers, type Modifiers } from '$lib/game/modifiers';
 import { statTotals } from '$lib/game/stats';
 import type { DbOrTx } from '../db';
@@ -40,7 +40,7 @@ export function playerStats(p: { statXp: StatBlock; allocated: StatBlock }): Sta
 export function grantXp(ctx: Ctx, amount: number) {
 	if (amount <= 0) return;
 	const p = playerRow(ctx.tx, ctx.userId);
-	const r = addXp(p.level, p.xp, amount);
+	const r = progressFromTotal(p.level, p.totalXp + amount);
 	ctx.tx
 		.update(players)
 		.set({
@@ -131,21 +131,15 @@ on('activity.logged', (ctx, e) => {
 	e.effects.progression = { xp: e.reward.xp, gp: e.reward.gp, statXp: e.reward.statXp } satisfies ProgressionEffects;
 });
 
-/** Whether undoing a tick can take its XP back without un-levelling. */
-export function canTakeBack(db: DbOrTx, userId: string, effects: Record<string, unknown>): boolean {
-	const fx = effects.progression as ProgressionEffects | undefined;
-	return !fx || removeXp(playerRow(db, userId).xp, fx.xp) !== null;
-}
-
 on('activity.undone', (ctx, e) => {
 	const fx = e.effects.progression as ProgressionEffects | undefined;
 	if (!fx) return;
 	const p = playerRow(ctx.tx, ctx.userId);
+	const totalXp = Math.max(0, p.totalXp - fx.xp);
 	ctx.tx
 		.update(players)
-		.set({ xp: removeXp(p.xp, fx.xp) ?? p.xp, totalXp: Math.max(0, p.totalXp - fx.xp), gp: Math.max(0, p.gp - fx.gp) })
+		.set({ xp: progressFromTotal(p.level, totalXp).xp, totalXp, gp: Math.max(0, p.gp - fx.gp) })
 		.where(eq(players.userId, ctx.userId))
 		.run();
 	grantStatXp(ctx, fx.statXp, -1);
-	notify(ctx, 'info', `Took back ${fx.xp} XP and ${fx.gp} GP`, '↩️');
 });

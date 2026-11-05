@@ -22,6 +22,11 @@ licences. Five other themes include the light Meadow dawn.
 - **Today**: quick task capture, overdue and due tasks first, an upcoming list, and recurring
   habits due in your own calendar. Completion progress includes tasks and habits. Avatar
   and companion activity follows the work list.
+- **History**: searchable completed tasks and daily habit check-ins, including archived
+  work, with work-type and date filters. The last seven days show tasks finished, habit
+  check-ins and active days. Reopen an older task to return it to Today and correct the
+  record. Corrections update XP totals while preserving earned levels and purchases;
+  redoing work does not award the same level-up points twice.
 - **Onboarding**: name your hero, choose skin tone, hair colour and a complete outfit, choose a Brambleback hedge dragon, Brookbell river seal or Cloverruff moss
   pup, and pick a few habits.
 - **Habits and tasks**: sixteen ready-made habits or build your own: daily, chosen weekdays,
@@ -45,7 +50,9 @@ licences. Five other themes include the light Meadow dawn.
 - **Shop, wardrobe, themes**: spend GP, choose an outfit and hair colour, and switch between six UI
   themes as you unlock them.
 - **Party**: everyone on the server, their hero, level, stats and partner, plus a feed of
-  level-ups, hatches and mission triumphs. Habit names stay private.
+  level-ups, hatches and mission triumphs. Task and habit names stay private.
+
+![Completed work history with a seven-day summary](docs/history.png)
 
 ## Develop
 

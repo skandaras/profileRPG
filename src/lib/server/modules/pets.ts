@@ -331,13 +331,13 @@ on('activity.undone', (ctx, e) => {
 	const fx = e.effects.pets as PetEffects | undefined;
 	if (!fx) return;
 	if (fx.companion) {
-		const pet = ctx.tx.select().from(pets).where(eq(pets.id, fx.companion.id)).get();
+		const pet = ctx.tx.select().from(pets).where(and(eq(pets.id, fx.companion.id), eq(pets.userId, ctx.userId))).get();
 		// Pet XP comes back only within the current level; a pet never shrinks.
-		if (pet) ctx.tx.update(pets).set({ xp: Math.max(0, pet.xp - fx.companion.xp) }).where(eq(pets.id, pet.id)).run();
+		if (pet) ctx.tx.update(pets).set({ xp: Math.max(0, pet.xp - fx.companion.xp) }).where(and(eq(pets.id, pet.id), eq(pets.userId, ctx.userId))).run();
 	}
 	for (const [id, amount] of fx.warmth) {
-		const egg = ctx.tx.select().from(pets).where(eq(pets.id, id)).get();
-		if (egg?.stage === 'egg') ctx.tx.update(pets).set({ warmth: Math.max(0, egg.warmth - amount) }).where(eq(pets.id, id)).run();
+		const egg = ctx.tx.select().from(pets).where(and(eq(pets.id, id), eq(pets.userId, ctx.userId))).get();
+		if (egg?.stage === 'egg') ctx.tx.update(pets).set({ warmth: Math.max(0, egg.warmth - amount) }).where(and(eq(pets.id, id), eq(pets.userId, ctx.userId))).run();
 	}
 });
 

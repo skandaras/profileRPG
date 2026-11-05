@@ -410,6 +410,73 @@ try {
 	await page.waitForURL(`${BASE}/me`);
 	assert.equal(await page.locator('dialog[open]').count(), 0);
 
+	// Work records remain correctable after levels unlock and after the day ends.
+	const earnedLevel = await page.locator('.who .level').textContent();
+	const earnedPoints = await page.locator('.who .pts').textContent();
+	await go('/');
+	await submit(page.getByRole('button', { name: 'Undo the last tick of Stretch before bed', exact: true }));
+	await expectText('Completion corrected');
+	assert.equal(await page.getByRole('meter', { name: 'Experience to next level' }).getAttribute('aria-valuenow'), '0', 'undo corrects XP even when the last tick unlocked a level');
+	assert.equal(await page.locator('.who .level').textContent(), earnedLevel);
+	assert.equal(await page.locator('.who .pts').textContent(), earnedPoints);
+	await submit(page.getByRole('button', { name: 'Tick off Send the report', exact: true }));
+	assert.equal(await page.locator('dialog[open]').count(), 0, 'corrected XP does not unlock the same level twice');
+	await submit(page.getByRole('navigation', { name: 'Main', exact: true }).getByRole('link', { name: 'History', exact: true }));
+	await page.waitForURL(`${BASE}/history`);
+	const reportEntry = page.locator('.history-row').filter({ has: page.getByRole('link', { name: 'Send the report', exact: true }) });
+	assert.equal(await reportEntry.count(), 1);
+	const taskSummary = page.locator('.summary div').filter({ has: page.locator('dt', { hasText: 'Tasks finished' }) }).locator('dd');
+	assert.equal(await taskSummary.textContent(), '1');
+	const filters = page.getByRole('form', { name: 'History filters', exact: true });
+	await filters.getByLabel('Search completed work').fill('REPORT');
+	await filters.getByLabel('Work type').selectOption('task');
+	await filters.getByLabel('When', { exact: true }).selectOption('7');
+	await submit(filters.getByRole('button', { name: 'Apply filters', exact: true }));
+	assert.equal(await page.locator('.history-row').count(), 1);
+	await dismissNotices();
+	await shot('history-search');
+	await page.setViewportSize({ width: 320, height: 844 });
+	await shot('history-narrow');
+	await page.setViewportSize({ width: 390, height: 844 });
+	await filters.getByLabel('Search completed work').fill('nothing matches');
+	await submit(filters.getByRole('button', { name: 'Apply filters', exact: true }));
+	await expectText('No completed work matches these filters.');
+	assert.equal(await taskSummary.textContent(), '1', 'the seven-day summary includes work outside the search');
+	await filters.getByLabel('Search completed work').fill('REPORT');
+	await submit(filters.getByRole('button', { name: 'Apply filters', exact: true }));
+	const historyPath = page.url().slice(BASE.length);
+	await go('/dev/skip?hours=24&to=' + encodeURIComponent(historyPath));
+	assert.equal(await reportEntry.count(), 1, 'completed tasks stay accessible on later days');
+	await page.getByRole('heading', { name: 'Yesterday', exact: true }).waitFor();
+	await shot('history-next-day');
+	await submit(reportEntry.getByRole('button', { name: 'Reopen Send the report', exact: true }));
+	await expectText('Task reopened. It’s back in your task list.');
+	assert.equal(await reportEntry.count(), 0);
+	assert.equal(await taskSummary.textContent(), '0');
+	assert.equal(new URL(page.url()).searchParams.get('q'), 'REPORT');
+	assert.equal(new URL(page.url()).searchParams.get('kind'), 'task');
+	assert.equal(new URL(page.url()).searchParams.get('range'), '7');
+	await expectHeadingFocus();
+	await go('/');
+	assert.ok((await plannedTitles()).includes('Send the report'));
+	await dismissNotices();
+	await submit(page.getByRole('button', { name: 'Tick off Send the report', exact: true }));
+	assert.equal(await page.locator('dialog[open]').count(), 0);
+	assert.equal(await page.locator('.who .level').textContent(), earnedLevel);
+	assert.equal(await page.locator('.who .pts').textContent(), earnedPoints);
+	await go('/history');
+	await shot('history-completed-work');
+
+	// The same correction works as a native POST with JavaScript disabled.
+	const nativePage = await browser.newPage({ javaScriptEnabled: false });
+	await nativePage.goto(`${BASE}/history?q=report&kind=task`);
+	await nativePage.getByRole('button', { name: 'Reopen Send the report', exact: true }).click();
+	await nativePage.getByText('Task reopened. It’s back in your task list.', { exact: true }).waitFor();
+	assert.equal(await nativePage.locator('.history-row').count(), 0);
+	assert.equal(new URL(nativePage.url()).searchParams.get('q'), 'report');
+	assert.equal(new URL(nativePage.url()).searchParams.get('kind'), 'task');
+	await nativePage.close();
+
 	// Theme metadata follows a real settings change, including a subsequent SSR load.
 	await go('/settings');
 	await submit(page.getByRole('button', { name: /Turn rest mode on/ }));
