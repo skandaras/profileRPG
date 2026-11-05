@@ -8,6 +8,13 @@
       "when": 1793010733907,
       "tag": "0000_warm_captain_universe",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "6",
+      "when": 1793875867565,
+      "tag": "0001_work_goals",
+      "breakpoints": true
     }
   ]
 }

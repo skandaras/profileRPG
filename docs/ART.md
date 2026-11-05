@@ -7,10 +7,10 @@ small and expressive. Clothing is asymmetric and practical: scarves, weathered c
 boots, satchels and field journals. Creatures should feel loyal and a little strange.
 
 The direction study for this pass is in `art/wayfarer/direction.png`. Production art
-is in two transparent PNG atlases under `static/painted/`. Source provenance and hashes
-are recorded in `art/wayfarer/sources.json`. Keep these originals unchanged; make a new
+is in transparent PNG atlases and a painted study under `static/painted/`. Source
+provenance and hashes are recorded in `art/wayfarer/sources.json`. Keep these originals unchanged; make a new
 asset revision when redrawing. There are no external handoff directories needed to
-reproduce the current game.
+reproduce the current app.
 
 ## Keeper
 
@@ -67,6 +67,15 @@ RGB must never produce dark or coloured halos. The source atlas is never mutated
 Prepared cutouts are cached by atlas identity, region, output dimensions and hair colour.
 Node previews and the browser call the same compositor on the same production files.
 
+`CHROMIUM_PATH=/usr/bin/chromium npm run review:assets` builds a labelled, printable
+inventory in `test-results/assets/`: `overview.png`, an 11-page A3 `asset-review.pdf`,
+a self-contained `asset-review.html`, individual page PNGs and `inventory.json`.
+It covers all 40 keeper combinations and 24 pet stages on light and dark surfaces,
+69 interface symbols, food and toys, room props, the disabled accessory icons, themes,
+fonts and application icons. The exporter checks every sheet fits its page. It uses
+existing assets and the production compositor; it does not redraw the illustrations.
+Omit `CHROMIUM_PATH` when using Playwright's installed browser.
+
 Painted figures use smooth browser scaling and a restrained CSS idle motion. Reduced
 motion disables animation. Keep shadows and stage scenery out of the atlas; the UI's
 theme tokens supply the surrounding architecture and surfaces.
@@ -102,6 +111,10 @@ inventory metadata remain intact, but no old accessory art is overlaid on the ne
 The tiny palette-indexed accessory icons are retained for that metadata. Re-enabling
 accessories requires new fitted artwork and tests for the new silhouettes.
 
+Dedicated quest-region illustrations have not been added. The eight expedition cards
+currently use the shared interface symbols. These and the fitted accessories are the
+remaining art work if those areas need a fuller illustrated treatment.
+
 ## Icons, props and application surfaces
 
 UI icons remain trusted source-owned SVG fragments at viewBox 0 0 32 32. No scripts,
@@ -109,9 +122,28 @@ external URLs or user markup enter `SvgArt`. Decorative icons are hidden from as
 technology; standalone icons receive a label. `DisplayIcon` maps known saved emoji to
 the shared symbols while preserving unknown custom text.
 
-Small room mess, the bed and accessory inventory icons remain palette-indexed drawings.
-Keep their size, symmetry and reference-colour tests. New character illustrations never
-fall back to the retired pixel pet drawings.
+Food, toys and room art share the cast's gouache shapes, ink contours and earth-and-jewel
+palette. `provisions.png` is a 1536 × 1024 atlas, four columns by two rows: wild berries,
+kibble, fish, honey cake, star candy, ball, yarn and the dragon plush. `provisionArt()`
+maps the existing eight inventory ids to cells, on 144 × 144 output canvases with a
+128-pixel visible-height limit and ground at 136. Final painted colours replace tinting;
+saved tint metadata remains valid. Atlas-cell coordinates form part of icon cache keys.
+
+`room-props.png` holds the basket bed, dust and fallen leaf, biscuit crumbs, banana peel,
+muddy bootprint and wool sock. The basket crosses a nominal cell edge, so use measured
+`ROOM_REGIONS` from `painted-props.ts`. The bed uses a 256 × 192 canvas and ground at 176;
+other props use 144 × 144 and ground at 136. Each output has clear margins. The pet bed
+appears behind the companion, and daily room clutter uses the same painted renderer.
+Old room grids and physical-item SVG drawings have been removed.
+
+`study-nook.png` is a 1536 × 1024 opaque painting shared by Today and pet care. It has an
+arched window, worn wood, books, maps and a lantern, with open floor for separately
+composited figures and props. `TarotArch` retains its shared component API and crops the
+painting from the centre bottom. The scene label stays on an opaque theme surface.
+
+Only the disabled accessory reference icons retain palette-indexed drawings; their
+symmetry and reference-colour tests stay. Painted item/prop tests cover distinct cutouts,
+transparent margins, preserved colours, light/dark compositing and source-file hashes.
 
 Run `node scripts/generate-icons.mjs` to rebuild the SVG-derived app icons. Cormorant
 Garamond and DM Sans are self-hosted with OFL licences in `static/fonts/`. Theme colours,

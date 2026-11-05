@@ -45,8 +45,10 @@ licences. Five other themes include the light Meadow dawn.
   Missed habits break their streak and cost a few GP (capped, never below zero), and the
   home page tells you what happened while you were away.
 - **Rest mode**: for illness or travel. No fines, no broken streaks, no hungry pets.
-- **Missions**: eight timed trips, gated by level, with success odds from your stats
-  (and your partner's help). They pay XP, GP and loot: eggs, treats, toys, themes.
+- **Quests**: optional weekly targets for tasks finished, habit check-ins and active
+  days. Progress follows your work records, including corrections. Eight optional
+  expeditions run alongside them, with success odds from your stats and companion.
+  Trips bring XP, GP, eggs, treats, toys and themes; each card names its possible eggs.
 - **Shop, wardrobe, themes**: spend GP, choose an outfit and hair colour, and switch between six UI
   themes as you unlock them.
 - **Party**: everyone on the server, their hero, level, stats and partner, plus a feed of
@@ -71,12 +73,19 @@ a missed habit, a hungry pet or a finished mission without waiting.
 | `npm run check` | Type checks |
 | `npm run lint` | ESLint |
 | `npm run build && npm run test:ui` | Browser smoke test with screenshots in `test-results/ui/` |
+| `npm run review:assets` | Labelled asset sheets and a printable PDF in `test-results/assets/` |
 | `npm run db:generate` | New migration after a schema change |
 | `SPRITE_PREVIEW=1 npx vitest run src/lib/sprites/preview` | Contact sheets of all art in `test-results/sprites/` |
 
 [AGENTS.md](./AGENTS.md) has the conventions and how to add content or features.
 [docs/ART.md](./docs/ART.md) covers the cast, atlas regions, palettes and saved-id mappings.
 The direction sheet is in [art/wayfarer/direction.png](./art/wayfarer/direction.png).
+The [cast sample sheet](docs/assets-overview.png) shows every outfit and pet stage.
+The [provisions and room sheet](docs/provisions-and-room.png) shows the painted food,
+toys, basket bed, floor props and shared study background.
+The review export includes the full cast, supporting icons and props, and the remaining
+accessory and quest-scenery work. See [quests and companions](docs/QUESTS-AND-PETS.md)
+for the current behaviour and open design choices.
 `node scripts/generate-icons.mjs` rebuilds the SVG-derived app icons.
 
 ## Deploy

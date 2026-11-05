@@ -47,6 +47,7 @@ export function missionBoard(db: DbOrTx, userId: string, now: number) {
 		companion: companion && pet ? { id: companion.id, name: companion.name } : null,
 		missions: MISSIONS.map((m) => ({
 			...m,
+			eggs: m.loot.flatMap((loot) => 'egg' in loot ? [{ id: loot.egg, name: getSpecies(loot.egg)?.name ?? loot.egg }] : []),
 			locked: p.level < m.minLevel,
 			durationMs: missionDurationMs(m, mods),
 			chance: Math.round(successChance(m, stats, petBonus(pet, m), mods) * 100),
@@ -98,10 +99,10 @@ export function claimMission(ctx: Ctx, runId: string) {
 	if (!m) throw new NotFound('That mission no longer exists');
 	const p = playerRow(ctx.tx, ctx.userId);
 	const mods = playerModifiers(ctx.tx, ctx.userId);
-	const pet = run.petId ? ctx.tx.select().from(pets).where(eq(pets.id, run.petId)).get() : undefined;
+	const pet = run.petId ? ctx.tx.select().from(pets).where(and(eq(pets.id, run.petId), eq(pets.userId, ctx.userId))).get() : undefined;
 	const bonus = petBonus(pet ? { level: pet.level, affinity: getSpecies(pet.speciesId)?.affinity ?? [] } : null, m);
 	const outcome = resolveMission(m, playerStats(p), bonus, mods, run.seed);
-	ctx.tx.update(missionRuns).set({ claimedAt: ctx.now, outcome }).where(eq(missionRuns.id, run.id)).run();
+	ctx.tx.update(missionRuns).set({ claimedAt: ctx.now, outcome }).where(and(eq(missionRuns.id, run.id), eq(missionRuns.userId, ctx.userId))).run();
 
 	notify(ctx, 'info', `${TIER_TEXT[outcome.tier]} at ${m.name}!`, m.icon);
 	grantXp(ctx, outcome.xp);

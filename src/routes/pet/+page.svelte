@@ -2,17 +2,22 @@
 	import { enhance } from '$app/forms';
 	import { withNotices } from '$lib/act';
 	import { STATS } from '$lib/content/stats';
-	import { MOOD_TEXT, petXpToNext } from '$lib/game/pet-needs';
+	import { ADULT_AT, MOOD_TEXT, nextPetGrowth, petXpToNext, TEEN_AT } from '$lib/game/pet-needs';
+	import { countdown, ticker } from '$lib/clock.svelte';
 	import TarotArch from '$lib/components/TarotArch.svelte';
 	import Bar from '$lib/components/Bar.svelte';
 	import PetSprite from '$lib/components/PetSprite.svelte';
 	import PixelIcon from '$lib/components/PixelIcon.svelte';
+	import Figure from '$lib/components/Figure.svelte';
+	import { bed } from '$lib/sprites/room';
 
-	let { data } = $props();
+	let { data, form } = $props();
+	const clock = ticker(() => data.now);
 
 	const companion = $derived(data.pets.find((p) => p.active));
 	const others = $derived(data.pets.filter((p) => !p.active && p.stage !== 'egg'));
 	const eggs = $derived(data.pets.filter((p) => p.stage === 'egg'));
+	const growth = $derived(companion ? nextPetGrowth(companion.level, companion.xp) : null);
 	let renaming = $state(false);
 	let renameInput: HTMLInputElement | undefined = $state();
 	let renameButton: HTMLButtonElement | undefined = $state();
@@ -29,12 +34,15 @@
 <svelte:head><title>Pet · LevelUp</title></svelte:head>
 
 <div class="page-heading"><h1>Pet care</h1><span class="small soft">Your companion</span></div>
+<p class="small soft">Your companion grows alongside your work. Care changes their mood; the levels and forms they’ve reached stay with them.</p>
+{#if form && 'error' in form && form.error}<p class="bad" role="alert">{form.error}</p>{/if}
 
 {#if companion}
 	<section class="companion">
 		<div class="pet-top">
 			<div class="care-room arch-card">
 				<TarotArch />
+				<span class="room-bed"><Figure figure={bed} key="room:painted-bed" scale={3.7} animate={false} /></span>
 				<PetSprite speciesId={companion.speciesId} stage={companion.stage} accessoryId={companion.accessoryId} mood={companion.mood} scale={3.7} label={companion.name} />
 				<span class="scene-label">{companion.name}’s nook</span>
 			</div>
@@ -44,7 +52,13 @@
 						<h2>{companion.name}</h2>
 						<p class="small soft">{companion.speciesName} · <span class="numeral">Lv {companion.level}</span> · {companion.stage}</p>
 						<button bind:this={renameButton} class="rename small soft" type="button" onclick={() => (renaming = !renaming)} aria-expanded={renaming}>Rename</button>
-						<p class="pet-mood small soft">{companion.away ? `${companion.name} is away on a mission.` : `${companion.name} ${MOOD_TEXT[companion.mood]}.`} Loves {companion.affinity.map((a) => STATS[a].name).join(' & ')}.</p>
+						<p class="pet-mood small soft">{companion.away ? `${companion.name} is away on an expedition.` : `${companion.name} ${MOOD_TEXT[companion.mood]}.`} Loves {companion.affinity.map((a) => STATS[a].name).join(' & ')}.</p>
+						{#if data.companionTrip}
+							<div class="trip-status small">
+								<p>{data.companionTrip.name} · {data.companionTrip.endsAt <= clock.now ? 'Ready to return' : `${countdown(data.companionTrip.endsAt - clock.now)} remaining`}</p>
+								<a class="btn small ghost" href="/missions#on-road">{data.companionTrip.endsAt <= clock.now ? 'Collect trip rewards' : 'View expedition'}</a>
+							</div>
+						{/if}
 					</div>
 				</div>
 				{#if renaming}
@@ -59,9 +73,10 @@
 				{#if !companion.away}
 					<div class="care">
 						{#each [['pat', 'Pat', companion.cooldowns.pat], ['play', 'Play', companion.cooldowns.play], ['tidy', 'Tidy', companion.cooldowns.tidy]] as const as [action, label, cd] (action)}
+							{@const remaining = Math.max(0, cd - Math.max(0, clock.now - data.now))}
 							<form method="POST" action="?/{action}" use:enhance={withNotices()}>
 								<input type="hidden" name="pet" value={companion.id} />
-								<button class="btn ghost wide" disabled={cd > 0}><PixelIcon name={action === 'pat' ? 'joy' : action === 'play' ? 'ball' : 'broom'} scale={1} /> {label}{cd > 0 ? ` (${wait(cd)})` : ''}</button>
+								<button class="btn ghost wide" disabled={remaining > 0}><PixelIcon name={action === 'pat' ? 'joy' : action === 'play' ? 'ball' : 'broom'} scale={1} /> {label}{remaining > 0 ? ` (${wait(remaining)})` : ''}</button>
 							</form>
 						{/each}
 					</div>
@@ -87,7 +102,7 @@
 							<input type="hidden" name="pet" value={companion.id} />
 							<input type="hidden" name="item" value={f.id} />
 							<button class="tile" title={f.blurb} aria-label="Feed {f.name} to {companion.name}">
-								<PixelIcon art={f.icon} tint={f.tint} scale={1.5} />
+								<PixelIcon art={f.icon} tint={f.tint} scale={3} />
 								<span class="food-description"><strong>{f.name}</strong><span class="small soft">{f.qty} in your bag{f.effect.fullness ? ` · +${f.effect.fullness} Full` : ''}{f.effect.joy ? ` · +${f.effect.joy} Joy` : ''}</span></span>
 								<span class="feed-label numeral">Feed</span>
 							</button>
@@ -103,6 +118,21 @@
 				<button class="forage-button"><PixelIcon name="berry" scale={1} /> Forage for berries (free, once a day)</button>
 			</form>
 		{/if}
+		<section class="box growth-guide" aria-labelledby="growth-heading">
+			<h2 id="growth-heading">Growing together</h2>
+			<p class="small">Your completed tasks and habit check-ins share some of your XP with {companion.name}. Work linked to {companion.affinity.map((a) => STATS[a].name).join(' & ')} shares more. Care and expeditions help them grow too.</p>
+			<div class="stages">
+				{#each ['baby', 'teen', 'adult'] as const as stage (stage)}
+					<figure class:current={companion.stage === stage}>
+						<PetSprite speciesId={companion.speciesId} {stage} scale={1.5} label="{companion.name}’s {stage} form" />
+						<figcaption class="small">{stage}<span class="soft">{stage === 'baby' ? 'Level 1' : stage === 'teen' ? `Level ${TEEN_AT}` : `Level ${ADULT_AT}`}</span>{#if companion.stage === stage}<strong>Current form</strong>{/if}</figcaption>
+					</figure>
+				{/each}
+			</div>
+			<p class="small">{growth ? `${growth.remainingXp} growth XP to the ${growth.stage} form at level ${growth.atLevel}.` : 'Adult form reached. This appearance stays as your companion grows.'}</p>
+			<a class="btn small ghost" href="/">Make progress on Today</a>
+			<p class="small soft">Care can fit around your day. <a href="/settings">Rest mode</a> pauses needs when you want a break.</p>
+		</section>
 	</section>
 
 	{#if data.accessories.length}
@@ -160,7 +190,37 @@
 	</section>
 {/if}
 
+<section class="box" aria-labelledby="discoveries-heading">
+	<h2 id="discoveries-heading">Discover new companions</h2>
+	<p class="small soft">Expeditions can bring back eggs. Each task or habit check-in adds warmth; hatch an egg when it’s ready, then choose your companion from the nest.</p>
+	<div class="discoveries">
+		{#each data.discoveries as discovery (discovery.id)}
+			<article class="discovery">
+				<PetSprite speciesId={discovery.id} stage={discovery.stage} scale={2} label="{discovery.name}{discovery.hatched ? '' : ' egg'}" />
+				<div><h3>{discovery.name}</h3><p class="small soft">{discovery.rarity} · {discovery.hatched ? 'In your nest' : discovery.owned ? 'Egg warming' : 'Not discovered'}</p></div>
+				<p class="small discovery-description">{discovery.blurb}</p>
+				{#if discovery.source}<p class="small soft discovery-description">Look on {discovery.source.name}{discovery.source.unlocked ? '' : ` · unlocks at level ${discovery.source.minLevel}`}. Egg finds are a chance reward.</p>{/if}
+			</article>
+		{/each}
+	</div>
+	<a class="btn small ghost" href="/missions#expeditions">Explore expeditions</a>
+</section>
+
 <style>
+	.trip-status p { margin: 8px 0; }
+	.trip-status .btn { width: 100%; }
+	.stages { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; margin: 16px 0; }
+	.stages figure { min-width: 0; margin: 0; padding: 10px 2px; border: 1px solid var(--line); display: flex; align-items: center; flex-direction: column; }
+	.stages .current { border-color: var(--focus); background: var(--bg-3); }
+	.stages figcaption { text-align: center; text-transform: capitalize; margin-top: 8px; }
+	.stages figcaption span, .stages figcaption strong { display: block; font-size: 10px; }
+	.growth-guide a:not(.btn) { display: inline-flex; min-height: 24px; align-items: center; }
+	.growth-guide { margin-top: 20px; }
+	.discoveries { display: grid; gap: 12px; margin: 16px 0; }
+	.discovery { display: grid; grid-template-columns: 82px minmax(0, 1fr); align-items: center; gap: 12px; padding: 12px; border: 1px solid var(--line); background: var(--bg-3); }
+	.discovery h3 { font-size: 26px; margin: 0; }
+	.discovery p { margin: 6px 0 0; }
+	.discovery-description { grid-column: 1 / -1; }
 	.page-heading {
 		margin-bottom: 14px;
 	}
@@ -188,8 +248,9 @@
 
 	.care-room :global(.pet) {
 		position: relative;
-		z-index: 1;
+		z-index: 2;
 	}
+	.room-bed { position: absolute; left: 50%; bottom: 25px; transform: translateX(-50%); z-index: 1; line-height: 0; }
 
 	.pet-summary {
 		margin-bottom: 6px;
@@ -292,7 +353,7 @@
 
 	.food .tile {
 		display: grid;
-		grid-template-columns: 24px minmax(0, 1fr) auto;
+		grid-template-columns: 48px minmax(0, 1fr) auto;
 		align-items: center;
 		gap: 12px;
 		padding: 10px 14px;

@@ -70,6 +70,15 @@ export function stageFor(level: number): GrownStage {
 	return level >= ADULT_AT ? 'adult' : level >= TEEN_AT ? 'teen' : 'baby';
 }
 
+/** XP remaining to the next painted form, across all intervening levels. */
+export function nextPetGrowth(level: number, xp: number) {
+	if (level >= ADULT_AT) return null;
+	const atLevel = level < TEEN_AT ? TEEN_AT : ADULT_AT;
+	let remaining = -xp;
+	for (let l = level; l < atLevel; l++) remaining += petXpToNext(l);
+	return { stage: stageFor(atLevel), atLevel, remainingXp: Math.max(0, remaining) };
+}
+
 export function addPetXp(level: number, xp: number, gained: number) {
 	let l = level;
 	let x = xp + Math.max(0, gained);

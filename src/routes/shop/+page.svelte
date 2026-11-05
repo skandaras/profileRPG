@@ -23,7 +23,7 @@
 	<h1>Shop</h1>
 	<span class="chip"><PixelIcon name="gp" scale={1} /> {data.gp} GP</span>
 </div>
-<p class="soft small">Coins come from habits, missions and the morning tidy. Spend them on whatever makes you smile.</p>
+<p class="soft small">Coins come from completed tasks and habits, expeditions and the morning tidy. Spend them on whatever makes you smile.</p>
 
 {#each SECTIONS as sec (sec.kind)}
 	{@const items = data.stock.filter((i) => i.kind === sec.kind)}
@@ -38,7 +38,7 @@
 						<div class="pic">
 							{#if i.kind === 'food' || i.kind === 'toy'}
 								{@const c = getConsumable(i.id)}
-								{#if c}<PixelIcon art={c.icon} tint={c.tint} scale={3} />{/if}
+								{#if c}<PixelIcon art={c.icon} tint={c.tint} scale={4} />{/if}
 							{:else if i.kind === 'theme'}
 								{@const t = getTheme(i.id.slice(6))}
 								{#if t}

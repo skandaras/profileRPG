@@ -1,6 +1,5 @@
 import { expect, it } from 'vitest';
 import { PET_ACCESSORIES } from '$lib/content/cosmetics';
-import { MESS_SPRITES, petBed } from './art/icons';
 import { CHANNEL_CHARS, type Sprite } from './grid';
 import { reflectedMismatches, regions } from './cleanup-guards';
 
@@ -8,8 +7,7 @@ const accessories = PET_ACCESSORIES.map((a) => {
 	if (!('sprite' in a.art)) throw Error(`Expected an accessory grid: ${a.id}`);
 	return { id: a.id, sprite: a.art.sprite };
 });
-const props = [...MESS_SPRITES.map((sprite, i) => ({ id: `mess/${i}`, sprite })), { id: 'bed', sprite: petBed() }];
-const drawings = [...accessories, ...props];
+const drawings = accessories;
 
 function shadeProblems(sprite: Sprite) {
 	const problems: string[] = [];
@@ -30,20 +28,20 @@ function shadeProblems(sprite: Sprite) {
 	return problems;
 }
 
-it('mirrors every saved accessory icon and the bed', () => {
-	for (const { id, sprite } of [...accessories, props.at(-1)!]) expect(reflectedMismatches(sprite), id).toEqual([]);
+it('mirrors every saved accessory reference icon', () => {
+	for (const { id, sprite } of accessories) expect(reflectedMismatches(sprite), id).toEqual([]);
 });
 
-it('keeps accessory icons and room props free of stray pixels and speckled materials', () => {
+it('keeps disabled accessory reference icons free of stray pixels and speckled materials', () => {
 	for (const { id, sprite } of drawings) {
 		expect.soft(regions(sprite, (c) => c !== '.').filter((r) => r.size === 1), `${id}: stray pixels`).toEqual([]);
 		expect.soft(shadeProblems(sprite), id).toEqual([]);
 	}
 });
 
-it('keeps the shipped sizes for accessory icons and props', () => {
-	for (const { id, sprite } of [...accessories, ...props]) {
-		expect.soft([sprite.w, sprite.h, sprite.frames], id).toEqual(id === 'bed' ? [28, 10, 1] : id.startsWith('mess') ? [12, 12, 1] : [12, 8, 1]);
+it('keeps the saved accessory reference icon sizes', () => {
+	for (const { id, sprite } of accessories) {
+		expect.soft([sprite.w, sprite.h, sprite.frames], id).toEqual([12, 8, 1]);
 	}
 });
 

@@ -3,7 +3,7 @@
  * catalogued in their own files; content/index.ts presents all of them as one
  * item registry, since the inventory table holds them all.
  */
-import * as I from '$lib/sprites/art/icons';
+import { provisionArt } from '$lib/sprites/painted-props';
 import type { Ramp } from '$lib/sprites/grid';
 import type { Art, Unlock } from './types';
 
@@ -26,7 +26,7 @@ export const CONSUMABLES: Consumable[] = [
 		blurb: 'Foraged for free once a day. A small snack.',
 		kind: 'food',
 		unlock: { kind: 'drop' },
-		icon: I.berry(),
+		icon: provisionArt('food.berry'),
 		tint: ['#70566f', '#a2809d', '#d4b1c4'],
 		effect: { fullness: 15, joy: 2, petXp: 2 }
 	},
@@ -36,7 +36,7 @@ export const CONSUMABLES: Consumable[] = [
 		blurb: 'A filling bowl of the good stuff.',
 		kind: 'food',
 		unlock: { kind: 'shop', price: 5 },
-		icon: I.bowl(),
+		icon: provisionArt('food.kibble'),
 		tint: ['#9d3f46', '#d9676c', '#f8b0a0'],
 		effect: { fullness: 30, petXp: 3 }
 	},
@@ -46,7 +46,7 @@ export const CONSUMABLES: Consumable[] = [
 		blurb: 'Grilled, golden, and very popular.',
 		kind: 'food',
 		unlock: { kind: 'shop', price: 12, level: 2 },
-		icon: I.fish(),
+		icon: provisionArt('food.fish'),
 		tint: ['#9b652d', '#d9a84e', '#f7d998'],
 		effect: { fullness: 45, joy: 5, petXp: 5 }
 	},
@@ -56,7 +56,7 @@ export const CONSUMABLES: Consumable[] = [
 		blurb: 'A sweet treat. Mostly joy, a little filling.',
 		kind: 'food',
 		unlock: { kind: 'shop', price: 15 },
-		icon: I.cake(),
+		icon: provisionArt('treat.cake'),
 		tint: ['#9d3f46', '#d9676c', '#f8b0a0'],
 		effect: { fullness: 10, joy: 30, petXp: 6 }
 	},
@@ -66,7 +66,7 @@ export const CONSUMABLES: Consumable[] = [
 		blurb: 'Found on adventures. Pure delight.',
 		kind: 'food',
 		unlock: { kind: 'drop' },
-		icon: I.star(),
+		icon: provisionArt('treat.star'),
 		tint: ['#9b652d', '#d9a84e', '#f7d998'],
 		effect: { joy: 50, petXp: 15 }
 	},
@@ -76,7 +76,7 @@ export const CONSUMABLES: Consumable[] = [
 		blurb: 'Makes playtime better. Kept forever.',
 		kind: 'toy',
 		unlock: { kind: 'shop', price: 40 },
-		icon: I.ball(),
+		icon: provisionArt('toy.ball'),
 		tint: ['#9d3f46', '#d9676c', '#f8b0a0'],
 		effect: { joy: 10, petXp: 3 }
 	},
@@ -86,7 +86,7 @@ export const CONSUMABLES: Consumable[] = [
 		blurb: 'Endlessly fascinating. Kept forever.',
 		kind: 'toy',
 		unlock: { kind: 'shop', price: 60, level: 3 },
-		icon: I.yarn(),
+		icon: provisionArt('toy.yarn'),
 		tint: ['#426647', '#78915c', '#b2c98a'],
 		effect: { joy: 15, petXp: 5 }
 	},
@@ -96,7 +96,7 @@ export const CONSUMABLES: Consumable[] = [
 		blurb: 'A tiny friend for your friend. Found on adventures.',
 		kind: 'toy',
 		unlock: { kind: 'drop' },
-		icon: I.plush(),
+		icon: provisionArt('toy.plush'),
 		tint: ['#9b5140', '#cd815b', '#efbc83'],
 		effect: { joy: 25, petXp: 8 }
 	}
