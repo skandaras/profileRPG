@@ -13,7 +13,8 @@
 		"lint": "eslint .",
 		"test": "vitest run",
 		"db:generate": "drizzle-kit generate",
-		"test:ui": "node scripts/smoke-ui.mjs"
+		"test:ui": "node scripts/smoke-ui.mjs",
+		"review:assets": "SPRITE_PREVIEW=1 ASSET_REVIEW=1 vitest run src/lib/sprites/preview && node scripts/review-assets.mjs"
 	},
 	"dependencies": {
 		"better-sqlite3": "^12.0.0",

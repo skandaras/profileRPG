@@ -1,5 +1,6 @@
 import { PET_ACCESSORIES_ENABLED } from '$lib/content/cosmetics';
-import { act, read, str } from '$lib/server/api';
+import { act, num, read, str } from '$lib/server/api';
+import { removeWorkGoal, setWorkGoal, weeklyGoals } from '$lib/server/modules/work-goals';
 import { claimMission, missionBoard, recentRuns, startMission } from '$lib/server/modules/missions';
 import { playerRow, playerStats } from '$lib/server/modules/progression';
 import { getItem, getMission, getSpecies } from '$lib/content';
@@ -8,6 +9,7 @@ export const load = ({ locals }) =>
 	read(locals, (ctx) => {
 		const p = playerRow(ctx.tx, ctx.userId);
 		return {
+			weekly: weeklyGoals(ctx.tx, ctx.userId, ctx.today),
 			board: missionBoard(ctx.tx, ctx.userId, ctx.now),
 			level: p.level,
 			stats: playerStats(p),
@@ -27,6 +29,14 @@ export const load = ({ locals }) =>
 	});
 
 export const actions = {
+	setGoal: async ({ request, locals }) => {
+		const f = await request.formData();
+		return act(locals, (ctx) => setWorkGoal(ctx, str(f, 'kind'), num(f, 'target')));
+	},
+	removeGoal: async ({ request, locals }) => {
+		const f = await request.formData();
+		return act(locals, (ctx) => removeWorkGoal(ctx, str(f, 'kind')));
+	},
 	start: async ({ request, locals }) => {
 		const f = await request.formData();
 		return act(locals, (ctx) => startMission(ctx, str(f, 'mission'), f.get('pet') === 'on'));

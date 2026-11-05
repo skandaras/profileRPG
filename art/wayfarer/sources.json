@@ -1,6 +1,6 @@
 {
   "direction": "Original angular ink-and-gouache fantasy cast; bold silhouettes, asymmetric travel clothing, muted earth and jewel colours. Broad graphic fantasy influence from Slay the Spire.",
-  "method": "Generated original art with imagegen. The direction sheet guided both transparent production atlases; a second edit cleaned cutout transparency. Production uses the unchanged generated PNGs, sampled by the game renderer.",
+  "method": "Generated original art with imagegen. The direction sheet guided both transparent production atlases; a second edit cleaned cutout transparency. Production uses the unchanged generated PNGs, sampled by the game renderer. Provisions, room props and the study background were generated from the cast and each other as style references. Their production PNGs are unchanged generation outputs; the renderer crops and composites their cutouts.",
   "assets": [
     {
       "path": "art/wayfarer/direction.png",
@@ -13,6 +13,18 @@
     {
       "path": "static/painted/familiars.png",
       "sha256": "2208c039594a87f3b43545e77af4a624b661fd1be098c23a69b7cb1dd2f30233"
+    },
+    {
+      "path": "static/painted/provisions.png",
+      "sha256": "aa1ef7f86ec0c2c9e1616af21ba3dcedd8c913f592e1425494bc2807e580663f"
+    },
+    {
+      "path": "static/painted/room-props.png",
+      "sha256": "fb3a57b0187343ee805f7deb64b61daa939a8df9775217ad3eed83652176e523"
+    },
+    {
+      "path": "static/painted/study-nook.png",
+      "sha256": "21630c83de26dc23a374a6b4295c7a590c61c842e280d39b757cab195b2c91be"
     }
   ],
   "characters": {
@@ -44,5 +56,39 @@
       "Lamplume"
     ],
     "sampling": "Use measured source rectangles in src/lib/sprites/painted-figures.ts; illustrations cross nominal grid lines."
+  },
+  "provisions": {
+    "columns": 4,
+    "rows": 2,
+    "cells": [
+      "Wild berry",
+      "Crunchy kibble",
+      "Sun fish",
+      "Honey cake",
+      "Star candy",
+      "Bouncy ball",
+      "Yarn ball",
+      "Pocket plush"
+    ]
+  },
+  "roomProps": {
+    "columns": 3,
+    "rows": 2,
+    "sampling": "Use measured ROOM_REGIONS in painted-props.ts; the basket extends across a nominal cell edge.",
+    "cells": [
+      "Pet bed",
+      "Dust and fallen leaf",
+      "Biscuit crumbs",
+      "Banana peel",
+      "Muddy bootprint",
+      "Wool sock"
+    ]
+  },
+  "study": {
+    "dimensions": [
+      1536,
+      1024
+    ],
+    "use": "Shared painted study background, cropped from the centre bottom by the arched UI container."
   }
 }

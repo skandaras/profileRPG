@@ -1,17 +1,12 @@
 import { describe, expect, it } from 'vitest';
 import { Resvg } from '@resvg/resvg-js';
-import { CONSUMABLES } from '$lib/content/items';
-import { UI_ICONS, uiIconFigure } from './ui-icons';
-import { ICON_PALETTE, svgDocument } from './svg';
+import { UI_ICONS } from './ui-icons';
+import { svgDocument } from './svg';
 import { blank, drawOver } from './compose';
-import { paintPreview } from './preview-png';
 
-const icons = [
-	...Object.entries(UI_ICONS).map(([name, spec]) => ({ name, ...spec })),
-	...CONSUMABLES.map((item) => ({ name: item.id, art: item.icon, palette: { ...ICON_PALETTE, primary: item.tint } }))
-];
+const icons = Object.entries(UI_ICONS).map(([name, spec]) => ({ name, ...spec }));
 
-describe('Garden SVG icons', () => {
+describe('interface SVG icons', () => {
 	for (const spec of icons) {
 		it(`${spec.name} renders at every UI size and honours its symmetry mark`, () => {
 			if (!('svg' in spec.art)) throw Error('Expected SVG icon');
@@ -39,17 +34,6 @@ describe('Garden SVG icons', () => {
 		});
 	}
 
-	it('recolours every consumable through its primary tint, including candy', () => {
-		for (const item of CONSUMABLES) {
-			if (!('svg' in item.icon)) throw Error('Expected SVG item');
-			const palette = { ...ICON_PALETTE, primary: item.tint };
-			const source = svgDocument(item.icon, palette);
-			expect(source, item.id).toContain(item.tint[1]);
-			const changed = { ...palette, primary: ['#102030', '#405060', '#708090'] as [string, string, string] };
-			expect(svgDocument(item.icon, changed)).toContain('#405060');
-			expect(paintPreview(uiIconFigure({ art: item.icon, palette }))[0]).not.toEqual(paintPreview(uiIconFigure({ art: item.icon, palette: changed }))[0]);
-		}
-	});
 });
 
 it('preserves antialias coverage when compositing an SVG edge over empty and opaque pixels', () => {

@@ -308,6 +308,7 @@ try {
 
 	// Pet care
 	await go('/pet');
+	assert.equal(await page.locator('.care-room .room-art').getAttribute('src'), '/painted/study-nook.png');
 	await submit(page.locator('button:has-text("Forage for berries")'));
 	await expectText('Wild berry');
 	await submit(page.locator('.food button.tile').first());
@@ -317,19 +318,59 @@ try {
 	assert.equal(await page.locator('#pet-name').evaluate((n) => n === document.activeElement), true);
 	await submit(page.getByRole('button', { name: 'Save', exact: true }));
 	assert.equal(await page.getByRole('button', { name: 'Rename', exact: true }).evaluate((n) => n === document.activeElement), true);
+	await expectText('Growing together');
+	assert.equal(await page.locator('.stages .figure').count(), 3);
+	assert.equal(await page.locator('.discovery').count(), 3);
+	await expectText('Look on Meadow stroll');
+	await page.setViewportSize({ width: 320, height: 844 });
+	await shot('pet-care-narrow');
+	await page.setViewportSize({ width: 390, height: 844 });
+
+	// Care cooldowns become usable while the page stays open.
+	const careClock = await browser.newPage();
+	await careClock.clock.install();
+	await careClock.goto(`${BASE}/pet`);
+	await careClock.waitForLoadState('networkidle');
+	assert.equal(await careClock.getByRole('button', { name: /^Pat \(/ }).isDisabled(), true);
+	await careClock.clock.fastForward('01:00:00');
+	await careClock.getByRole('button', { name: 'Pat', exact: true }).waitFor();
+	assert.equal(await careClock.getByRole('button', { name: 'Pat', exact: true }).isEnabled(), true);
+	await careClock.close();
 
 	// A mission, there and back
 	await go('/missions');
+	await page.getByRole('spinbutton', { name: 'Weekly target: Finish tasks', exact: true }).fill('1');
+	await submit(page.getByRole('button', { name: 'Set target: Finish tasks', exact: true }));
+	await page.getByRole('spinbutton', { name: 'Weekly target: Make a little progress', exact: true }).fill('1');
+	await submit(page.getByRole('button', { name: 'Set target: Make a little progress', exact: true }));
+	await page.reload();
+	assert.equal(await page.getByRole('spinbutton', { name: 'Weekly target: Finish tasks', exact: true }).inputValue(), '1');
+	assert.equal(await page.getByRole('progressbar', { name: 'Finish tasks', exact: true }).getAttribute('aria-valuenow'), '0');
+	await page.locator('.work-goal').filter({ hasText: 'Make a little progress' }).getByText('Target reached', { exact: true }).waitFor();
+	await dismissNotices();
+	await page.setViewportSize({ width: 320, height: 844 });
+	await shot('quests-narrow');
+	await page.setViewportSize({ width: 390, height: 844 });
+	await submit(page.getByRole('button', { name: 'Remove target: Make a little progress', exact: true }));
+	assert.equal(await page.locator('#goal-active-days').evaluate((n) => n === document.activeElement), true);
 	await submit(page.locator('form.mission:has-text("Meadow stroll") button.go'));
 	await expectText('On the road');
 	await shot('missions');
-	await go('/dev/skip?hours=1&to=/missions');
+	await go('/pet');
+	await expectText('Meadow stroll');
+	await page.getByRole('link', { name: 'View expedition', exact: true }).waitFor();
+	await shot('pet-away');
+	await go('/dev/skip?hours=1&to=/pet');
+	await page.getByRole('link', { name: 'Collect trip rewards', exact: true }).waitFor();
+	await shot('pet-ready-to-return');
+	await submit(page.getByRole('link', { name: 'Collect trip rewards', exact: true }));
 	await submit(page.locator('button:has-text("Claim")'));
 	await expectText('Recent trips');
 
 	// Next day: the welcome-back ritual and a missed habit
 	await go('/dev/skip?hours=48');
 	await expectText('While you were away');
+	assert.equal(await page.locator('.mess .figure.painted').count(), await page.locator('button.mess').count(), 'every room prop uses the painted family');
 	assert.ok((await plannedTitles()).includes('Book the appointment'), 'a future task joins the daily plan after its date arrives');
 	assert.equal(await page.locator('details.upcoming').count(), 0);
 	await shot('welcome');
@@ -352,6 +393,11 @@ try {
 		await expectText(text);
 		if (path === '/party') assert.match(await page.locator('.card h2').first().textContent(), /Smokey\s\(you\)/);
 		await shot(path.slice(1));
+		if (path === '/shop') {
+			const art = await page.locator('.item .pic .figure.painted').evaluateAll((nodes) => nodes.map((node) => node.style.backgroundImage));
+			assert.equal(art.length, 5, 'all purchasable food and toys use painted art');
+			assert.equal(new Set(art).size, art.length, 'atlas cells keep distinct cache entries, including items with the same old tint');
+		}
 		if (path === '/wardrobe') {
 			await checkAvatarChoices();
 			await page.getByRole('button', { name: 'Honey blonde', exact: true }).click();
@@ -419,8 +465,15 @@ try {
 	assert.equal(await page.getByRole('meter', { name: 'Experience to next level' }).getAttribute('aria-valuenow'), '0', 'undo corrects XP even when the last tick unlocked a level');
 	assert.equal(await page.locator('.who .level').textContent(), earnedLevel);
 	assert.equal(await page.locator('.who .pts').textContent(), earnedPoints);
+	await go('/missions');
+	await page.getByRole('spinbutton', { name: 'Weekly target: Finish tasks', exact: true }).fill('1');
+	await submit(page.getByRole('button', { name: /^(Set|Update) target: Finish tasks$/ }));
+	await go('/');
 	await submit(page.getByRole('button', { name: 'Tick off Send the report', exact: true }));
 	assert.equal(await page.locator('dialog[open]').count(), 0, 'corrected XP does not unlock the same level twice');
+	await go('/missions');
+	assert.equal(await page.getByRole('progressbar', { name: 'Finish tasks', exact: true }).getAttribute('aria-valuenow'), '1');
+	await page.locator('.work-goal').filter({ hasText: 'Finish tasks' }).getByText('Target reached', { exact: true }).waitFor();
 	await submit(page.getByRole('navigation', { name: 'Main', exact: true }).getByRole('link', { name: 'History', exact: true }));
 	await page.waitForURL(`${BASE}/history`);
 	const reportEntry = page.locator('.history-row').filter({ has: page.getByRole('link', { name: 'Send the report', exact: true }) });
@@ -475,6 +528,12 @@ try {
 	assert.equal(await nativePage.locator('.history-row').count(), 0);
 	assert.equal(new URL(nativePage.url()).searchParams.get('q'), 'report');
 	assert.equal(new URL(nativePage.url()).searchParams.get('kind'), 'task');
+	await nativePage.goto(`${BASE}/missions`);
+	await nativePage.getByRole('spinbutton', { name: 'Weekly target: Finish tasks', exact: true }).fill('2');
+	await nativePage.getByRole('button', { name: /^(Set|Update) target: Finish tasks$/ }).click();
+	assert.equal(await nativePage.getByRole('progressbar', { name: 'Finish tasks', exact: true }).getAttribute('aria-valuemax'), '2');
+	await nativePage.getByRole('button', { name: 'Remove target: Finish tasks', exact: true }).click();
+	assert.equal(await nativePage.getByRole('progressbar', { name: 'Finish tasks', exact: true }).count(), 0);
 	await nativePage.close();
 
 	// Theme metadata follows a real settings change, including a subsequent SSR load.

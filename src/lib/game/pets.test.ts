@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { addPetXp, companionShare, cooldownLeft, mood, needsAt, stageFor, TEEN_AT } from './pet-needs';
+import { addPetXp, companionShare, cooldownLeft, mood, needsAt, nextPetGrowth, stageFor, TEEN_AT } from './pet-needs';
 import { arrive, greetGp } from './welcome';
 
 const H = 3_600_000;
@@ -30,6 +30,14 @@ describe('pet needs', () => {
 });
 
 describe('pet growth', () => {
+	it('reports the XP remaining to each next painted form', () => {
+		expect(nextPetGrowth(1, 0)).toEqual({ stage: 'teen', atLevel: 5, remainingXp: 320 });
+		expect(nextPetGrowth(4, 100)).toEqual({ stage: 'teen', atLevel: 5, remainingXp: 10 });
+		expect(nextPetGrowth(5, 0)?.stage).toBe('adult');
+		expect(nextPetGrowth(11, 240)).toEqual({ stage: 'adult', atLevel: 12, remainingXp: 10 });
+		expect(nextPetGrowth(12, 0)).toBeNull();
+		expect(nextPetGrowth(50, 0)).toBeNull();
+	});
 	it('grows into its next stage', () => {
 		let level = 1;
 		let xp = 0;

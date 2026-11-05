@@ -9,6 +9,7 @@ import { avatarFigure, petFigure } from './layers';
 import { paintPreview } from './preview-png';
 import { blank, drawOver, type RgbaImage } from './compose';
 import { encodePng } from './png';
+import { writeAssetReview } from './review-sheet';
 
 function sheet(images: RgbaImage[], cols: number, cw: number, ch: number, background: number[]): RgbaImage {
 	const out = blank(cols * cw, Math.ceil(images.length / cols) * ch);
@@ -23,6 +24,7 @@ it.skipIf(!process.env.SPRITE_PREVIEW)('renders the whole cast on light and dark
 		paintPreview(avatarFigure({ ...DEFAULT_AVATAR, parts: { ...DEFAULT_AVATAR.parts, top: outfit.id }, colors: { ...DEFAULT_AVATAR.colors, skin: skin.id, hair: hair.id } }))[0]
 	)));
 	const pets = SPECIES.flatMap((species) => STAGES.map((stage) => paintPreview(petFigure(species.id, stage))[0]));
+	if (process.env.ASSET_REVIEW) writeAssetReview(avatars, pets);
 	for (const [name, background] of [['light', [247, 238, 217, 255]], ['dark', [25, 35, 47, 255]]] as const) {
 		writeFileSync(`test-results/sprites/wayfarers-${name}.png`, encodePng(sheet(avatars, 5, PAINT_AVATAR.w + 16, PAINT_AVATAR.h + 16, [...background])));
 		writeFileSync(`test-results/sprites/familiars-${name}.png`, encodePng(sheet(pets, 4, PAINT_PET.w + 16, PAINT_PET.h + 16, [...background])));

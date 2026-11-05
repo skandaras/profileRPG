@@ -22,7 +22,7 @@
 		return {
 			art: art!,
 			palette: { ...ICON_PALETTE, ...(tint ? { primary: tint } : {}) },
-			key: `icon:${'svg' in art! ? art!.svg : 'png' in art! ? art!.png : 'painted' in art! ? art!.painted : art!.sprite.rows.join('')}:${tint?.join() ?? ''}`
+			key: `icon:${'svg' in art! ? art!.svg : 'png' in art! ? art!.png : 'painted' in art! ? JSON.stringify(art) : art!.sprite.rows.join('')}:${tint?.join() ?? ''}`
 		};
 	});
 	const figure = $derived(uiIconFigure(spec));
@@ -35,7 +35,7 @@
 		{@html svgDocument(spec.art, spec.palette)}
 	</span>
 {:else}
-	<Figure {figure} key={spec.key} scale={Math.max(1, Math.floor(scale))} animate={false} {label} />
+	<Figure {figure} key={spec.key} scale={Math.max(1, scale)} animate={false} {label} />
 {/if}
 
 <style>

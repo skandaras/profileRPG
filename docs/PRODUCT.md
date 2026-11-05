@@ -23,7 +23,20 @@ returns it to the work list with its original due date. Summary counts update wi
 XP progress is recalculated from corrected lifetime XP. Earned levels, allocated points,
 learned abilities, purchases and pet growth stay unlocked; redoing corrected work cannot
 award the same level-up points again. GP and training reverse as far as their existing
-balances allow, without making balances negative. No schema migration is required.
+balances allow, without making balances negative. Corrections reuse the existing records.
+
+Quests put optional weekly work targets before expeditions. Targets count completed
+tasks, habit check-ins or days with recorded work within the person's Monday–Sunday
+calendar week. They can be adjusted or removed, and corrections update progress from
+the completion records. Targets do not issue additional currency or XP; the work already
+earns its usual rewards. Existing timed expeditions remain optional, with named possible
+egg finds and a clear trip-return path from pet care.
+
+The pet page explains how work shares growth XP, previews each grown form, and shows
+the next form's XP requirement. It also explains where the three discoverable species
+come from and how activity warms their eggs. Care cooldowns refresh while the page is
+open. Growth stays earned; care does not become another required productivity task.
+See `docs/QUESTS-AND-PETS.md` for the first pass and open questions.
 
 ## Next priorities
 

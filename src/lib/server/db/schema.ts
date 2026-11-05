@@ -7,6 +7,7 @@ import { sqliteTable, text, integer, real, primaryKey, index } from 'drizzle-orm
 import type { AvatarConfig, Difficulty, StatBlock, StatWeights } from '$lib/content/types';
 import type { Schedule } from '$lib/game/schedule';
 import type { Outcome } from '$lib/game/missions';
+import type { WorkGoalKind } from '$lib/quests';
 
 export const users = sqliteTable('users', {
 	id: text('id').primaryKey(),
@@ -112,6 +113,18 @@ export const completions = sqliteTable(
 		effects: text('effects', { mode: 'json' }).$type<TickEffects>().notNull()
 	},
 	(t) => [index('completions_habit_period').on(t.habitId, t.period), index('completions_user_day').on(t.userId, t.day)]
+);
+
+/** Optional personal targets; completed work remains the source of their progress. */
+export const workGoals = sqliteTable(
+	'work_goals',
+	{
+		userId: text('user_id').notNull().references(() => users.id, { onDelete: 'cascade' }),
+		week: integer('week').notNull(),
+		kind: text('kind').$type<WorkGoalKind>().notNull(),
+		target: integer('target').notNull()
+	},
+	(t) => [primaryKey({ columns: [t.userId, t.week, t.kind] })]
 );
 
 export const pets = sqliteTable(
