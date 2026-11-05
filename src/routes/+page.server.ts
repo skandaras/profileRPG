@@ -1,5 +1,7 @@
+import { fail } from '@sveltejs/kit';
 import { act, num, read, str } from '$lib/server/api';
-import { complete, dismissAwayNote, listHabits, undo } from '$lib/server/modules/habits';
+import { complete, createHabit, dismissAwayNote, listHabits, undo } from '$lib/server/modules/habits';
+import { quickTaskFromForm } from '$lib/server/forms';
 import { missionBoard } from '$lib/server/modules/missions';
 import { listPets } from '$lib/server/modules/pets';
 import { playerRow } from '$lib/server/modules/progression';
@@ -25,6 +27,14 @@ export const load = ({ locals }) =>
 	});
 
 export const actions = {
+	quickTask: async ({ request, locals }) => {
+		const f = await request.formData();
+		const result = act(locals, (ctx) => {
+			createHabit(ctx, quickTaskFromForm(f));
+		});
+		if ('status' in result) return fail(result.status, { ...result.data, capture: { title: str(f, 'title'), due: str(f, 'due') } });
+		return { ...result, addedTask: str(f, 'title').trim().slice(0, 60) };
+	},
 	tick: async ({ request, locals }) => {
 		const f = await request.formData();
 		return act(locals, (ctx) => complete(ctx, str(f, 'id'), num(f, 'amount')));

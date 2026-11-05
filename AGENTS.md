@@ -1,7 +1,10 @@
 # Working in this repository
 
-LevelUp is a habit tracker played as an illustrated pet RPG, served at
-levelup.starbasehome.net behind Caddy and Authelia. SvelteKit 2 + Svelte 5 on Node 22,
+LevelUp is a productivity platform for tasks and recurring habits, with illustrated
+avatars, companions and rewards supporting the work. Planning, capture, completion and
+reliable records take priority over game mechanics. Keep daily work ahead of companion
+activity in the interface. It is served at levelup.starbasehome.net behind Caddy and
+Authelia. SvelteKit 2 + Svelte 5 on Node 22,
 Drizzle + better-sqlite3, one Docker image. Claude and Codex both work here; this file is
 what both are expected to know.
 

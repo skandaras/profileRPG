@@ -1,7 +1,7 @@
 {
 	"name": "LevelUp",
 	"short_name": "LevelUp",
-	"description": "Build healthy habits, level up, and raise a pixel pet.",
+	"description": "Plan your day, manage tasks and build habits with an illustrated companion.",
 	"start_url": "/",
 	"display": "standalone",
 	"background_color": "#111c31",

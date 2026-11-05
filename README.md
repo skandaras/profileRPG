@@ -1,11 +1,11 @@
 # LevelUp
 
-A habit tracker played as an illustrated fantasy pet RPG. Log the things you do (a walk, a chapter, a
-glass of water) and your hero earns XP and coins, trains their stats, levels up, unlocks
-abilities, raises a pet, and goes on missions that bring back eggs, treats and
-new colour themes. Built for Starbase Home at **levelup.starbasehome.net**, behind Authelia.
+A personal productivity platform for tasks and recurring habits. Capture what needs doing,
+plan around due dates, and build routines that fit your week. Illustrated avatars,
+companions and rewards make progress visible without taking over the daily workflow.
+Built for Starbase Home at **levelup.starbasehome.net**, behind Authelia.
 
-![Home with the Wayfarer and Brambleback in Night](docs/screens.png)
+![Today workspace with quick task capture and dated work](docs/screens.png)
 
 A travelling keeper and six slightly strange familiars share an ink-and-gouache look:
 angular silhouettes, broad painted shadows, weathered cloth and muted jewel colours.
@@ -15,8 +15,13 @@ Headings use Cormorant
 Garamond; reading text and controls use DM Sans. Both fonts are self-hosted with OFL
 licences. Five other themes include the light Meadow dawn.
 
+[Product direction and next priorities](./docs/PRODUCT.md).
+
 ## What's in it
 
+- **Today**: quick task capture, overdue and due tasks first, an upcoming list, and recurring
+  habits due in your own calendar. Completion progress includes tasks and habits. Avatar
+  and companion activity follows the work list.
 - **Onboarding**: name your hero, choose skin tone, hair colour and a complete outfit, choose a Brambleback hedge dragon, Brookbell river seal or Cloverruff moss
   pup, and pick a few habits.
 - **Habits and tasks**: sixteen ready-made habits or build your own: daily, chosen weekdays,

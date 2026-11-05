@@ -8,8 +8,9 @@
 	import type { StatId } from '$lib/content/types';
 	import type { HabitView } from '$lib/server/modules/habits';
 	import type { SubmitFunction } from '@sveltejs/kit';
+	import { taskDueLabel } from '$lib/planning';
 
-	let { habit, action = '?/tick', undoAction = '?/undo', link = true }: { habit: HabitView; action?: string; undoAction?: string; link?: boolean } =
+	let { habit, action = '?/tick', undoAction = '?/undo', link = true, today }: { habit: HabitView; action?: string; undoAction?: string; link?: boolean; today?: number } =
 		$props();
 
 	let showAmount = $state(false);
@@ -44,16 +45,19 @@
 		{:else}
 			<span class="name">{habit.title}</span>
 		{/if}
-		<div class="meta small soft">
+		{#if habit.kind === 'habit' || habit.quantity || !habit.done}<div class="meta small soft">
+			{#if habit.kind === 'task' && !habit.done}<span class:overdue={today !== undefined && habit.dueDay !== null && habit.dueDay < today}>{taskDueLabel(habit.dueDay, today)}</span>{#if habit.quantity}<span aria-hidden="true">·</span>{/if}{/if}
 			{#if habit.quantity}
 				{#if !habit.done}<button class="quantity soft" type="button" aria-label="Change amount for {habit.title}" aria-expanded={showAmount} onclick={toggleAmount}><span class="numeral">{habit.quantity}</span> {habit.unit}</button>
 				{:else}<span><span class="numeral">{habit.quantity}</span> {habit.unit}</span>{/if}
-			{:else}<span>{habit.kind === 'habit' ? habit.scheduleText : 'Task'}</span>{/if}
+			{:else if habit.kind === 'habit'}<span>{habit.scheduleText}</span>{/if}
+			{#if habit.kind === 'habit'}
 			<span aria-hidden="true">·</span>
 			{#each stats as s, i (s)}<span class="stat" style:color={STATS[s].color}>{STATS[s].short}</span>{#if i < stats.length - 1}<span>+</span>{/if}{/each}
 			{#if habit.target > 1}<span class="numeral">{habit.count}/{habit.target}</span>{/if}
 			{#if habit.daysLeft && habit.daysLeft > 1 && !habit.done}<span>· {habit.daysLeft} days left</span>{/if}
-		</div>
+			{/if}
+		</div>{/if}
 		{#if habit.done}<span class="done-label small"><PixelIcon name="check" scale={1} /> Done{habit.completedToday ? ' today' : ' this period'}</span>{/if}
 		{#if habit.streak > 1}<span class="small soft">{habit.streak} in a row</span>{/if}
 	</div>
@@ -133,6 +137,8 @@
 	.stat {
 		font-size: 10px;
 	}
+
+	.overdue { color: var(--ink); font-weight: 600; }
 
 	.meta .numeral {
 		font-family: 'DM Sans', system-ui, sans-serif;

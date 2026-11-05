@@ -3,6 +3,7 @@ import { archiveHabit, complete, listHabits, undo } from '$lib/server/modules/ha
 
 export const load = ({ locals }) =>
 	read(locals, (ctx) => ({
+		today: ctx.today,
 		habits: listHabits(ctx.tx, ctx.userId, ctx.today),
 		archived: listHabits(ctx.tx, ctx.userId, ctx.today, { archived: true })
 	}));

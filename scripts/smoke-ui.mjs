@@ -101,7 +101,7 @@ try {
 			assert.deepEqual(axeReport[name], [], `${name}: axe violations`);
 		}
 		await page.waitForTimeout(150);
-		await page.screenshot({ path: `${OUT}/${String(++step).padStart(2, '0')}-${name}.png`, fullPage: !['level-up', 'home-wide'].includes(name), style: ['level-up', 'home-wide'].includes(name) ? undefined : 'body { position: relative; } .tabbar { position: absolute !important; }' });
+		await page.screenshot({ path: `${OUT}/${String(++step).padStart(2, '0')}-${name}.png`, fullPage: !['level-up', 'home-wide', 'today-planned'].includes(name), style: ['level-up', 'home-wide', 'today-planned'].includes(name) ? undefined : 'body { position: relative; } .tabbar { position: absolute !important; }' });
 	};
 	const dismissNotices = async () => {
 		while (await page.getByRole('button', { name: /^Dismiss notice:/ }).count()) {
@@ -181,6 +181,74 @@ try {
 	await page.setViewportSize({ width: 1280, height: 900 });
 	await shot('home-wide');
 	await page.setViewportSize({ width: 390, height: 844 });
+
+	// Productivity: capture work without entering the full habit/reward form.
+	assert.ok((await page.locator('#habits-heading').boundingBox()).y < (await page.locator('.room').boundingBox()).y, 'daily work comes before companion activity');
+	const planningDay = await page.locator('#quick-due').inputValue();
+	const calendarDate = (offset) => new Date(Date.parse(planningDay + 'T00:00:00Z') + offset * 86_400_000).toISOString().slice(0, 10);
+	const quickTask = page.getByRole('form', { name: 'Quick task', exact: true });
+	const captureTask = async (title, due) => {
+		await quickTask.getByLabel('Task name').fill(title);
+		await quickTask.getByLabel('Due date (optional)').fill(due);
+		await submit(quickTask.getByRole('button', { name: 'Add task', exact: true }));
+		assert.equal(await page.locator('#quick-title').inputValue(), '', 'successful capture clears the title');
+		assert.equal(await page.locator('#quick-title').evaluate((input) => input === document.activeElement), true, 'capture returns focus for the next task');
+	};
+	await captureTask('Book the appointment', calendarDate(1));
+	await captureTask('Send the report', planningDay);
+	await captureTask('Reply to the invoice', calendarDate(-1));
+	// Keep a new draft if the user types ahead while the previous task is saving.
+	await quickTask.getByLabel('Task name').fill('Sort the reading list');
+	await quickTask.getByLabel('Due date (optional)').fill('');
+	let releaseCapture;
+	let captureStarted;
+	const held = new Promise((resolve) => { captureStarted = resolve; });
+	const release = new Promise((resolve) => { releaseCapture = resolve; });
+	await page.route((url) => url.search === '?/quickTask', async (route) => {
+		captureStarted();
+		await release;
+		await route.continue();
+	}, { times: 1 });
+	const captureResponse = page.waitForResponse((response) => response.url().endsWith('?/quickTask') && response.request().method() === 'POST');
+	await quickTask.getByRole('button', { name: 'Add task', exact: true }).click();
+	await held;
+	await quickTask.getByLabel('Task name').fill('Draft for the next task');
+	releaseCapture();
+	await captureResponse;
+	await page.waitForFunction(() => !document.querySelector('form[action="?/quickTask"] button').disabled);
+	assert.equal(await quickTask.getByLabel('Task name').inputValue(), 'Draft for the next task', 'finishing an earlier capture preserves a newer draft');
+	await quickTask.getByLabel('Task name').fill('');
+	const taskSection = page.locator('section[aria-labelledby="tasks-heading"]');
+	const plannedTitles = () => taskSection.locator(':scope > .habit .name').allTextContents();
+	assert.deepEqual(await plannedTitles(), ['Reply to the invoice', 'Send the report', 'Sort the reading list']);
+	await taskSection.getByText('Due today', { exact: true }).waitFor();
+	await taskSection.getByText(/^Overdue · /).waitFor();
+	await taskSection.getByText('No due date', { exact: true }).waitFor();
+	const upcoming = taskSection.locator('details.upcoming');
+	assert.equal(await upcoming.getByRole('link', { name: 'Book the appointment', exact: true }).isVisible(), false);
+	await upcoming.locator('summary').click();
+	await upcoming.getByText('Due tomorrow', { exact: true }).waitFor();
+	await upcoming.locator('summary').click();
+	await page.evaluate(() => { document.documentElement.dataset.theme = 'night'; window.scrollTo(0, 0); });
+	assert.equal(await page.locator('.toast').count(), 0, 'rapid capture uses quiet inline feedback');
+	await shot('today-planned');
+	await page.setViewportSize({ width: 320, height: 844 });
+	await shot('today-narrow');
+	await page.setViewportSize({ width: 390, height: 844 });
+	const beforeTask = await plannedTitles();
+	await dismissNotices();
+	await submit(page.getByRole('button', { name: 'Tick off Send the report', exact: true }));
+	assert.deepEqual(await plannedTitles(), beforeTask, 'completion does not reorder focused work');
+	assert.equal(await taskSection.locator(':scope > .habit.done').count(), 1);
+	await submit(page.getByRole('button', { name: 'Undo the last tick of Send the report', exact: true }));
+	assert.equal(await taskSection.locator(':scope > .habit.done').count(), 0);
+	await quickTask.getByLabel('Task name').fill('   ');
+	await submit(quickTask.getByRole('button', { name: 'Add task', exact: true }));
+	await expectText('Give it a name');
+	assert.equal(await quickTask.getByLabel('Task name').inputValue(), '   ', 'failed capture preserves entered text');
+	assert.deepEqual(await plannedTitles(), beforeTask, 'failed capture adds no task');
+	await quickTask.getByLabel('Task name').fill('');
+	await dismissNotices();
 
 	// Tick and undo must restore both the count and the reward.
 	const xpBefore = await page.getByRole('meter', { name: 'Experience to next level' }).getAttribute('aria-valuenow');
@@ -262,6 +330,8 @@ try {
 	// Next day: the welcome-back ritual and a missed habit
 	await go('/dev/skip?hours=48');
 	await expectText('While you were away');
+	assert.ok((await plannedTitles()).includes('Book the appointment'), 'a future task joins the daily plan after its date arrives');
+	assert.equal(await page.locator('details.upcoming').count(), 0);
 	await shot('welcome');
 	while (await page.locator('button.mess').count()) {
 		await submit(page.locator('button.mess').first());
