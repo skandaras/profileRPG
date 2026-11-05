@@ -2,6 +2,7 @@ import { beforeAll, beforeEach, describe, expect, it } from 'vitest';
 import { eq } from 'drizzle-orm';
 import { load as petPage } from '../../routes/pet/+page.server';
 import { load as shopPage } from '../../routes/shop/+page.server';
+import { actions as todayActions } from '../../routes/+page.server';
 import { DEFAULT_AVATAR } from '$lib/content/cosmetics';
 import { advanceClock, setClock } from './clock';
 import { db, runMigrations } from './db';
@@ -33,6 +34,43 @@ function newHero(templates: string[] = []) {
 
 beforeAll(() => runMigrations());
 beforeEach(() => setClock(START));
+
+describe('quick task capture', () => {
+	const capture = (id: string, title: string, due = '') => {
+		const form = new FormData();
+		form.set('title', title); form.set('due', due);
+		return todayActions.quickTask({
+			locals: { user: { id } },
+			request: new Request('http://localhost/?/quickTask', { method: 'POST', body: form })
+		} as Parameters<typeof todayActions.quickTask>[0]);
+	};
+
+	it('captures a private task without a reward configuration, and supports completion and undo', async () => {
+		const id = newHero(), other = newHero();
+		const before = playerRow(db, id);
+		expect(await capture(id, '  Send the report  ', '2026-10-27')).toMatchObject({ ok: true });
+		const tasks = play(id, (ctx) => listHabits(ctx.tx, id, ctx.today)).result;
+		expect(tasks).toHaveLength(1);
+		expect(tasks[0]).toMatchObject({ kind: 'task', title: 'Send the report', schedule: null, dueDay: Date.parse('2026-10-27T00:00:00Z') / 86_400_000, done: false });
+		expect(playerRow(db, id).totalXp).toBe(before.totalXp);
+		expect(play(other, (ctx) => listHabits(ctx.tx, other, ctx.today)).result).toEqual([]);
+		expect(() => play(other, (ctx) => complete(ctx, tasks[0].id))).toThrow(NotFound);
+		play(id, (ctx) => complete(ctx, tasks[0].id));
+		expect(play(id, (ctx) => listHabits(ctx.tx, id, ctx.today)).result[0]).toMatchObject({ done: true, completedToday: true });
+		play(id, (ctx) => undo(ctx, tasks[0].id));
+		expect(play(id, (ctx) => listHabits(ctx.tx, id, ctx.today)).result[0]).toMatchObject({ done: false, completedToday: false });
+	});
+
+	it('returns the captured text on failure and never saves an invalid calendar date', async () => {
+		const id = newHero();
+		expect(await capture(id, 'Keep this title', '2026-02-30')).toMatchObject({ status: 400, data: { error: 'Choose a valid due date', capture: { title: 'Keep this title', due: '2026-02-30' } } });
+		expect(await capture(id, '   ')).toMatchObject({ status: 400, data: { capture: { title: '   ' } } });
+		expect(play(id, (ctx) => listHabits(ctx.tx, id, ctx.today)).result).toEqual([]);
+		expect(await capture(id, 'No deadline')).toMatchObject({ ok: true });
+		expect(play(id, (ctx) => listHabits(ctx.tx, id, ctx.today)).result[0].dueDay).toBeNull();
+		expect(() => play(id, (ctx) => createHabit(ctx, { kind: 'task', title: 'Bad date', icon: '⭐', difficulty: 'medium', weights: {}, dueDay: NaN }))).toThrow('Choose a valid due date');
+	});
+});
 
 describe('onboarding', () => {
 	it('creates the hero, a hatched companion and the chosen habits', () => {

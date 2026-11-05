@@ -2,7 +2,7 @@
 	"name": "levelup",
 	"version": "0.1.0",
 	"private": true,
-	"description": "An illustrated habit RPG for Starbase Home",
+	"description": "A productivity platform for tasks and habits, with illustrated companions",
 	"type": "module",
 	"scripts": {
 		"dev": "vite dev",

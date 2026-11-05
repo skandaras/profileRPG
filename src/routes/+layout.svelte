@@ -20,7 +20,7 @@
 	});
 
 	const TABS = [
-		{ href: '/', label: 'Home', icon: 'house' },
+		{ href: '/', label: 'Today', icon: 'house' },
 		{ href: '/habits', label: 'Habits', icon: 'clipboard' },
 		{ href: '/pet', label: 'Pet', icon: 'paw' },
 		{ href: '/missions', label: 'Quests', icon: 'map' },

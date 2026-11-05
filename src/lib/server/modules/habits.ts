@@ -41,6 +41,9 @@ export interface HabitInput {
 function clean(input: HabitInput) {
 	const title = input.title.trim().slice(0, 60);
 	if (!title) throw new GameError('Give it a name');
+	if (input.kind === 'task' && input.dueDay != null && (!Number.isInteger(input.dueDay) || !Number.isFinite(new Date(input.dueDay * 86_400_000).valueOf()))) {
+		throw new GameError('Choose a valid due date');
+	}
 	const weights: StatWeights = {};
 	for (const s of STAT_IDS) {
 		const v = Number(input.weights[s]);

@@ -3,27 +3,29 @@
 	import { enhance } from '$app/forms';
 	import { withNotices } from '$lib/act';
 	import HabitRow from '$lib/components/HabitRow.svelte';
+	import { planToday } from '$lib/planning';
 
 	let { data } = $props();
 	const habits = $derived(data.habits.filter((h) => h.kind === 'habit'));
-	const tasks = $derived(data.habits.filter((h) => h.kind === 'task'));
+	const plan = $derived(planToday(data.habits, data.today));
+	const tasks = $derived([...plan.todayTasks, ...plan.upcomingTasks]);
 </script>
 
-<svelte:head><title>Habits · LevelUp</title></svelte:head>
+<svelte:head><title>Tasks & habits · LevelUp</title></svelte:head>
 
 <div class="page-heading">
-	<h1>Habits</h1>
+	<h1>Tasks & habits</h1>
 	<a class="btn" href="/habits/new">+ New</a>
 </div>
 
 <section class="box">
 	<h2>Habits</h2>
-	{#each habits as h (h.id)}<HabitRow habit={h} />{:else}<p class="soft">None yet.</p>{/each}
+	{#each habits as h (h.id)}<HabitRow habit={h} today={data.today} />{:else}<p class="soft">None yet.</p>{/each}
 </section>
 
 <section class="box">
 	<h2>Tasks</h2>
-	{#each tasks as h (h.id)}<HabitRow habit={h} />{:else}<p class="soft">No to-dos. <a href="/habits/new">Add one</a> for anything you want to get done once.</p>{/each}
+	{#each tasks as h (h.id)}<HabitRow habit={h} today={data.today} />{:else}<p class="soft">No to-dos. <a href="/habits/new">Add one</a> for anything you want to get done once.</p>{/each}
 </section>
 
 {#if data.archived.length}

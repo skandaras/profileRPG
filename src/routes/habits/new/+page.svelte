@@ -13,10 +13,10 @@
 	let custom = $state(false);
 </script>
 
-<svelte:head><title>New habit · LevelUp</title></svelte:head>
+<svelte:head><title>New task or habit · LevelUp</title></svelte:head>
 
-<a href="/habits" class="back small">← Habits</a>
-<h1>Add a habit</h1>
+<a href="/habits" class="back small">← Tasks & habits</a>
+<h1>Add a habit or task</h1>
 
 <div class="tabs">
 	<button type="button" class="btn small" class:ghost={custom} aria-pressed={!custom} onclick={() => (custom = false)}>Templates{#if !custom}<PixelIcon name="check" scale={1} />{/if}</button>

@@ -2,7 +2,10 @@
 	import DisplayIcon from '$lib/components/DisplayIcon.svelte';
 	import { tick } from 'svelte';
 	import { enhance } from '$app/forms';
+	import type { SubmitFunction } from '@sveltejs/kit';
 	import { withNotices } from '$lib/act';
+	import { planToday } from '$lib/planning';
+	import { dayLabel } from '$lib/game/schedule';
 	import { messFigures } from '$lib/sprites/room';
 	import PixelIcon from '$lib/components/PixelIcon.svelte';
 	import Figure from '$lib/components/Figure.svelte';
@@ -10,33 +13,114 @@
 	import Habitat from '$lib/components/Habitat.svelte';
 	import { MOOD_TEXT } from '$lib/game/pet-needs';
 
-	let { data } = $props();
+	let { data, form } = $props();
+	let taskTitle = $state<string | undefined>();
+	let taskDate = $state<string | undefined>();
+	let taskInput: HTMLInputElement | undefined = $state();
+	let adding = $state(false);
+	const capture = $derived(form && 'capture' in form ? form.capture : null);
+	const addedTask = $derived(form && 'addedTask' in form ? form.addedTask : '');
+	const plan = $derived(planToday(data.habits, data.today));
+	const doneHabits = $derived(plan.dueHabits.filter((item) => item.done).length);
+	const ready = $derived(data.runs.filter((r) => r.ready || r.endsAt <= data.now));
+	const petName = $derived(data.companion?.name ?? 'Your partner');
 
-	// Where the mess lands in the room, in percent, clear of the hero (left) and the
-	// pet's bed (right); enough spots for the maximum.
+	const enhanceCapture: SubmitFunction = (input) => {
+		if (adding) { input.cancel(); return; }
+		const submittedTitle = input.formData.get('title');
+		adding = true;
+		return withNotices({
+			then: async (ok) => {
+				adding = false;
+				if (ok) {
+					// Someone may already be drafting their next task while this saves.
+					if (taskInput?.value === submittedTitle) taskTitle = '';
+					await tick();
+					taskInput?.focus();
+				}
+			}
+		})(input);
+	};
+
 	const focusWelcome = () => {
 		void tick().then(() => (document.querySelector<HTMLElement>('.mess, .welcome button') ?? document.querySelector<HTMLElement>('h1'))?.focus());
 	};
-	const SPOTS = [
-		[12, 29],
-		[50, 29],
-		[86, 29],
-		[52, 65],
-		[52, 88]
-	];
-
-	const due = $derived(data.habits.filter((h) => h.kind === 'habit' && h.due && !h.done));
-	const done = $derived(data.habits.filter((h) => h.kind === 'habit' && h.due && h.done));
-	const resting = $derived(data.habits.filter((h) => h.kind === 'habit' && !h.due));
-	const tasks = $derived(data.habits.filter((h) => h.kind === 'task'));
-	const ready = $derived(data.runs.filter((r) => r.ready || r.endsAt <= data.now));
-	const petName = $derived(data.companion?.name ?? 'Your partner');
+	const SPOTS = [[12, 29], [50, 29], [86, 29], [52, 65], [52, 88]];
 </script>
 
-<svelte:head><title>Home · LevelUp</title></svelte:head>
+<svelte:head><title>Today · LevelUp</title></svelte:head>
 
-<div class="page-heading"><h1 tabindex="-1">Home</h1><span class="small soft home-date">{new Intl.DateTimeFormat('en', { weekday: 'long', day: 'numeric', month: 'short', timeZone: 'UTC' }).format(data.today * 86_400_000)}</span></div>
+<div class="page-heading"><h1 tabindex="-1">Today</h1><span class="small soft home-date">{new Intl.DateTimeFormat('en', { weekday: 'long', day: 'numeric', month: 'short', timeZone: 'UTC' }).format(data.today * 86_400_000)}</span></div>
+<div class="day-progress">
+	<p class="small soft">{#if plan.total}{plan.completed} of {plan.total} planned items done{:else}Start with one thing you want to get done.{/if}</p>
+	{#if plan.total}<progress value={plan.completed} max={plan.total} aria-label="Today's planned work"></progress>{/if}
+</div>
 
+<section class="box capture" aria-labelledby="capture-heading">
+	<h2 id="capture-heading">Quick add</h2>
+	<form method="POST" action="?/quickTask" use:enhance={enhanceCapture} aria-label="Quick task" aria-busy={adding}>
+		<label class="capture-name" for="quick-title">Task name
+			<input bind:this={taskInput} id="quick-title" name="title" required maxlength="60" placeholder="What needs doing?" value={taskTitle ?? capture?.title ?? ''} oninput={(event) => (taskTitle = event.currentTarget.value)} />
+		</label>
+		<label class="capture-date" for="quick-due">Due date (optional)
+			<input id="quick-due" name="due" type="date" value={taskDate ?? capture?.due ?? dayLabel(data.today)} oninput={(event) => (taskDate = event.currentTarget.value)} />
+		</label>
+		<button class="btn" disabled={adding}>{adding ? 'Adding…' : 'Add task'}</button>
+	</form>
+	<p class="capture-status small soft" role="status">{#if addedTask}Added “{addedTask}”.{/if}</p>
+	{#if form && 'error' in form && form.error}<p class="bad small" role="alert">{form.error}</p>{/if}
+</section>
+
+<section class="today" aria-labelledby="tasks-heading">
+	<div class="spread today-heading"><h2 id="tasks-heading">Tasks</h2><a class="small" href="/habits">Manage tasks & habits</a></div>
+	{#each plan.todayTasks as item (item.id)}
+		<HabitRow habit={item} today={data.today} />
+	{:else}
+		<p class="soft small">No tasks for today. Add one above, or focus on your habits.</p>
+	{/each}
+	{#if plan.upcomingTasks.length}
+		<details class="upcoming">
+			<summary class="small soft">Upcoming tasks ({plan.upcomingTasks.length})</summary>
+			{#each plan.upcomingTasks as item (item.id)}<HabitRow habit={item} today={data.today} />{/each}
+		</details>
+	{/if}
+</section>
+
+<section class="today" aria-labelledby="habits-heading">
+	<div class="spread today-heading"><h2 id="habits-heading">Habits</h2><span class="soft small">{doneHabits} of {plan.dueHabits.length} done</span></div>
+	{#each plan.dueHabits as item (item.id)}<HabitRow habit={item} />{:else}
+		<p class="soft small">No habits due today.</p>
+	{/each}
+	{#if plan.dueHabits.length > 0 && doneHabits === plan.dueHabits.length}<p class="good small">Your habits for today are done.</p>{/if}
+	{#if plan.offDayHabits.length}
+		<details>
+			<summary class="small soft">Not due today ({plan.offDayHabits.length})</summary>
+			{#each plan.offDayHabits as item (item.id)}<HabitRow habit={item} />{/each}
+		</details>
+	{/if}
+	<a class="add-habit soft small" href="/habits/new">+ Add a habit</a>
+</section>
+<p class="small soft gentle-note">Small steps count. You’re doing enough.</p>
+
+{#if data.awayNote}
+	<section class="box">
+		<h2>While you were away</h2>
+		<ul class="away">
+			{#each data.awayNote.missed as m, i (i)}
+				<li>
+					{m.title}: missed {m.count === 1 ? 'once' : `${m.count} times`}{#if m.streakLost > 1}, ending a streak of {m.streakLost}{/if}
+				</li>
+			{/each}
+		</ul>
+		{#if data.awayNote.fined > 0}<p class="small">That cost {data.awayNote.fined} GP. No harm done, you've got this.</p>{/if}
+		{#if data.awayNote.shielded > 0}<p class="small good"><PixelIcon name="shield" scale={1} /> Your Streak Shield saved {data.awayNote.shielded}.</p>{/if}
+		<form method="POST" action="?/dismiss" use:enhance={withNotices()}>
+			<button class="btn ghost small">Got it</button>
+		</form>
+	</section>
+{/if}
+
+<div class="page-heading companion-heading"><h2>Your companion</h2><a class="small" href="/pet">Pet care</a></div>
 <section>
 	<Habitat avatar={data.avatar} heroName={data.heroName} pet={data.companion}>
 		{#if data.welcome.active && data.welcome.mess > 0}
@@ -74,59 +158,12 @@
 	{/if}
 </section>
 
-{#if data.awayNote}
-	<section class="box">
-		<h2>While you were away</h2>
-		<ul class="away">
-			{#each data.awayNote.missed as m, i (i)}
-				<li>
-					{m.title}: missed {m.count === 1 ? 'once' : `${m.count} times`}{#if m.streakLost > 1}, ending a streak of {m.streakLost}{/if}
-				</li>
-			{/each}
-		</ul>
-		{#if data.awayNote.fined > 0}<p class="small">That cost {data.awayNote.fined} GP. No harm done, you've got this.</p>{/if}
-		{#if data.awayNote.shielded > 0}<p class="small good"><PixelIcon name="shield" scale={1} /> Your Streak Shield saved {data.awayNote.shielded}.</p>{/if}
-		<form method="POST" action="?/dismiss" use:enhance={withNotices()}>
-			<button class="btn ghost small">Got it</button>
-		</form>
-	</section>
-{/if}
-
 {#if ready.length || data.eggsReady}
 	<section class="box alerts">
 		{#each ready as r (r.id)}
 			<a class="btn wide" href="/missions"><DisplayIcon value={r.icon} scale={2} /> Back from {r.name}! Claim rewards</a>
 		{/each}
 		{#if data.eggsReady}<a class="btn wide" href="/pet"><PixelIcon name="egg" scale={1} /> An egg is ready to hatch!</a>{/if}
-	</section>
-{/if}
-
-<section class="today">
-	<div class="spread today-heading">
-		<h2>Today</h2>
-		<span class="soft">{done.length} of {due.length + done.length} done</span>
-	</div>
-	{#if !data.habits.length}
-		<p class="soft">No habits yet. <a href="/habits/new">Pick a few</a> to get started.</p>
-	{/if}
-	{#each data.habits.filter((h) => h.kind === 'habit' && h.due) as h (h.id)}<HabitRow habit={h} />{/each}
-	{#if due.length === 0 && done.length > 0}
-		<p class="good small">Everything due is done. A good day’s work.</p>
-	{/if}
-	{#if resting.length}
-		<details>
-			<summary class="small soft">Not due today ({resting.length})</summary>
-			{#each resting as h (h.id)}<HabitRow habit={h} />{/each}
-		</details>
-	{/if}
-	<a class="add-habit soft small" href="/habits/new">+ Add a habit</a>
-</section>
-<p class="small soft gentle-note">Small steps count. You’re doing enough.</p>
-
-{#if tasks.length}
-	<section class="box">
-		<h2>To-do</h2>
-		{#each tasks as h (h.id)}<HabitRow habit={h} />{/each}
 	</section>
 {/if}
 
@@ -139,6 +176,29 @@
 {/if}
 
 <style>
+	.day-progress { margin: -4px 0 18px; }
+	.day-progress p { margin: 0 0 8px; }
+	progress { display: block; width: 100%; height: 5px; border: 0; background: var(--bg-3); accent-color: var(--accent); }
+	progress::-webkit-progress-bar { background: var(--bg-3); }
+	progress::-webkit-progress-value { background: var(--accent); }
+	progress::-moz-progress-bar { background: var(--accent); }
+	.capture { padding: 14px; }
+	.capture h2 { font-size: 25px; margin: 0 0 10px; }
+	.capture form { display: grid; grid-template-columns: minmax(0, 1fr) 164px auto; align-items: end; gap: 10px; }
+	.capture label { display: grid; gap: 6px; margin: 0; min-width: 0; font-size: 11px; }
+	.capture input { width: 100%; min-width: 0; }
+	.capture .btn { min-height: 44px; white-space: nowrap; }
+	.capture-status { min-height: 18px; margin: 8px 0 0; overflow-wrap: anywhere; }
+	.companion-heading { margin-top: 28px; }
+	.companion-heading h2 { margin: 0; }
+	.today-heading a, .companion-heading a { display: inline-flex; align-items: center; min-height: 44px; }
+	.upcoming { margin-top: 8px; }
+	@media (max-width: 599px) {
+		.capture form { grid-template-columns: minmax(0, 1fr) auto; }
+		.capture-name { grid-column: 1 / -1; }
+		.capture-date { grid-column: 1; }
+	}
+
 	.page-heading {
 		margin-bottom: 14px;
 	}
