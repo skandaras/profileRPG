@@ -17,7 +17,7 @@ import { completions, habits, players, type AwayNote, type TickEffects } from '.
 import { emit, GameError, NotFound, notify, type Ctx } from '../events';
 import { post } from './feed';
 import { companionIsHappy } from './pets';
-import { canTakeBack, playerModifiers, playerRow } from './progression';
+import { playerModifiers, playerRow } from './progression';
 
 type HabitRow = typeof habits.$inferSelect;
 
@@ -153,8 +153,8 @@ function countIn(db: DbOrTx, habitId: string, period: number): number {
 
 export function complete(ctx: Ctx, id: string, amount?: number | null) {
 	const h = ownHabit(ctx.tx, ctx.userId, id);
-	if (h.archivedAt) throw new GameError('That habit is archived');
-	if (h.kind === 'task' && h.completedAt) throw new GameError('Already done');
+	if (h.archivedAt !== null) throw new GameError('That habit is archived');
+	if (h.kind === 'task' && h.completedAt !== null) throw new GameError('Already done');
 	const period = periodFor(h, ctx.today);
 	const before = countIn(ctx.tx, h.id, period);
 	const due = h.schedule ? isDue(h.schedule, period) : true;
@@ -192,22 +192,19 @@ export function complete(ctx: Ctx, id: string, amount?: number | null) {
 	ctx.tx.update(completions).set({ effects }).where(eq(completions.id, completionId)).run();
 }
 
-/** Take back the latest tick in the current period, refunding exactly what it gave. */
+/** Correct today's latest tick; reward thresholds never block the work record. */
 export function undo(ctx: Ctx, id: string) {
 	const h = ownHabit(ctx.tx, ctx.userId, id);
 	const period = periodFor(h, ctx.today);
 	const last = ctx.tx
 		.select()
 		.from(completions)
-		.where(and(eq(completions.habitId, h.id), eq(completions.period, period), eq(completions.day, ctx.today)))
+		.where(and(eq(completions.userId, ctx.userId), eq(completions.habitId, h.id), eq(completions.period, period), eq(completions.day, ctx.today)))
 		.orderBy(desc(completions.at))
 		.get();
 	if (!last) throw new GameError('Nothing to undo today');
-	if (!canTakeBack(ctx.tx, ctx.userId, last.effects)) {
-		throw new GameError('That XP already went into a level-up, so the tick stays');
-	}
 	const before = countIn(ctx.tx, h.id, period);
-	ctx.tx.delete(completions).where(eq(completions.id, last.id)).run();
+	ctx.tx.delete(completions).where(and(eq(completions.id, last.id), eq(completions.userId, ctx.userId))).run();
 	if (h.schedule) {
 		const due = isDue(h.schedule, period);
 		ctx.tx.update(habits).set({ streak: streakAfterUndo(before, h.schedule.target, h.streak, due) }).where(eq(habits.id, h.id)).run();
@@ -215,6 +212,24 @@ export function undo(ctx: Ctx, id: string) {
 		ctx.tx.update(habits).set({ completedAt: null }).where(eq(habits.id, h.id)).run();
 	}
 	emit(ctx, { type: 'activity.undone', habitId: h.id, effects: last.effects });
+	notify(ctx, 'info', 'Completion corrected', '↩️');
+}
+
+/** A one-off task can be corrected after its completion day, including from the archive. */
+export function reopenTask(ctx: Ctx, id: string) {
+	const h = ownHabit(ctx.tx, ctx.userId, id);
+	if (h.kind !== 'task') throw new GameError('Only one-off tasks can be reopened');
+	if (h.completedAt === null) throw new GameError('This task is already open');
+	const last = ctx.tx.select().from(completions)
+		.where(and(eq(completions.habitId, h.id), eq(completions.userId, ctx.userId)))
+		.orderBy(desc(completions.at), desc(completions.id)).get();
+	if (last) {
+		ctx.tx.delete(completions).where(and(eq(completions.id, last.id), eq(completions.userId, ctx.userId))).run();
+		emit(ctx, { type: 'activity.undone', habitId: h.id, effects: last.effects });
+	}
+	ctx.tx.update(habits).set({ completedAt: null, archivedAt: null })
+		.where(and(eq(habits.id, h.id), eq(habits.userId, ctx.userId))).run();
+	notify(ctx, 'info', 'Task reopened', '↩️');
 }
 
 /**
@@ -307,8 +322,8 @@ export function habitView(h: HabitRow, count: number, today: number) {
 		dueDay: h.dueDay,
 		streak: h.streak,
 		bestStreak: h.bestStreak,
-		archived: !!h.archivedAt,
-		done: h.kind === 'task' ? !!h.completedAt : count >= target,
+		archived: h.archivedAt !== null,
+		done: h.kind === 'task' ? h.completedAt !== null : count >= target,
 		count,
 		target,
 		due: h.schedule ? isDue(h.schedule, period) : true,
@@ -325,9 +340,9 @@ export function listHabits(db: DbOrTx, userId: string, today: number, opts: { ar
 		.where(eq(habits.userId, userId))
 		.orderBy(asc(habits.sortOrder), asc(habits.createdAt))
 		.all()
-		.filter((h) => (opts.archived ? !!h.archivedAt : !h.archivedAt))
+		.filter((h) => (opts.archived ? h.archivedAt !== null : h.archivedAt === null))
 		// Finished tasks drop off once their day has passed.
-		.filter((h) => !(h.kind === 'task' && h.completedAt && !completedOn(db, h.id, today)));
+		.filter((h) => !(h.kind === 'task' && h.completedAt !== null && !completedOn(db, h.id, today)));
 	const todays = new Set(
 		db
 			.select({ habitId: completions.habitId })

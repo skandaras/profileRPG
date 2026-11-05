@@ -78,7 +78,12 @@ A refusal the player should read throws `GameError` with words written for them.
 never below zero). Pets never die or leave. Rest mode pauses all of it. Keep new mechanics
 in that spirit: reward showing up, never punish being away.
 
-**Habit titles are private.** The party feed (`modules/feed.ts`) carries levels, hatches,
+**Work records stay correctable.** Undo and task reopening must not be blocked by reward
+thresholds. Reconcile XP from the corrected lifetime total, preserving earned levels and
+purchases, without awarding the same level-up points again. History and its summary use
+completion records, not reward totals. See `docs/PRODUCT.md`.
+
+**Task and habit titles are private.** The party feed (`modules/feed.ts`) carries levels, hatches,
 missions and streak counts, never what someone is working on.
 
 **Removing something removes all of it**: its catalogue entry, its code, its tests, its
